@@ -185,10 +185,10 @@
 
   <!-- TOAST NOTIFICATION CONTAINER -->
   <div id="toast-container" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 pointer-events-none"></div>
-
-  <!-- FIREBASE & APP LOGIC -->
+    <!-- FIREBASE & APP LOGIC -->
   <script>
     // 1. Firebase Config
+    // ⚠️ Apni asli API key "YOUR_FIREBASE_API_KEY" ki jagah daalein!
     const firebaseConfig = {
       apiKey: "YOUR_FIREBASE_API_KEY",
       authDomain: "playvibe-nine.firebaseapp.com",
@@ -509,63 +509,61 @@
       document.getElementById('share-modal').classList.remove('hidden');
     }
 
-function closeShareModal() {
-  document.getElementById('share-modal').classList.add('hidden');
-}
-
-function shareOnWhatsApp() {
-  const text = encodeURIComponent(`🔥 Main PlayVibe par Speed Quiz khel raha hoon! Kya tum mera score beat kar sakte ho?\n\nChallenge Link: ${generatedShareUrl}`);
-  window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
-}
-
-function copyChallengeLink() {
-  navigator.clipboard.writeText(generatedShareUrl).then(() => {
-    showToast("📋 Link copied to clipboard!");
-  }).catch(() => {
-    showToast("❌ Failed to copy link.");
-  });
-}
-
-// 7. Leaderboard Fetch
-async function fetchLeaderboard() {
-  const box = document.getElementById('leaderboard-list');
-  try {
-    const snap = await db.collection('users').orderBy('points', 'desc').limit(5).get();
-    if (snap.empty) {
-      box.innerHTML = `<p class="text-slate-500 text-center py-2">No players yet.</p>`;
-      return;
+    function closeShareModal() {
+      document.getElementById('share-modal').classList.add('hidden');
     }
 
-    box.innerHTML = '';
-    let rank = 1;
-    snap.forEach(doc => {
-      const d = doc.data();
-      box.innerHTML += `
-        <div class="flex items-center justify-between bg-slate-900/50 p-2 rounded-lg">
-          <div class="flex items-center space-x-2">
-            <span class="font-bold text-slate-400">#${rank++}</span>
-            <span class="font-medium text-white">${d.name || 'Anonymous'}</span>
-          </div>
-          <span class="font-bold text-yellow-400">${d.points || 0} Pts</span>
-        </div>
-      `;
-    });
-  } catch (e) {
-    box.innerHTML = `<p class="text-slate-500 text-center py-2">Leaderboard offline.</p>`;
-  }
-}
+    function shareOnWhatsApp() {
+      const text = encodeURIComponent(`🔥 Main PlayVibe par Speed Quiz khel raha hoon! Kya tum mera score beat kar sakte ho?\n\nChallenge Link: ${generatedShareUrl}`);
+      window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
+    }
 
-// Helper Toast
-function showToast(msg) {
-  const container = document.getElementById('toast-container');
-  const toast = document.createElement('div');
-  toast.className = "bg-slate-800 text-white text-xs px-4 py-2 rounded-full border border-slate-700 shadow-xl mb-2 transition-all duration-300";
-  toast.innerText = msg;
-  container.appendChild(toast);
-  setTimeout(() => toast.remove(), 3000);
-}
-</script>
+    function copyChallengeLink() {
+      navigator.clipboard.writeText(generatedShareUrl).then(() => {
+        showToast("📋 Link copied to clipboard!");
+      }).catch(() => {
+        showToast("❌ Failed to copy link.");
+      });
+    }
+
+    // 7. Leaderboard Fetch
+    async function fetchLeaderboard() {
+      const box = document.getElementById('leaderboard-list');
+      try {
+        const snap = await db.collection('users').orderBy('points', 'desc').limit(5).get();
+        if (snap.empty) {
+          box.innerHTML = `<p class="text-slate-500 text-center py-2">No players yet.</p>`;
+          return;
+        }
+
+        box.innerHTML = '';
+        let rank = 1;
+        snap.forEach(doc => {
+          const d = doc.data();
+          box.innerHTML += `
+            <div class="flex items-center justify-between bg-slate-900/50 p-2 rounded-lg">
+              <div class="flex items-center space-x-2">
+                <span class="font-bold text-slate-400">#${rank++}</span>
+                <span class="font-medium text-white">${d.name || 'Anonymous'}</span>
+              </div>
+              <span class="font-bold text-yellow-400">${d.points || 0} Pts</span>
+            </div>
+          `;
+        });
+      } catch (e) {
+        box.innerHTML = `<p class="text-slate-500 text-center py-2">Leaderboard offline.</p>`;
+      }
+    }
+
+    // Helper Toast
+    function showToast(msg) {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = "bg-slate-800 text-white text-xs px-4 py-2 rounded-full border border-slate-700 shadow-xl mb-2 transition-all duration-300";
+      toast.innerText = msg;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+  </script>
 </body>
 </html>
-
-      
