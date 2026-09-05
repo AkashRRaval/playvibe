@@ -1,307 +1,571 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PlayVibe — Daily Social Challenges</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PlayVibe — Ultimate Quiz Arena</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+  <!-- Firebase Compatibility SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+  <style>
+    @keyframes pulse-subtle {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.03); }
+    }
+    .animate-pulse-subtle {
+      animation: pulse-subtle 2s infinite ease-in-out;
+    }
+  </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen pb-16 font-sans">
-    <!-- Header -->
-    <header class="sticky top-0 bg-slate-900/90 backdrop-blur border-b border-slate-800 px-4 py-3 flex justify-between items-center z-10">
-        <div class="flex items-center gap-2">
-            <span class="text-xl">⚡</span>
-            <span class="font-bold text-lg bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">PlayVibe</span>
-        </div>
-        <div id="auth-section" class="flex items-center gap-2">
-            <button id="login-btn" onclick="loginWithGoogle()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-3 py-1.5 rounded-full transition">Google Sign-In</button>
-            <div id="user-profile" class="hidden flex items-center gap-2">
-                <div class="flex items-center gap-1 bg-slate-800/80 px-2 py-1 rounded-full border border-slate-700 text-xs">
-                    <span class="text-yellow-400 font-bold">🏆</span>
-                    <span id="user-points" class="font-bold text-slate-200">0</span>
-                </div>
-                <img id="user-avatar" class="w-7 h-7 rounded-full border border-indigo-400" src="" alt="Profile">
-                <span id="user-name" class="text-xs font-bold text-slate-200 hidden sm:inline"></span>
-            </div>
-        </div>
-    </header>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans antialiased">
 
-    <!-- Main Content -->
-    <main class="max-w-md mx-auto p-4 space-y-4">
-        <!-- Daily Streak Card -->
-        <div class="bg-gradient-to-r from-orange-950/40 to-slate-900 border border-orange-500/20 rounded-2xl p-4 flex justify-between items-center">
-            <div>
-                <p class="text-orange-400 font-bold text-xs">DAILY STREAK</p>
-                <h2 class="text-lg font-bold mt-0.5"><span id="streak-count">0</span> Days Active</h2>
-                <p class="text-xs text-slate-400 mt-1" id="streak-msg">Aaj ka challenge complete karke streak banao!</p>
-            </div>
-            <button id="checkin-btn" onclick="handleCheckIn()" class="bg-orange-500 hover:bg-orange-400 text-slate-950 font-bold px-3 py-2 rounded-xl text-xs transition">Check-In</button>
+  <!-- HEADER CONTAINER -->
+  <header class="bg-slate-800/80 backdrop-blur-md border-b border-slate-700 sticky top-0 z-40 px-4 py-3">
+    <div class="max-w-md mx-auto flex items-center justify-between">
+      <!-- App Brand -->
+      <div class="flex items-center space-x-2">
+        <span class="text-2xl font-black bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">PlayVibe</span>
+      </div>
+
+      <!-- User Info & Stats Header -->
+      <div id="user-header-stats" class="flex items-center space-x-3 text-xs font-semibold">
+        <!-- Streak -->
+        <div class="flex items-center bg-slate-700/60 px-2.5 py-1 rounded-full border border-slate-600/50">
+          <span class="text-amber-400 mr-1">🔥</span>
+          <span id="streak-count">0</span>
         </div>
-
-        <!-- Featured Challenge -->
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
-            <div class="flex justify-between items-center text-xs">
-                <span class="bg-indigo-500/20 text-indigo-400 px-2 py-0.5 rounded-full font-bold border border-indigo-500/30">TODAY'S CHALLENGE</span>
-                <span class="text-slate-400">+100 Points</span>
-            </div>
-            <div>
-                <h3 class="font-bold text-base">Speed Quiz Arena</h3>
-                <p class="text-xs text-slate-400 mt-1">60 seconds mein trending questions ke fast answers do.</p>
-            </div>
-            <button onclick="startQuiz()" class="w-full bg-indigo-600 hover:bg-indigo-500 font-bold py-2.5 rounded-xl text-sm transition shadow-lg shadow-indigo-600/30">Play Challenge</button>
+        <!-- Points -->
+        <div class="flex items-center bg-slate-700/60 px-2.5 py-1 rounded-full border border-slate-600/50">
+          <span class="text-yellow-400 mr-1">🪙</span>
+          <span id="user-points">0</span>
         </div>
-
-        <!-- Leaderboard Section -->
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
-            <div class="flex justify-between items-center border-b border-slate-800 pb-2">
-                <h3 class="font-bold text-sm flex items-center gap-1.5">
-                    <span>👑</span> Top Players
-                </h3>
-                <span class="text-[10px] text-slate-500">Live Sync</span>
-            </div>
-            <div id="leaderboard-list" class="space-y-2">
-                <p class="text-xs text-slate-500 text-center py-2">Loading leaderboard...</p>
-            </div>
+        <!-- Auth Button / Avatar -->
+        <div id="auth-container">
+          <button id="login-btn" onclick="handleGoogleSignIn()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1 rounded-lg text-xs font-bold transition">
+            Login
+          </button>
+          <img id="user-avatar" class="w-7 h-7 rounded-full hidden border border-purple-400 cursor-pointer" onclick="toggleProfileMenu()" alt="Profile" />
         </div>
-    </main>
+      </div>
+    </div>
+  </header>
 
-    <!-- Quiz Modal -->
-    <div id="quiz-modal" class="fixed inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-3xl p-5 space-y-4 shadow-2xl relative">
-            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-                <div class="flex items-center gap-2">
-                    <span class="text-xs bg-indigo-500/20 text-indigo-400 px-2 py-1 rounded-lg border border-indigo-500/30 font-bold" id="q-number">Question 1/3</span>
-                </div>
-                <div class="flex items-center gap-1.5 bg-red-500/10 text-red-400 px-3 py-1 rounded-full border border-red-500/20 font-bold text-xs">
-                    <span>⏱️</span>
-                    <span id="timer">60s</span>
-                </div>
-            </div>
+  <!-- MAIN CONTAINER -->
+  <main class="flex-1 max-w-md w-full mx-auto p-4 flex flex-col">
 
-            <div id="quiz-box" class="space-y-4">
-                <h3 id="question-text" class="text-base font-bold text-slate-100 min-h-[50px] flex items-center">Loading...</h3>
-                <div id="options-container" class="space-y-2"></div>
-            </div>
-
-            <div id="result-box" class="hidden text-center py-6 space-y-4">
-                <div class="text-5xl">🎉</div>
-                <h3 class="text-xl font-bold text-slate-100">Quiz Completed!</h3>
-                <p class="text-sm text-slate-400">Aapne score kiya: <span id="final-score" class="text-indigo-400 font-bold text-lg">0</span> Points</p>
-                <button onclick="closeQuiz()" class="w-full bg-indigo-600 hover:bg-indigo-500 font-bold py-3 rounded-xl text-sm transition">Collect Points & Exit</button>
-            </div>
+    <!-- CHALLENGE RECEIVED BANNER (Dynamic) -->
+    <div id="challenge-banner" class="hidden bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-4 rounded-xl mb-4 shadow-lg border border-purple-400/30">
+      <div class="flex items-center justify-between">
+        <div>
+          <span class="text-[10px] uppercase tracking-wider bg-white/20 px-2 py-0.5 rounded font-bold">Challenge Received</span>
+          <h3 id="challenge-banner-text" class="text-sm font-bold mt-1">🔥 Someone challenged you!</h3>
         </div>
+        <button onclick="acceptChallengeAndStart()" class="bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-extrabold px-3 py-1.5 rounded-lg text-xs transition shadow">
+          ACCEPT 🔥
+        </button>
+      </div>
     </div>
 
-    <!-- Firebase Logic -->
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyAY-q5jpMCMUkCF_TM3YQ_6wKtyfvDySDk",
-            authDomain: "playvibe-71ed3.firebaseapp.com",
-            projectId: "playvibe-71ed3",
-            storageBucket: "playvibe-71ed3.firebasestorage.app",
-            messagingSenderId: "154300720449",
-            appId: "1:154300720449:web:cb6feeda486f71e15eadc0"
+    <!-- QUIZ ARENA CARD -->
+    <div id="quiz-card" class="bg-slate-800 border border-slate-700/80 rounded-2xl p-5 shadow-2xl flex-1 flex flex-col justify-between">
+      
+      <!-- VIEW 1: START SCREEN -->
+      <div id="view-start" class="flex-1 flex flex-col items-center justify-center text-center space-y-6 py-6">
+        <div class="w-20 h-20 bg-purple-500/10 rounded-full flex items-center justify-center text-4xl border border-purple-500/20 animate-pulse-subtle">
+          ⚡
+        </div>
+        <div>
+          <h1 class="text-2xl font-black text-white">Speed Quiz Arena</h1>
+          <p class="text-xs text-slate-400 mt-2 max-w-xs">Test your knowledge, earn points, maintaining your daily streak, and challenge friends!</p>
+        </div>
+        <button onclick="startSoloQuiz()" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-indigo-500/20 text-base transition">
+          Play Solo Quiz 🚀
+        </button>
+      </div>
+
+      <!-- VIEW 2: QUESTION SCREEN -->
+      <div id="view-question" class="hidden flex-1 flex flex-col justify-between">
+        <!-- Progress & Timer -->
+        <div>
+          <div class="flex justify-between items-center text-xs font-bold text-slate-400 mb-2">
+            <span id="question-progress">Question 1/5</span>
+            <span id="timer-display" class="text-amber-400 font-mono text-sm">⏱️ 15s</span>
+          </div>
+          <div class="w-full bg-slate-700 h-2 rounded-full overflow-hidden">
+            <div id="progress-bar" class="bg-gradient-to-r from-purple-500 to-pink-500 h-full w-0 transition-all duration-300"></div>
+          </div>
+        </div>
+
+        <!-- Question Text -->
+        <div class="my-6">
+          <h2 id="question-text" class="text-lg font-bold text-white leading-snug">Question content goes here?</h2>
+        </div>
+
+        <!-- Options Container -->
+        <div id="options-container" class="space-y-3">
+          <!-- Dynamic Buttons -->
+        </div>
+      </div>
+
+      <!-- VIEW 3: RESULT SCREEN -->
+      <div id="view-result" class="hidden flex-1 flex flex-col items-center justify-center text-center space-y-5 py-4">
+        <div class="text-5xl">🏆</div>
+        <div>
+          <h2 class="text-xl font-black text-white">Quiz Completed!</h2>
+          <p id="final-score-display" class="text-3xl font-extrabold text-yellow-400 mt-1">0 Pts</p>
+        </div>
+
+        <!-- Dynamic Challenge Outcome Banner -->
+        <div id="challenge-outcome-box" class="hidden w-full bg-slate-900/80 border border-slate-700 rounded-xl p-3 text-xs text-slate-300">
+          <p id="challenge-outcome-text" class="font-bold text-sm text-purple-300"></p>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="w-full space-y-3 pt-2">
+          <!-- Challenge Button -->
+          <button id="challenge-share-btn" onclick="initiateChallengeCreation()" class="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black py-3 rounded-xl shadow-lg text-sm transition flex items-center justify-center">
+            <i class="fa-solid fa-swords mr-2"></i> Challenge a Friend ⚔️
+          </button>
+
+          <button onclick="resetToHome()" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-xl text-xs transition">
+            Back to Home 🏠
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- LEADERBOARD PREVIEW -->
+    <div class="mt-6 bg-slate-800/60 border border-slate-700/60 rounded-2xl p-4">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Top Players</h3>
+        <span class="text-[10px] text-purple-400 font-semibold">Live Leaderboard</span>
+      </div>
+      <div id="leaderboard-list" class="space-y-2 text-xs">
+        <p class="text-slate-500 text-center py-2">Loading leaderboard...</p>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- SHARE & CHALLENGE MODAL -->
+  <div id="share-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 max-w-xs w-full text-center space-y-4 shadow-2xl">
+      <div class="w-12 h-12 bg-amber-500/10 text-amber-400 rounded-full flex items-center justify-center text-2xl mx-auto border border-amber-500/20">
+        ⚔️
+      </div>
+      <div>
+        <h3 class="text-base font-bold text-white">Challenge Your Friend</h3>
+        <p class="text-xs text-slate-400 mt-1">Share this challenge link. See if they can beat your score!</p>
+      </div>
+
+      <div class="space-y-2 pt-2">
+        <button onclick="shareOnWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center transition">
+          <i class="fa-brands fa-whatsapp text-base mr-2"></i> Share on WhatsApp
+        </button>
+        <button onclick="copyChallengeLink()" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center transition">
+          <i class="fa-regular fa-copy mr-2"></i> Copy Link
+        </button>
+      </div>
+
+      <button onclick="closeShareModal()" class="text-xs text-slate-400 hover:text-white pt-2 block mx-auto">
+        Close
+      </button>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toast-container" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 pointer-events-none"></div>
+
+  <!-- FIREBASE & APP LOGIC -->
+  <script>
+    // 1. Firebase Config
+    const firebaseConfig = {
+      apiKey: "YOUR_FIREBASE_API_KEY",
+      authDomain: "playvibe-nine.firebaseapp.com",
+      projectId: "playvibe-nine",
+      storageBucket: "playvibe-nine.appspot.com",
+      messagingSenderId: "1234567890",
+      appId: "1:1234567890:web:abcdef"
+    };
+
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // App State
+    let currentUser = null;
+    let userPoints = 0;
+    let userStreak = 0;
+    let currentScore = 0;
+    let currentQuestionIndex = 0;
+    let timerInterval = null;
+    let timeLeft = 15;
+    
+    // Challenge State
+    let currentChallengeId = null;
+    let activeChallengeData = null;
+    let generatedShareUrl = "";
+
+    // Quiz Questions Data
+    const quizQuestions = [
+      { q: "Which planet is known as the Red Planet?", options: ["Earth", "Mars", "Jupiter", "Venus"], answer: 1 },
+      { q: "What is the capital of France?", options: ["Berlin", "Madrid", "Paris", "Rome"], answer: 2 },
+      { q: "What is 5 + 7?", options: ["10", "11", "12", "13"], answer: 2 },
+      { q: "Which gas do plants absorb from atmosphere?", options: ["Oxygen", "Carbon Dioxide", "Nitrogen", "Hydrogen"], answer: 1 },
+      { q: "How many days are in a leap year?", options: ["365", "366", "364", "367"], answer: 1 }
+    ];
+
+    // 2. Initialization & URL Param Check
+    window.addEventListener('DOMContentLoaded', async () => {
+      setupAuthListener();
+      fetchLeaderboard();
+
+      // Check URL for challengeId
+      const urlParams = new URLSearchParams(window.location.search);
+      currentChallengeId = urlParams.get('challengeId');
+
+      if (currentChallengeId) {
+        await loadChallengeDetails(currentChallengeId);
+      }
+    });
+
+    // 3. Auth Management
+    function setupAuthListener() {
+      auth.onAuthStateChanged(async (user) => {
+        currentUser = user;
+        const loginBtn = document.getElementById('login-btn');
+        const userAvatar = document.getElementById('user-avatar');
+
+        if (user) {
+          loginBtn.classList.add('hidden');
+          userAvatar.classList.remove('hidden');
+          userAvatar.src = user.photoURL || 'https://via.placeholder.com/30';
+          await syncUserData(user);
+        } else {
+          loginBtn.classList.remove('hidden');
+          userAvatar.classList.add('hidden');
+          userPoints = 0;
+          userStreak = 0;
+          updateHeaderStats();
+        }
+      });
+    }
+
+    async function handleGoogleSignIn() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      try {
+        await auth.signInWithPopup(provider);
+        showToast("Logged in successfully! 🎉");
+      } catch (err) {
+        console.error("Auth Error:", err);
+        showToast("Login failed. Please try again.");
+      }
+    }
+
+    async function syncUserData(user) {
+      const userRef = db.collection('users').doc(user.uid);
+      try {
+        const doc = await userRef.get();
+        if (doc.exists) {
+          const data = doc.data();
+          userPoints = data.points || 0;
+          userStreak = data.streak || 0;
+        } else {
+          await userRef.set({
+            name: user.displayName || 'Player',
+            email: user.email,
+            points: 0,
+            streak: 1,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+          userPoints = 0;
+          userStreak = 1;
+        }
+        updateHeaderStats();
+      } catch (e) {
+        console.error("Sync user error:", e);
+      }
+    }
+
+    function updateHeaderStats() {
+      document.getElementById('user-points').innerText = userPoints;
+      document.getElementById('streak-count').innerText = userStreak;
+    }
+
+    // 4. Challenge System Core Logic
+    async function loadChallengeDetails(challengeId) {
+      try {
+        const doc = await db.collection('challenges').doc(challengeId).get();
+        if (!doc.exists) {
+          showToast("❌ Challenge link invalid or expired.");
+          window.history.replaceState({}, document.title, window.location.pathname);
+          return;
+        }
+
+        activeChallengeData = doc.data();
+        const banner = document.getElementById('challenge-banner');
+        const bannerText = document.getElementById('challenge-banner-text');
+
+        bannerText.innerText = `🔥 ${activeChallengeData.creatorName} challenged you! Beat: ${activeChallengeData.creatorScore} Pts`;
+        banner.classList.remove('hidden');
+      } catch (e) {
+        console.error("Load Challenge Error:", e);
+      }
+    }
+
+    function acceptChallengeAndStart() {
+      document.getElementById('challenge-banner').classList.add('hidden');
+      startSoloQuiz();
+    }
+
+    async function initiateChallengeCreation() {
+      if (!currentUser) {
+        showToast("⚠️ Please Login to challenge friends!");
+        handleGoogleSignIn();
+        return;
+      }
+
+      try {
+        const challengeRef = db.collection('challenges').doc();
+        const challengeData = {
+          creatorUid: currentUser.uid,
+          creatorName: currentUser.displayName || 'Player',
+          creatorScore: currentScore,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          status: 'active'
         };
 
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+        await challengeRef.set(challengeData);
+        generatedShareUrl = `${window.location.origin}${window.location.pathname}?challengeId=${challengeRef.id}`;
+        openShareModal();
+      } catch (e) {
+        console.error("Challenge Creation Error:", e);
+        showToast("❌ Could not generate challenge link.");
+      }
+    }
 
-        let currentUser = null;
-        let userTotalPoints = 0;
+    async function handleChallengeAttemptSubmission(score) {
+      if (!currentChallengeId || !activeChallengeData || !currentUser) return;
 
-        const questions = [
-            { q: "HTML ka full form kya hai?", options: ["Hyper Text Markup Language", "High Text Machine Language", "Hyperlink Text Mode Language"], answer: 0 },
-            { q: "World Wide Web (WWW) kisne invent kiya tha?", options: ["Bill Gates", "Tim Berners-Lee", "Steve Jobs"], answer: 1 },
-            { q: "India ka Silicon Valley kis city ko kaha jata hai?", options: ["Mumbai", "Delhi", "Bengaluru"], answer: 2 }
-        ];
+      const attemptRef = db.collection('challenges')
+                           .doc(currentChallengeId)
+                           .collection('attempts')
+                           .doc(currentUser.uid);
 
-        let currentQIndex = 0;
-        let score = 0;
-        let timeLeft = 60;
-        let timerInterval = null;
-
-        function loginWithGoogle() {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider).catch(error => alert("Login Error: " + error.message));
+      try {
+        const existing = await attemptRef.get();
+        if (existing.exists) {
+          showToast("ℹ️ Challenge already attempted earlier.");
+          renderChallengeComparisonUI(score, activeChallengeData.creatorScore, true);
+          return;
         }
 
-        auth.onAuthStateChanged(async (user) => {
-            currentUser = user;
-            if (user) {
-                document.getElementById('login-btn').classList.add('hidden');
-                document.getElementById('user-profile').classList.remove('hidden');
-                document.getElementById('user-avatar').src = user.photoURL;
-                document.getElementById('user-name').innerText = user.displayName ? user.displayName.split(' ')[0] : 'User';
-                
-                await loadUserData(user.uid);
-            } else {
-                document.getElementById('login-btn').classList.remove('hidden');
-                document.getElementById('user-profile').classList.add('hidden');
-            }
-            fetchLeaderboard();
+        await attemptRef.set({
+          userUid: currentUser.uid,
+          userName: currentUser.displayName || 'Challenger',
+          score: Number(score),
+          attemptedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
-        async function loadUserData(uid) {
-            try {
-                const userRef = db.collection('users').doc(uid);
-                const doc = await userRef.get();
-                if (doc.exists) {
-                    const data = doc.data();
-                    document.getElementById('streak-count').innerText = data.streak || 0;
-                    userTotalPoints = data.points || 0;
-                    document.getElementById('user-points').innerText = userTotalPoints;
-                    
-                    const today = new Date().toISOString().split('T')[0];
-                    if (data.lastCheckIn === today) disableCheckInButton("Done Today!");
-                } else {
-                    await userRef.set({
-                        name: currentUser.displayName,
-                        email: currentUser.email,
-                        streak: 0,
-                        points: 0,
-                        lastCheckIn: ""
-                    });
-                }
-            } catch (e) { console.error("Error:", e); }
+        renderChallengeComparisonUI(score, activeChallengeData.creatorScore, false);
+      } catch (e) {
+        console.error("Attempt Submission Error:", e);
+      }
+    }
+
+    function renderChallengeComparisonUI(userScore, creatorScore, isRepeat) {
+      const outcomeBox = document.getElementById('challenge-outcome-box');
+      const outcomeText = document.getElementById('challenge-outcome-text');
+      outcomeBox.classList.remove('hidden');
+
+      if (userScore > creatorScore) {
+        outcomeText.innerText = `🏆 YOU WON! You beat ${activeChallengeData.creatorName} (${userScore} vs ${creatorScore} Pts)!`;
+      } else if (userScore === creatorScore) {
+        outcomeText.innerText = `🤝 IT'S A TIE! Both scored ${userScore} Pts!`;
+      } else {
+        outcomeText.innerText = `🔥 ${activeChallengeData.creatorName} WON (${creatorScore} vs ${userScore} Pts). Try again!`;
+      }
+
+      if (isRepeat) {
+        outcomeText.innerText += " (Previous Attempt Recorded)";
+      }
+    }
+
+    // 5. Quiz Engine
+    function startSoloQuiz() {
+      currentScore = 0;
+      currentQuestionIndex = 0;
+      showView('view-question');
+      loadQuestion();
+    }
+
+    function loadQuestion() {
+      if (currentQuestionIndex >= quizQuestions.length) {
+        finishQuiz();
+        return;
+      }
+
+      const qData = quizQuestions[currentQuestionIndex];
+      document.getElementById('question-progress').innerText = `Question ${currentQuestionIndex + 1}/${quizQuestions.length}`;
+      document.getElementById('question-text').innerText = qData.q;
+      
+      const optionsBox = document.getElementById('options-container');
+      optionsBox.innerHTML = '';
+
+      qData.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = "w-full text-left bg-slate-700/70 hover:bg-slate-600/90 text-white font-medium p-3 rounded-xl border border-slate-600 transition text-xs flex items-center justify-between";
+        btn.innerHTML = `<span>${opt}</span><i class="fa-regular fa-circle text-slate-400"></i>`;
+        btn.onclick = () => selectOption(idx, qData.answer);
+        optionsBox.appendChild(btn);
+      });
+
+      startTimer();
+    }
+
+    function startTimer() {
+      clearInterval(timerInterval);
+      timeLeft = 15;
+      updateTimerUI();
+
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        updateTimerUI();
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          nextQuestion();
         }
+      }, 1000);
+    }
 
-        async function handleCheckIn() {
-            if (!currentUser) return alert("Check-In karne ke liye Google Sign-In karein!");
-            const today = new Date().toISOString().split('T')[0];
-            const userRef = db.collection('users').doc(currentUser.uid);
+    function updateTimerUI() {
+      document.getElementById('timer-display').innerText = `⏱️ ${timeLeft}s`;
+      const percentage = (timeLeft / 15) * 100;
+      document.getElementById('progress-bar').style.width = `${percentage}%`;
+    }
 
-            try {
-                const doc = await userRef.get();
-                let currentStreak = doc.exists ? (doc.data().streak || 0) : 0;
-                let lastCheckIn = doc.exists ? (doc.data().lastCheckIn || "") : "";
+    function selectOption(selected, correct) {
+      clearInterval(timerInterval);
+      if (selected === correct) {
+        currentScore += 20;
+      }
+      nextQuestion();
+    }
 
-                if (lastCheckIn === today) {
-                    alert("Aaj ka Check-In ho chuka hai!");
-                    return disableCheckInButton("Done Today!");
-                }
+    function nextQuestion() {
+      currentQuestionIndex++;
+      loadQuestion();
+    }
 
-                const newStreak = currentStreak + 1;
-                await userRef.set({
-                    streak: newStreak,
-                    lastCheckIn: today,
-                    name: currentUser.displayName,
-                    email: currentUser.email
-                }, { merge: true });
+    async function finishQuiz() {
+      clearInterval(timerInterval);
+      document.getElementById('final-score-display').innerText = `${currentScore} Pts`;
+      showView('view-result');
 
-                document.getElementById('streak-count').innerText = newStreak;
-                disableCheckInButton("Done Today!");
-                fetchLeaderboard();
-                alert("🎉 Daily Streak Updated!");
-            } catch (e) { alert("Error: " + e.message); }
-        }
+      if (currentUser) {
+        userPoints += currentScore;
+        updateHeaderStats();
+        
+        // Update user Firestore points
+        try {
+          await db.collection('users').doc(currentUser.uid).update({
+            points: firebase.firestore.FieldValue.increment(currentScore)
+          });
+        } catch(e) { console.error("Points update failed", e); }
+      }
 
-        function disableCheckInButton(text) {
-            const btn = document.getElementById('checkin-btn');
-            btn.innerText = text;
-            btn.disabled = true;
-            btn.classList.remove('bg-orange-500', 'hover:bg-orange-400');
-            btn.classList.add('bg-slate-700', 'text-slate-400', 'cursor-not-allowed');
-        }
+      // Check if this was a challenge attempt
+      if (currentChallengeId && activeChallengeData) {
+        await handleChallengeAttemptSubmission(currentScore);
+      }
+    }
 
-        // Leaderboard Fetch
-        async function fetchLeaderboard() {
-            const lbContainer = document.getElementById('leaderboard-list');
-            try {
-                const snapshot = await db.collection('users').get();
-                let users = [];
-                snapshot.forEach(doc => users.push(doc.data()));
-                
-                // Sort by points descending
-                users.sort((a, b) => (b.points || 0) - (a.points || 0));
+    function resetToHome() {
+      document.getElementById('challenge-outcome-box').classList.add('hidden');
+      showView('view-start');
+    }
 
-                if (users.length === 0) {
-                    lbContainer.innerHTML = `<p class="text-xs text-slate-500 text-center py-2">Koi players nahi mile.</p>`;
-                    return;
-                }
+    function showView(viewId) {
+      ['view-start', 'view-question', 'view-result'].forEach(id => {
+        document.getElementById(id).classList.add('hidden');
+      });
+      document.getElementById(viewId).classList.remove('hidden');
+    }
 
-                lbContainer.innerHTML = users.slice(0, 5).map((u, i) => `
-                    <div class="flex items-center justify-between bg-slate-950/60 p-2.5 rounded-xl border border-slate-800">
-                        <div class="flex items-center gap-2.5">
-                            <span class="font-bold text-xs ${i === 0 ? 'text-yellow-400' : i === 1 ? 'text-slate-300' : i === 2 ? 'text-amber-600' : 'text-slate-500'}">#${i + 1}</span>
-                            <span class="text-xs font-semibold text-slate-200">${u.name || 'Anonymous'}</span>
-                        </div>
-                        <div class="flex items-center gap-3 text-xs">
-                            <span class="text-orange-400 font-bold">🔥 ${u.streak || 0}d</span>
-                            <span class="text-indigo-400 font-bold">${u.points || 0} pts</span>
-                        </div>
-                    </div>
-                `).join('');
-            } catch (e) {
-                lbContainer.innerHTML = `<p class="text-xs text-red-400 text-center py-2">Leaderboard load nahi hua.</p>`;
-            }
-        }
+    // 6. Sharing Utilities
+    function openShareModal() {
+      document.getElementById('share-modal').classList.remove('hidden');
+    }
 
-        function startQuiz() {
-            if (!currentUser) return alert("Quiz khelne ke liye pehle Google Sign-In karein!");
-            currentQIndex = 0;
-            score = 0;
-            timeLeft = 60;
-            document.getElementById('quiz-box').classList.remove('hidden');
-            document.getElementById('result-box').classList.add('hidden');
-            document.getElementById('quiz-modal').classList.remove('hidden');
-            renderQuestion();
-            startTimer();
-        }
+function closeShareModal() {
+  document.getElementById('share-modal').classList.add('hidden');
+}
 
-        function renderQuestion() {
-            if (currentQIndex >= questions.length) return endQuiz();
-            const q = questions[currentQIndex];
-            document.getElementById('q-number').innerText = `Question ${currentQIndex + 1}/${questions.length}`;
-            document.getElementById('question-text').innerText = q.q;
+function shareOnWhatsApp() {
+  const text = encodeURIComponent(`🔥 Main PlayVibe par Speed Quiz khel raha hoon! Kya tum mera score beat kar sakte ho?\n\nChallenge Link: ${generatedShareUrl}`);
+  window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
+}
 
-            const optsContainer = document.getElementById('options-container');
-            optsContainer.innerHTML = '';
-            q.options.forEach((opt, idx) => {
-                const btn = document.createElement('button');
-                btn.className = "w-full text-left bg-slate-800 hover:bg-slate-700 text-xs font-semibold py-3 px-4 rounded-xl border border-slate-700/60 transition";
-                btn.innerText = opt;
-                btn.onclick = () => checkAnswer(idx);
-                optsContainer.appendChild(btn);
-            });
-        }
+function copyChallengeLink() {
+  navigator.clipboard.writeText(generatedShareUrl).then(() => {
+    showToast("📋 Link copied to clipboard!");
+  }).catch(() => {
+    showToast("❌ Failed to copy link.");
+  });
+}
 
-        function checkAnswer(selectedIdx) {
-            if (selectedIdx === questions[currentQIndex].answer) score += 50;
-            currentQIndex++;
-            renderQuestion();
-        }
+// 7. Leaderboard Fetch
+async function fetchLeaderboard() {
+  const box = document.getElementById('leaderboard-list');
+  try {
+    const snap = await db.collection('users').orderBy('points', 'desc').limit(5).get();
+    if (snap.empty) {
+      box.innerHTML = `<p class="text-slate-500 text-center py-2">No players yet.</p>`;
+      return;
+    }
 
-        function startTimer() {
-            document.getElementById('timer').innerText = `${timeLeft}s`;
-            clearInterval(timerInterval);
-            timerInterval = setInterval(() => {
-                timeLeft--;
-                document.getElementById('timer').innerText = `${timeLeft}s`;
-                if (timeLeft <= 0) endQuiz();
-            }, 1000);
-        }
+    box.innerHTML = '';
+    let rank = 1;
+    snap.forEach(doc => {
+      const d = doc.data();
+      box.innerHTML += `
+        <div class="flex items-center justify-between bg-slate-900/50 p-2 rounded-lg">
+          <div class="flex items-center space-x-2">
+            <span class="font-bold text-slate-400">#${rank++}</span>
+            <span class="font-medium text-white">${d.name || 'Anonymous'}</span>
+          </div>
+          <span class="font-bold text-yellow-400">${d.points || 0} Pts</span>
+        </div>
+      `;
+    });
+  } catch (e) {
+    box.innerHTML = `<p class="text-slate-500 text-center py-2">Leaderboard offline.</p>`;
+  }
+}
 
-        async function endQuiz() {
-            clearInterval(timerInterval);
-            document.getElementById('quiz-box').classList.add('hidden');
-            document.getElementById('result-box').classList.remove('hidden');
-            document.getElementById('final-score').innerText = score;
-
-            if (score > 0 && currentUser) {
-                userTotalPoints += score;
-                await db.collection('users').doc(currentUser.uid).set({ points: userTotalPoints }, { merge: true });
-                document.getElementById('user-points').innerText = userTotalPoints;
-                fetchLeaderboard();
-            }
-        }
-
-        function closeQuiz() { document.getElementById('quiz-modal').classList.add('hidden'); }
-    </script>
+// Helper Toast
+function showToast(msg) {
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  toast.className = "bg-slate-800 text-white text-xs px-4 py-2 rounded-full border border-slate-700 shadow-xl mb-2 transition-all duration-300";
+  toast.innerText = msg;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+</script>
 </body>
 </html>
+
+      
