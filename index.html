@@ -85,7 +85,7 @@
         </div>
         <div>
           <h1 class="text-2xl font-black text-white">Speed Quiz Arena</h1>
-          <p class="text-xs text-slate-400 mt-2 max-w-xs">Test your knowledge, earn points, maintaining your daily streak, and challenge friends!</p>
+          <p class="text-xs text-slate-400 mt-2 max-w-xs">Test your knowledge, earn points, maintain your streak, and challenge friends!</p>
         </div>
         <button onclick="startSoloQuiz()" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-indigo-500/20 text-base transition">
           Play Solo Quiz 🚀
@@ -187,15 +187,14 @@
   <div id="toast-container" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 pointer-events-none"></div>
     <!-- FIREBASE & APP LOGIC -->
   <script>
-    // 1. Firebase Config
-    // ⚠️ Apni asli API key "YOUR_FIREBASE_API_KEY" ki jagah daalein!
+    // 1. Firebase Config (Screenshot se auto-filled)
     const firebaseConfig = {
-      apiKey: "YOUR_FIREBASE_API_KEY",
-      authDomain: "playvibe-nine.firebaseapp.com",
-      projectId: "playvibe-nine",
-      storageBucket: "playvibe-nine.appspot.com",
-      messagingSenderId: "1234567890",
-      appId: "1:1234567890:web:abcdef"
+      apiKey: "AIzaSyAY-q5jpMCMUkCF_TM3YQ_6",
+      authDomain: "playvibe-71ed3.firebaseapp.com",
+      projectId: "playvibe-71ed3",
+      storageBucket: "playvibe-71ed3.firebasestorage.app",
+      messagingSenderId: "154300720449",
+      appId: "1:154300720449:web:cb6feeda486f71e15eadc0"
     };
 
     if (!firebase.apps.length) {
@@ -478,7 +477,6 @@
         userPoints += currentScore;
         updateHeaderStats();
         
-        // Update user Firestore points
         try {
           await db.collection('users').doc(currentUser.uid).update({
             points: firebase.firestore.FieldValue.increment(currentScore)
@@ -486,7 +484,6 @@
         } catch(e) { console.error("Points update failed", e); }
       }
 
-      // Check if this was a challenge attempt
       if (currentChallengeId && activeChallengeData) {
         await handleChallengeAttemptSubmission(currentScore);
       }
