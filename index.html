@@ -185,9 +185,10 @@
 
   <!-- TOAST NOTIFICATION CONTAINER -->
   <div id="toast-container" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 pointer-events-none"></div>
-    <!-- FIREBASE & APP LOGIC -->
+
+  <!-- FIREBASE & APP LOGIC -->
   <script>
-    // 1. Firebase Config (Screenshot se auto-filled)
+    // 1. Firebase Config
     const firebaseConfig = {
       apiKey: "AIzaSyAY-q5jpMCMUkCF_TM3YQ_6",
       authDomain: "playvibe-71ed3.firebaseapp.com",
@@ -231,6 +232,21 @@
       setupAuthListener();
       fetchLeaderboard();
 
+      // Handle Google Redirect Result
+      try {
+        const result = await auth.getRedirectResult();
+        if (result.user) {
+          showToast("Logged in successfully! 🎉");
+        }
+      } catch (error) {
+        console.error("Redirect Login Error:", error);
+        if (error.code === 'auth/unauthorized-domain') {
+          showToast("❌ Domain authorized nahi hua hai Firebase me.");
+        } else if (error.message) {
+          showToast("Login error: " + error.message);
+        }
+      }
+
       // Check URL for challengeId
       const urlParams = new URLSearchParams(window.location.search);
       currentChallengeId = urlParams.get('challengeId');
@@ -262,14 +278,15 @@
       });
     }
 
+    // Direct Google Sign In via Redirect (Mobile-friendly)
     async function handleGoogleSignIn() {
       const provider = new firebase.auth.GoogleAuthProvider();
       try {
-        await auth.signInWithPopup(provider);
-        showToast("Logged in successfully! 🎉");
+        showToast("Redirecting to Google Login... ⏳");
+        await auth.signInWithRedirect(provider);
       } catch (err) {
         console.error("Auth Error:", err);
-        showToast("Login failed. Please try again.");
+        showToast("Login initialisation failed.");
       }
     }
 
@@ -489,7 +506,7 @@
       }
     }
 
-    function resetToHome() {
+        function resetToHome() {
       document.getElementById('challenge-outcome-box').classList.add('hidden');
       showView('view-start');
     }
@@ -559,7 +576,7 @@
       toast.className = "bg-slate-800 text-white text-xs px-4 py-2 rounded-full border border-slate-700 shadow-xl mb-2 transition-all duration-300";
       toast.innerText = msg;
       container.appendChild(toast);
-      setTimeout(() => toast.remove(), 3000);
+      setTimeout(() => toast.remove(), 4000);
     }
   </script>
 </body>
