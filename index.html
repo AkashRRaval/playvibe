@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PlayVibe — Daily Social Challenges</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen pb-16 font-sans">
     <!-- Header -->
@@ -13,9 +17,12 @@
             <span class="text-xl">⚡</span>
             <span class="font-bold text-lg bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">PlayVibe</span>
         </div>
-        <div class="flex gap-2 text-xs font-semibold">
-            <span class="bg-slate-800 border border-slate-700 px-2.5 py-1 rounded-full text-orange-400 flex items-center gap-1">🔥 0</span>
-            <span class="bg-slate-800 border border-slate-700 px-2.5 py-1 rounded-full text-yellow-400 flex items-center gap-1">⭐ 0</span>
+        <div id="auth-section" class="flex items-center gap-2">
+            <button id="login-btn" onclick="loginWithGoogle()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-3 py-1.5 rounded-full transition">Google Sign-In</button>
+            <div id="user-profile" class="hidden flex items-center gap-2">
+                <img id="user-avatar" class="w-7 h-7 rounded-full border border-indigo-400" src="" alt="Profile">
+                <span id="user-name" class="text-xs font-bold text-slate-200"></span>
+            </div>
         </div>
     </header>
 
@@ -25,7 +32,7 @@
         <div class="bg-gradient-to-r from-orange-950/40 to-slate-900 border border-orange-500/20 rounded-2xl p-4 flex justify-between items-center">
             <div>
                 <p class="text-orange-400 font-bold text-xs">DAILY STREAK</p>
-                <h2 class="text-lg font-bold mt-0.5">0 Days Active</h2>
+                <h2 class="text-lg font-bold mt-0.5"><span id="streak-count">0</span> Days Active</h2>
                 <p class="text-xs text-slate-400 mt-1">Aaj ka challenge complete karke streak banao!</p>
             </div>
             <button class="bg-orange-500 text-slate-950 font-bold px-3 py-2 rounded-xl text-xs">Check-In</button>
@@ -43,24 +50,44 @@
             </div>
             <button class="w-full bg-indigo-600 hover:bg-indigo-500 font-bold py-2.5 rounded-xl text-sm transition">Play Challenge</button>
         </div>
-
-        <!-- Share Card -->
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex justify-between items-center">
-            <div>
-                <h4 class="font-bold text-sm">Challenge Friends</h4>
-                <p class="text-xs text-slate-400">Apna score share karke doston ko harao!</p>
-            </div>
-            <button class="bg-slate-800 border border-slate-700 text-xs font-bold px-3 py-2 rounded-xl">Share Link</button>
-        </div>
     </main>
 
-    <!-- Bottom Navigation -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 py-2 px-6 flex justify-around text-xs text-slate-400">
-        <button class="text-indigo-400 font-bold">Home</button>
-        <button>Games</button>
-        <button>Leaderboard</button>
-        <button>Profile</button>
-    </nav>
+    <!-- Firebase Logic Script -->
+    <script>
+        // AAPKI FIREBASE CONFIG KEYS DEKHEN AUR REPLACE KAREIN:
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        // Google Sign-In Function
+        function loginWithGoogle() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider).catch(error => {
+                alert("Login Error: " + error.message);
+            });
+        }
+
+        // Auth State Listener
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                document.getElementById('login-btn').classList.add('hidden');
+                document.getElementById('user-profile').classList.remove('hidden');
+                document.getElementById('user-avatar').src = user.photoURL;
+                document.getElementById('user-name').innerText = user.displayName.split(' ')[0];
+            } else {
+                document.getElementById('login-btn').classList.remove('hidden');
+                document.getElementById('user-profile').classList.add('hidden');
+            }
+        });
+    </script>
 </body>
 </html>
-
