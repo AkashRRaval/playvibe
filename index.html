@@ -21,8 +21,12 @@
         <div id="auth-section" class="flex items-center gap-2">
             <button id="login-btn" onclick="loginWithGoogle()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-3 py-1.5 rounded-full transition">Google Sign-In</button>
             <div id="user-profile" class="hidden flex items-center gap-2">
+                <div class="flex items-center gap-1 bg-slate-800/80 px-2 py-1 rounded-full border border-slate-700 text-xs">
+                    <span class="text-yellow-400 font-bold">🏆</span>
+                    <span id="user-points" class="font-bold text-slate-200">0</span>
+                </div>
                 <img id="user-avatar" class="w-7 h-7 rounded-full border border-indigo-400" src="" alt="Profile">
-                <span id="user-name" class="text-xs font-bold text-slate-200"></span>
+                <span id="user-name" class="text-xs font-bold text-slate-200 hidden sm:inline"></span>
             </div>
         </div>
     </header>
@@ -47,11 +51,43 @@
             </div>
             <div>
                 <h3 class="font-bold text-base">Speed Quiz Arena</h3>
-                <p class="text-xs text-slate-400 mt-1">60 seconds mein trending viral questions ke answer do.</p>
+                <p class="text-xs text-slate-400 mt-1">60 seconds mein trending questions ke fast answers do.</p>
             </div>
-            <button class="w-full bg-indigo-600 hover:bg-indigo-500 font-bold py-2.5 rounded-xl text-sm transition">Play Challenge</button>
+            <button onclick="startQuiz()" class="w-full bg-indigo-600 hover:bg-indigo-500 font-bold py-2.5 rounded-xl text-sm transition shadow-lg shadow-indigo-600/30">Play Challenge</button>
         </div>
     </main>
+
+    <!-- Quiz Modal / Screen -->
+    <div id="quiz-modal" class="fixed inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-3xl p-5 space-y-4 shadow-2xl relative">
+            <!-- Modal Header -->
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <div class="flex items-center gap-2">
+                    <span class="text-xs bg-indigo-500/20 text-indigo-400 px-2 py-1 rounded-lg border border-indigo-500/30 font-bold" id="q-number">Question 1/3</span>
+                </div>
+                <div class="flex items-center gap-1.5 bg-red-500/10 text-red-400 px-3 py-1 rounded-full border border-red-500/20 font-bold text-xs">
+                    <span>⏱️</span>
+                    <span id="timer">60s</span>
+                </div>
+            </div>
+
+            <!-- Quiz Question Box -->
+            <div id="quiz-box" class="space-y-4">
+                <h3 id="question-text" class="text-base font-bold text-slate-100 min-h-[50px] flex items-center">Loading Question...</h3>
+                <div id="options-container" class="space-y-2">
+                    <!-- Options injected dynamically -->
+                </div>
+            </div>
+
+            <!-- Quiz Result Box (Hidden by default) -->
+            <div id="result-box" class="hidden text-center py-6 space-y-4">
+                <div class="text-5xl">🎉</div>
+                <h3 class="text-xl font-bold text-slate-100">Quiz Completed!</h3>
+                <p class="text-sm text-slate-400">Aapne score kiya: <span id="final-score" class="text-indigo-400 font-bold text-lg">0</span> Points</p>
+                <button onclick="closeQuiz()" class="w-full bg-indigo-600 hover:bg-indigo-500 font-bold py-3 rounded-xl text-sm transition">Collect Points & Exit</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Firebase Logic Script -->
     <script>
@@ -70,6 +106,19 @@
         const db = firebase.firestore();
 
         let currentUser = null;
+        let userTotalPoints = 0;
+
+        // Quiz Questions Data
+        const questions = [
+            { q: "HTML ka full form kya hai?", options: ["Hyper Text Markup Language", "High Text Machine Language", "Hyperlink Text Mode Language"], answer: 0 },
+            { q: "World Wide Web (WWW) kisne invent kiya tha?", options: ["Bill Gates", "Tim Berners-Lee", "Steve Jobs"], answer: 1 },
+            { q: "India ka Silicon Valley kis city ko kaha jata hai?", options: ["Mumbai", "Delhi", "Bengaluru"], answer: 2 }
+        ];
+
+        let currentQIndex = 0;
+        let score = 0;
+        let timeLeft = 60;
+        let timerInterval = null;
 
         // Google Sign-In Function (Popup)
         function loginWithGoogle() {
@@ -88,12 +137,12 @@
                 document.getElementById('user-avatar').src = user.photoURL;
                 document.getElementById('user-name').innerText = user.displayName ? user.displayName.split(' ')[0] : 'User';
                 
-                // Load user streak from Firestore
                 loadUserData(user.uid);
             } else {
                 document.getElementById('login-btn').classList.remove('hidden');
                 document.getElementById('user-profile').classList.add('hidden');
                 document.getElementById('streak-count').innerText = '0';
+                document.getElementById('user-points').innerText = '0';
             }
         });
 
@@ -106,17 +155,19 @@
                 if (doc.exists) {
                     const data = doc.data();
                     document.getElementById('streak-count').innerText = data.streak || 0;
+                    userTotalPoints = data.points || 0;
+                    document.getElementById('user-points').innerText = userTotalPoints;
                     
                     const today = new Date().toISOString().split('T')[0];
                     if (data.lastCheckIn === today) {
                         disableCheckInButton("Done Today!");
                     }
                 } else {
-                    // Initialize User Profile in Database
                     await userRef.set({
                         name: currentUser.displayName,
                         email: currentUser.email,
                         streak: 0,
+                        points: 0,
                         lastCheckIn: ""
                     });
                 }
@@ -173,6 +224,89 @@
             btn.disabled = true;
             btn.classList.remove('bg-orange-500', 'hover:bg-orange-400');
             btn.classList.add('bg-slate-700', 'text-slate-400', 'cursor-not-allowed');
+        }
+
+        // Quiz Logic
+        function startQuiz() {
+            if (!currentUser) {
+                alert("Quiz khelne ke liye pehle Google Sign-In karein!");
+                return;
+            }
+
+            currentQIndex = 0;
+            score = 0;
+            timeLeft = 60;
+
+            document.getElementById('quiz-box').classList.remove('hidden');
+            document.getElementById('result-box').classList.add('hidden');
+            document.getElementById('quiz-modal').classList.remove('hidden');
+
+            renderQuestion();
+            startTimer();
+        }
+
+        function renderQuestion() {
+            if (currentQIndex >= questions.length) {
+                endQuiz();
+                return;
+            }
+
+            const q = questions[currentQIndex];
+            document.getElementById('q-number').innerText = `Question ${currentQIndex + 1}/${questions.length}`;
+            document.getElementById('question-text').innerText = q.q;
+
+            const optsContainer = document.getElementById('options-container');
+            optsContainer.innerHTML = '';
+
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left bg-slate-800 hover:bg-slate-700 text-xs font-semibold py-3 px-4 rounded-xl border border-slate-700/60 transition";
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(idx);
+                optsContainer.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selectedIdx) {
+            if (selectedIdx === questions[currentQIndex].answer) {
+                score += 50; // 50 points per right answer
+            }
+            currentQIndex++;
+            renderQuestion();
+        }
+
+        function startTimer() {
+            document.getElementById('timer').innerText = `${timeLeft}s`;
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer').innerText = `${timeLeft}s`;
+                if (timeLeft <= 0) {
+                    endQuiz();
+                }
+            }, 1000);
+        }
+
+        async function endQuiz() {
+            clearInterval(timerInterval);
+            document.getElementById('quiz-box').classList.add('hidden');
+            document.getElementById('result-box').classList.remove('hidden');
+            document.getElementById('final-score').innerText = score;
+
+            // Save new total points in Firestore
+            if (score > 0 && currentUser) {
+                userTotalPoints += score;
+                const userRef = db.collection('users').doc(currentUser.uid);
+                await userRef.set({
+                    points: userTotalPoints
+                }, { merge: true });
+
+                document.getElementById('user-points').innerText = userTotalPoints;
+            }
+        }
+
+        function closeQuiz() {
+            document.getElementById('quiz-modal').classList.add('hidden');
         }
     </script>
 </body>
