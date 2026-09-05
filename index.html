@@ -55,12 +55,24 @@
             </div>
             <button onclick="startQuiz()" class="w-full bg-indigo-600 hover:bg-indigo-500 font-bold py-2.5 rounded-xl text-sm transition shadow-lg shadow-indigo-600/30">Play Challenge</button>
         </div>
+
+        <!-- Leaderboard Section -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                <h3 class="font-bold text-sm flex items-center gap-1.5">
+                    <span>👑</span> Top Players
+                </h3>
+                <span class="text-[10px] text-slate-500">Live Sync</span>
+            </div>
+            <div id="leaderboard-list" class="space-y-2">
+                <p class="text-xs text-slate-500 text-center py-2">Loading leaderboard...</p>
+            </div>
+        </div>
     </main>
 
-    <!-- Quiz Modal / Screen -->
+    <!-- Quiz Modal -->
     <div id="quiz-modal" class="fixed inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-3xl p-5 space-y-4 shadow-2xl relative">
-            <!-- Modal Header -->
             <div class="flex justify-between items-center border-b border-slate-800 pb-3">
                 <div class="flex items-center gap-2">
                     <span class="text-xs bg-indigo-500/20 text-indigo-400 px-2 py-1 rounded-lg border border-indigo-500/30 font-bold" id="q-number">Question 1/3</span>
@@ -71,15 +83,11 @@
                 </div>
             </div>
 
-            <!-- Quiz Question Box -->
             <div id="quiz-box" class="space-y-4">
-                <h3 id="question-text" class="text-base font-bold text-slate-100 min-h-[50px] flex items-center">Loading Question...</h3>
-                <div id="options-container" class="space-y-2">
-                    <!-- Options injected dynamically -->
-                </div>
+                <h3 id="question-text" class="text-base font-bold text-slate-100 min-h-[50px] flex items-center">Loading...</h3>
+                <div id="options-container" class="space-y-2"></div>
             </div>
 
-            <!-- Quiz Result Box (Hidden by default) -->
             <div id="result-box" class="hidden text-center py-6 space-y-4">
                 <div class="text-5xl">🎉</div>
                 <h3 class="text-xl font-bold text-slate-100">Quiz Completed!</h3>
@@ -89,7 +97,7 @@
         </div>
     </div>
 
-    <!-- Firebase Logic Script -->
+    <!-- Firebase Logic -->
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyAY-q5jpMCMUkCF_TM3YQ_6wKtyfvDySDk",
@@ -100,7 +108,6 @@
             appId: "1:154300720449:web:cb6feeda486f71e15eadc0"
         };
 
-        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
@@ -108,7 +115,6 @@
         let currentUser = null;
         let userTotalPoints = 0;
 
-        // Quiz Questions Data
         const questions = [
             { q: "HTML ka full form kya hai?", options: ["Hyper Text Markup Language", "High Text Machine Language", "Hyperlink Text Mode Language"], answer: 0 },
             { q: "World Wide Web (WWW) kisne invent kiya tha?", options: ["Bill Gates", "Tim Berners-Lee", "Steve Jobs"], answer: 1 },
@@ -120,15 +126,11 @@
         let timeLeft = 60;
         let timerInterval = null;
 
-        // Google Sign-In Function (Popup)
         function loginWithGoogle() {
             const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider).catch(error => {
-                alert("Login Error: " + error.message);
-            });
+            auth.signInWithPopup(provider).catch(error => alert("Login Error: " + error.message));
         }
 
-        // Auth State Change Listener
         auth.onAuthStateChanged(async (user) => {
             currentUser = user;
             if (user) {
@@ -137,21 +139,18 @@
                 document.getElementById('user-avatar').src = user.photoURL;
                 document.getElementById('user-name').innerText = user.displayName ? user.displayName.split(' ')[0] : 'User';
                 
-                loadUserData(user.uid);
+                await loadUserData(user.uid);
             } else {
                 document.getElementById('login-btn').classList.remove('hidden');
                 document.getElementById('user-profile').classList.add('hidden');
-                document.getElementById('streak-count').innerText = '0';
-                document.getElementById('user-points').innerText = '0';
             }
+            fetchLeaderboard();
         });
 
-        // Load User Data from Firestore
         async function loadUserData(uid) {
             try {
                 const userRef = db.collection('users').doc(uid);
                 const doc = await userRef.get();
-                
                 if (doc.exists) {
                     const data = doc.data();
                     document.getElementById('streak-count').innerText = data.streak || 0;
@@ -159,9 +158,7 @@
                     document.getElementById('user-points').innerText = userTotalPoints;
                     
                     const today = new Date().toISOString().split('T')[0];
-                    if (data.lastCheckIn === today) {
-                        disableCheckInButton("Done Today!");
-                    }
+                    if (data.lastCheckIn === today) disableCheckInButton("Done Today!");
                 } else {
                     await userRef.set({
                         name: currentUser.displayName,
@@ -171,35 +168,22 @@
                         lastCheckIn: ""
                     });
                 }
-            } catch (e) {
-                console.error("Error loading user data:", e);
-            }
+            } catch (e) { console.error("Error:", e); }
         }
 
-        // Handle Daily Check-In
         async function handleCheckIn() {
-            if (!currentUser) {
-                alert("Check-In karne ke liye pehle Google Sign-In karein!");
-                return;
-            }
-
+            if (!currentUser) return alert("Check-In karne ke liye Google Sign-In karein!");
             const today = new Date().toISOString().split('T')[0];
             const userRef = db.collection('users').doc(currentUser.uid);
 
             try {
                 const doc = await userRef.get();
-                let currentStreak = 0;
-                let lastCheckIn = "";
-
-                if (doc.exists) {
-                    currentStreak = doc.data().streak || 0;
-                    lastCheckIn = doc.data().lastCheckIn || "";
-                }
+                let currentStreak = doc.exists ? (doc.data().streak || 0) : 0;
+                let lastCheckIn = doc.exists ? (doc.data().lastCheckIn || "") : "";
 
                 if (lastCheckIn === today) {
-                    alert("Aapne aaj ka Check-In kar liya hai!");
-                    disableCheckInButton("Done Today!");
-                    return;
+                    alert("Aaj ka Check-In ho chuka hai!");
+                    return disableCheckInButton("Done Today!");
                 }
 
                 const newStreak = currentStreak + 1;
@@ -212,10 +196,9 @@
 
                 document.getElementById('streak-count').innerText = newStreak;
                 disableCheckInButton("Done Today!");
-                alert("🎉 Daily Streak Updated! Total Days: " + newStreak);
-            } catch (e) {
-                alert("Check-In Error: " + e.message);
-            }
+                fetchLeaderboard();
+                alert("🎉 Daily Streak Updated!");
+            } catch (e) { alert("Error: " + e.message); }
         }
 
         function disableCheckInButton(text) {
@@ -226,38 +209,59 @@
             btn.classList.add('bg-slate-700', 'text-slate-400', 'cursor-not-allowed');
         }
 
-        // Quiz Logic
-        function startQuiz() {
-            if (!currentUser) {
-                alert("Quiz khelne ke liye pehle Google Sign-In karein!");
-                return;
-            }
+        // Leaderboard Fetch
+        async function fetchLeaderboard() {
+            const lbContainer = document.getElementById('leaderboard-list');
+            try {
+                const snapshot = await db.collection('users').get();
+                let users = [];
+                snapshot.forEach(doc => users.push(doc.data()));
+                
+                // Sort by points descending
+                users.sort((a, b) => (b.points || 0) - (a.points || 0));
 
+                if (users.length === 0) {
+                    lbContainer.innerHTML = `<p class="text-xs text-slate-500 text-center py-2">Koi players nahi mile.</p>`;
+                    return;
+                }
+
+                lbContainer.innerHTML = users.slice(0, 5).map((u, i) => `
+                    <div class="flex items-center justify-between bg-slate-950/60 p-2.5 rounded-xl border border-slate-800">
+                        <div class="flex items-center gap-2.5">
+                            <span class="font-bold text-xs ${i === 0 ? 'text-yellow-400' : i === 1 ? 'text-slate-300' : i === 2 ? 'text-amber-600' : 'text-slate-500'}">#${i + 1}</span>
+                            <span class="text-xs font-semibold text-slate-200">${u.name || 'Anonymous'}</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-xs">
+                            <span class="text-orange-400 font-bold">🔥 ${u.streak || 0}d</span>
+                            <span class="text-indigo-400 font-bold">${u.points || 0} pts</span>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                lbContainer.innerHTML = `<p class="text-xs text-red-400 text-center py-2">Leaderboard load nahi hua.</p>`;
+            }
+        }
+
+        function startQuiz() {
+            if (!currentUser) return alert("Quiz khelne ke liye pehle Google Sign-In karein!");
             currentQIndex = 0;
             score = 0;
             timeLeft = 60;
-
             document.getElementById('quiz-box').classList.remove('hidden');
             document.getElementById('result-box').classList.add('hidden');
             document.getElementById('quiz-modal').classList.remove('hidden');
-
             renderQuestion();
             startTimer();
         }
 
         function renderQuestion() {
-            if (currentQIndex >= questions.length) {
-                endQuiz();
-                return;
-            }
-
+            if (currentQIndex >= questions.length) return endQuiz();
             const q = questions[currentQIndex];
             document.getElementById('q-number').innerText = `Question ${currentQIndex + 1}/${questions.length}`;
             document.getElementById('question-text').innerText = q.q;
 
             const optsContainer = document.getElementById('options-container');
             optsContainer.innerHTML = '';
-
             q.options.forEach((opt, idx) => {
                 const btn = document.createElement('button');
                 btn.className = "w-full text-left bg-slate-800 hover:bg-slate-700 text-xs font-semibold py-3 px-4 rounded-xl border border-slate-700/60 transition";
@@ -268,9 +272,7 @@
         }
 
         function checkAnswer(selectedIdx) {
-            if (selectedIdx === questions[currentQIndex].answer) {
-                score += 50; // 50 points per right answer
-            }
+            if (selectedIdx === questions[currentQIndex].answer) score += 50;
             currentQIndex++;
             renderQuestion();
         }
@@ -281,9 +283,7 @@
             timerInterval = setInterval(() => {
                 timeLeft--;
                 document.getElementById('timer').innerText = `${timeLeft}s`;
-                if (timeLeft <= 0) {
-                    endQuiz();
-                }
+                if (timeLeft <= 0) endQuiz();
             }, 1000);
         }
 
@@ -293,21 +293,15 @@
             document.getElementById('result-box').classList.remove('hidden');
             document.getElementById('final-score').innerText = score;
 
-            // Save new total points in Firestore
             if (score > 0 && currentUser) {
                 userTotalPoints += score;
-                const userRef = db.collection('users').doc(currentUser.uid);
-                await userRef.set({
-                    points: userTotalPoints
-                }, { merge: true });
-
+                await db.collection('users').doc(currentUser.uid).set({ points: userTotalPoints }, { merge: true });
                 document.getElementById('user-points').innerText = userTotalPoints;
+                fetchLeaderboard();
             }
         }
 
-        function closeQuiz() {
-            document.getElementById('quiz-modal').classList.add('hidden');
-        }
+        function closeQuiz() { document.getElementById('quiz-modal').classList.add('hidden'); }
     </script>
 </body>
 </html>
