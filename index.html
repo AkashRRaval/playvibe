@@ -185,8 +185,7 @@
 
   <!-- TOAST NOTIFICATION CONTAINER -->
   <div id="toast-container" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 pointer-events-none"></div>
-
-  <!-- FIREBASE & APP LOGIC -->
+    <!-- FIREBASE & APP LOGIC -->
   <script>
     // 1. Firebase Config
     const firebaseConfig = {
@@ -235,16 +234,12 @@
       // Handle Google Redirect Result
       try {
         const result = await auth.getRedirectResult();
-        if (result.user) {
+        if (result && result.user) {
           showToast("Logged in successfully! 🎉");
         }
       } catch (error) {
         console.error("Redirect Login Error:", error);
-        if (error.code === 'auth/unauthorized-domain') {
-          showToast("❌ Domain authorized nahi hua hai Firebase me.");
-        } else if (error.message) {
-          showToast("Login error: " + error.message);
-        }
+        showToast("Error: " + (error.code || error.message));
       }
 
       // Check URL for challengeId
@@ -278,7 +273,7 @@
       });
     }
 
-    // Direct Google Sign In via Redirect (Mobile-friendly)
+    // Direct Google Sign In via Redirect
     async function handleGoogleSignIn() {
       const provider = new firebase.auth.GoogleAuthProvider();
       try {
@@ -286,7 +281,7 @@
         await auth.signInWithRedirect(provider);
       } catch (err) {
         console.error("Auth Error:", err);
-        showToast("Login initialisation failed.");
+        showToast("Error: " + (err.code || err.message));
       }
     }
 
@@ -506,7 +501,7 @@
       }
     }
 
-        function resetToHome() {
+    function resetToHome() {
       document.getElementById('challenge-outcome-box').classList.add('hidden');
       showView('view-start');
     }
@@ -576,7 +571,7 @@
       toast.className = "bg-slate-800 text-white text-xs px-4 py-2 rounded-full border border-slate-700 shadow-xl mb-2 transition-all duration-300";
       toast.innerText = msg;
       container.appendChild(toast);
-      setTimeout(() => toast.remove(), 4000);
+      setTimeout(() => toast.remove(), 5000);
     }
   </script>
 </body>
