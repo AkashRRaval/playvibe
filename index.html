@@ -54,12 +54,12 @@
 
     <!-- Firebase Logic Script -->
     <script>
-        // AAPKI FIREBASE CONFIG KEYS DEKHEN AUR REPLACE KAREIN:
+        // APNI REAL FIREBASE CONFIG KEYS SE REPLACE KAREIN
         const firebaseConfig = {
             apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            authDomain: "playvibe-71ed3.firebaseapp.com",
+            projectId: "playvibe-71ed3",
+            storageBucket: "playvibe-71ed3.appspot.com",
             messagingSenderId: "YOUR_SENDER_ID",
             appId: "YOUR_APP_ID"
         };
@@ -68,15 +68,18 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
 
-        // Google Sign-In Function
+        // Google Sign-In Function (Mobile Optimized - Redirect)
         function loginWithGoogle() {
             const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider).catch(error => {
-                alert("Login Error: " + error.message);
-            });
+            auth.signInWithRedirect(provider);
         }
 
-        // Auth State Listener
+        // Catch Redirect Result
+        auth.getRedirectResult().catch(error => {
+            if (error.code) alert("Login Error: " + error.message);
+        });
+
+        // Auth State Change Listener
         auth.onAuthStateChanged(user => {
             if (user) {
                 document.getElementById('login-btn').classList.add('hidden');
