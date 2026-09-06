@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PlayVibe - Ultimate Gaming & Quiz Arena</title>
+  <title>PlayVibe - Gaming & Referral Challenge</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -26,28 +26,23 @@
   <!-- HEADER -->
   <header class="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 p-3.5 sticky top-0 z-40">
     <div class="max-w-md mx-auto flex items-center justify-between">
-      <!-- Logo -->
       <div class="flex items-center space-x-2 cursor-pointer" onclick="showView('view-home')">
         <span class="text-2xl">⚡</span>
         <span class="font-black text-xl tracking-wider bg-gradient-to-r from-purple-400 via-pink-500 to-amber-400 bg-clip-text text-transparent">PLAYVIBE</span>
       </div>
 
-      <!-- Controls & User Info -->
       <div class="flex items-center space-x-2.5">
-        <!-- Language Switcher -->
         <button onclick="openLanguageSelection()" class="bg-slate-800 hover:bg-slate-700 text-xs px-2.5 py-1.5 rounded-lg border border-slate-700 flex items-center space-x-1 transition">
           <span>🌐</span>
           <span id="current-lang-code" class="font-bold uppercase">EN</span>
         </button>
 
-        <!-- Stats (Points & Streak) -->
         <div class="flex items-center space-x-2 bg-slate-800/80 px-3 py-1 rounded-full border border-slate-700 text-xs">
           <span title="Points">🏆 <b id="user-points" class="text-amber-400">150</b></span>
           <span class="text-slate-600">|</span>
           <span title="Streak">🔥 <b id="streak-count" class="text-orange-400">1</b></span>
         </div>
 
-        <!-- Login / User Avatar -->
         <div id="auth-box">
           <button id="login-btn" onclick="handleAuthAction()" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition shadow-lg shadow-purple-600/30">
             Guest 👤
@@ -57,13 +52,28 @@
     </div>
   </header>
 
-  <!-- MAIN APP CONTAINER -->
-  <main class="max-w-md mx-auto w-full p-4 flex-1 flex flex-col justify-start">
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-md mx-auto w-full p-4 flex-1 flex flex-col justify-start space-y-4">
 
-    <!-- Guest Mode Banner Notice -->
-    <div id="guest-notice" class="mb-4 bg-purple-900/30 border border-purple-500/30 p-2.5 rounded-xl flex items-center justify-between text-xs">
-      <span class="text-purple-300">🧪 <b>Guest Testing Mode:</b> All games unlocked!</span>
+    <!-- Guest Notice -->
+    <div id="guest-notice" class="bg-purple-900/30 border border-purple-500/30 p-2.5 rounded-xl flex items-center justify-between text-xs">
+      <span class="text-purple-300">🧪 <b>Guest Testing Mode:</b> All features unlocked!</span>
       <button onclick="handleAuthAction()" class="text-amber-400 font-bold underline text-[11px]">Login</button>
+    </div>
+
+    <!-- 8,000 QUALIFIED USERS MILESTONE CARD -->
+    <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-2 shadow-xl">
+      <div class="flex justify-between items-center text-xs">
+        <span class="font-bold text-purple-300 flex items-center gap-1.5">🎯 Platform Milestone</span>
+        <span id="milestone-badge" class="bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded text-[10px] font-bold">LOCKED</span>
+      </div>
+      <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden">
+        <div id="milestone-progress-bar" class="bg-gradient-to-r from-purple-500 to-amber-400 h-full w-[0%] transition-all duration-500"></div>
+      </div>
+      <div class="flex justify-between text-[11px] text-slate-400 font-mono">
+        <span>Qualified Users: <b id="qualified-counter-text" class="text-white">0</b> / 8,000</span>
+        <span id="milestone-status-text" class="text-amber-400 font-sans">Milestone Pending</span>
+      </div>
     </div>
 
     <!-- VIEW: LANGUAGE SELECTION -->
@@ -87,13 +97,13 @@
 
     <!-- VIEW: HOME DASHBOARD -->
     <div id="view-home" class="space-y-5">
-      <!-- Daily Check-In Widget -->
+      <!-- Daily Check-In -->
       <div class="bg-gradient-to-r from-slate-900 to-purple-950/50 border border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-xl">
         <div>
           <h4 class="font-bold text-sm text-white flex items-center gap-1.5">📅 Daily Reward</h4>
           <p class="text-[11px] text-slate-400">Claim +50 free points every day!</p>
         </div>
-        <button id="attendance-btn" onclick="claimDailyAttendance()" class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold text-xs px-3.5 py-2 rounded-xl transition shadow-lg shadow-emerald-900/30">
+        <button id="attendance-btn" onclick="claimDailyAttendance()" class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 text-white font-bold text-xs px-3.5 py-2 rounded-xl transition shadow-lg shadow-emerald-900/30">
           Claim +50 🎁
         </button>
       </div>
@@ -101,7 +111,7 @@
       <!-- Games Arena -->
       <div class="space-y-2">
         <h3 class="font-black text-sm uppercase tracking-wider text-purple-400 flex items-center gap-2">
-          <span>🎮 Select Game Arena</span>
+          <span>🎮 Games & Quiz Arena</span>
         </h3>
         <div class="grid grid-cols-2 gap-3">
           <div onclick="showCategoryModal()" class="bg-slate-900 border border-slate-800 hover:border-purple-500 p-4 rounded-2xl cursor-pointer transition transform hover:-translate-y-1 group">
@@ -127,7 +137,7 @@
         </div>
       </div>
 
-      <!-- Leaderboard Widget -->
+      <!-- Leaderboard -->
       <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-3">
         <div class="flex items-center justify-between border-b border-slate-800 pb-2">
           <h3 class="font-bold text-xs text-slate-300 uppercase tracking-wider">🏆 Top Players</h3>
@@ -195,14 +205,48 @@
       </div>
     </div>
 
-    <!-- VIEW: REFERRAL -->
-    <div id="view-referral" class="hidden space-y-4 text-center">
-      <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-4">
-        <h2 class="text-lg font-bold text-white">Invite Friends & Earn Points!</h2>
-        <div class="bg-slate-800 p-3 rounded-xl font-mono text-xs font-bold text-amber-400 flex items-center justify-between">
-          <span>PV-GUEST-8821</span>
-          <button onclick="copyReferralCode()" class="text-white hover:text-purple-300">📋 Copy</button>
+    <!-- VIEW: REFERRAL CHALLENGE & SYSTEM -->
+    <div id="view-referral" class="hidden space-y-4">
+      <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-4 shadow-xl">
+        <div class="text-center space-y-1">
+          <h2 class="text-lg font-bold text-white">🚀 Referral Challenge</h2>
+          <p class="text-[11px] text-slate-400">Complete 10 Direct Qualified Referrals (each needing 2 Qualified referrals) + 16 Days Attendance + 20 Active Hours</p>
         </div>
+
+        <div class="grid grid-cols-2 gap-2 text-xs">
+          <div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700">
+            <span class="text-[10px] text-slate-400 block">Direct Referrals</span>
+            <span id="stat-direct-ref" class="font-bold text-amber-400 text-sm">0 / 10 Qualified</span>
+          </div>
+          <div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700">
+            <span class="text-[10px] text-slate-400 block">2nd-Level Referrals</span>
+            <span id="stat-second-ref" class="font-bold text-amber-400 text-sm">0 / 20 Qualified</span>
+          </div>
+          <div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700">
+            <span class="text-[10px] text-slate-400 block">Attendance</span>
+            <span id="stat-attendance-days" class="font-bold text-teal-400 text-sm">0 / 16 Days</span>
+          </div>
+          <div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700">
+            <span class="text-[10px] text-slate-400 block">Foreground Active Usage</span>
+            <span id="stat-active-hours" class="font-bold text-teal-400 text-sm">0.0 / 20.0 Hrs</span>
+          </div>
+        </div>
+
+        <div id="reward-status-banner" class="bg-slate-800 border border-slate-700 p-3 rounded-xl flex items-center justify-between text-xs">
+          <div>
+            <span class="text-slate-400 block text-[10px]">Challenge Reward</span>
+            <span class="font-bold text-emerald-400 text-sm">₹50.00</span>
+          </div>
+          <div id="reward-lock-tag" class="bg-slate-700 text-slate-300 font-bold px-3 py-1 rounded-lg text-[11px]">
+            🔒 Locked – Milestone Pending
+          </div>
+        </div>
+
+        <div class="bg-slate-800 p-3 rounded-xl font-mono text-xs font-bold text-amber-400 flex items-center justify-between">
+          <span id="my-referral-code">PV-GUEST-8821</span>
+          <button onclick="copyReferralCode()" class="text-white hover:text-purple-300">📋 Copy Code</button>
+        </div>
+
         <button onclick="shareReferralWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-3 rounded-xl flex items-center justify-center space-x-2">
           <span>Share on WhatsApp</span>
         </button>
@@ -245,8 +289,9 @@
   </nav>
 
   <script>
-              const ENFORCE_LOGIN = false;
+        const ENFORCE_LOGIN = false;
 
+    // Firebase Config
     const firebaseConfig = {
       apiKey: "AIzaSyAY-q5jpMCMUkCF_TM3YQ_6wKtyfvDySDk",
       authDomain: "playvibe-71ed3.firebaseapp.com",
@@ -258,16 +303,25 @@
 
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
+    const db = firebase.firestore();
 
     let userPoints = 150;
     let userStreak = 1;
     let currentLanguage = localStorage.getItem('playvibe_lang') || 'en';
 
+    // Business Rules State
+    let globalQualifiedCount = 0;
+    const MILESTONE_TARGET = 8000;
+    let directQualifiedCount = 0;
+    let secondQualifiedCount = 0;
+    let activeDaysCount = 0;
+    let activeUsageSeconds = 0;
+
     let activeQuizQuestions = [];
     let currentQIndex = 0;
     let quizScore = 0;
 
-    // Multi-Language Questions Database (English, Hindi, Gujarati)
+    // Multi-Language Questions Database
     const questionBank = {
       en: {
         cricket: [
@@ -316,7 +370,40 @@
       }
     };
 
-    // Sound FX Engine
+    // Foreground Genuine Activity Tracker (Background Usage Banned)
+    class GenuineActivityTracker {
+      constructor() {
+        this.lastInteraction = Date.now();
+        this.isTabVisible = !document.hidden;
+        this.initListeners();
+      }
+
+      initListeners() {
+        document.addEventListener('visibilitychange', () => {
+          this.isTabVisible = !document.hidden;
+        });
+
+        ['click', 'touchstart', 'keydown', 'mousemove'].forEach(evt => {
+          window.addEventListener(evt, () => {
+            this.lastInteraction = Date.now();
+          }, { passive: true });
+        });
+
+        setInterval(() => this.processHeartbeat(), 10000);
+      }
+
+      processHeartbeat() {
+        const isEngaged = (Date.now() - this.lastInteraction) < 60000;
+        if (this.isTabVisible && isEngaged) {
+          activeUsageSeconds += 10;
+          updateReferralDashboard();
+        }
+      }
+    }
+
+    const tracker = new GenuineActivityTracker();
+
+    // Sound FX
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     function playSound(type) {
       if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -339,7 +426,7 @@
       }
     }
 
-    // Confetti Fireworks
+    // Confetti
     function triggerConfetti() {
       const canvas = document.getElementById('confetti-canvas');
       if (!canvas) return;
@@ -375,11 +462,57 @@
       updateHeaderStats();
       renderDummyLeaderboard();
       initLuckyWheelCanvas();
+      updateMilestoneUI();
+      updateReferralDashboard();
     });
 
     function updateHeaderStats() {
       document.getElementById('user-points').innerText = userPoints;
       document.getElementById('streak-count').innerText = userStreak;
+    }
+
+    function updateMilestoneUI() {
+      document.getElementById('qualified-counter-text').innerText = globalQualifiedCount.toLocaleString();
+      const pct = Math.min(100, (globalQualifiedCount / MILESTONE_TARGET) * 100);
+      document.getElementById('milestone-progress-bar').style.width = `${pct}%`;
+      
+      const badge = document.getElementById('milestone-badge');
+      const statusText = document.getElementById('milestone-status-text');
+      
+      if (globalQualifiedCount >= MILESTONE_TARGET) {
+        badge.innerText = "MILESTONE COMPLETED";
+        badge.className = "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded text-[10px] font-bold";
+        statusText.innerText = "Milestone Met";
+        statusText.className = "text-emerald-400 font-sans";
+      } else {
+        badge.innerText = "LOCKED";
+        badge.className = "bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded text-[10px] font-bold";
+        statusText.innerText = "Milestone Pending";
+        statusText.className = "text-amber-400 font-sans";
+      }
+    }
+
+    function updateReferralDashboard() {
+      document.getElementById('stat-direct-ref').innerText = `${directQualifiedCount} / 10 Qualified`;
+      document.getElementById('stat-second-ref').innerText = `${secondQualifiedCount} / 20 Qualified`;
+      document.getElementById('stat-attendance-days').innerText = `${activeDaysCount} / 16 Days`;
+      
+      const hours = (activeUsageSeconds / 3600).toFixed(1);
+      document.getElementById('stat-active-hours').innerText = `${hours} / 20.0 Hrs`;
+
+      const lockTag = document.getElementById('reward-lock-tag');
+      const isChallengeCompleted = directQualifiedCount >= 10 && secondQualifiedCount >= 20 && activeDaysCount >= 16 && (activeUsageSeconds >= 72000);
+
+      if (globalQualifiedCount < MILESTONE_TARGET) {
+        lockTag.innerText = "🔒 Locked – Milestone Pending";
+        lockTag.className = "bg-slate-700 text-slate-300 font-bold px-3 py-1 rounded-lg text-[11px]";
+      } else if (!isChallengeCompleted) {
+        lockTag.innerText = "🔒 Locked – Challenge Incomplete";
+        lockTag.className = "bg-amber-900/50 text-amber-300 font-bold px-3 py-1 rounded-lg text-[11px]";
+      } else {
+        lockTag.innerText = "🎉 Eligible – Pending Verification";
+        lockTag.className = "bg-emerald-600 text-white font-bold px-3 py-1 rounded-lg text-[11px]";
+      }
     }
 
     function handleAuthAction() {
@@ -404,14 +537,18 @@
     }
 
     function claimDailyAttendance() {
-      userPoints += 50; updateHeaderStats(); triggerConfetti(); playSound('correct');
+      userPoints += 50;
+      activeDaysCount = Math.min(16, activeDaysCount + 1);
+      updateHeaderStats();
+      updateReferralDashboard();
+      triggerConfetti();
+      playSound('correct');
       showToast("🎉 Claimed +50 Points!");
     }
 
     function showCategoryModal() { document.getElementById('category-modal').classList.remove('hidden'); }
     function closeCategoryModal() { document.getElementById('category-modal').classList.add('hidden'); }
 
-    // Quiz Engine with Multi-Language Support
     function startCategoryQuiz(catKey) {
       closeCategoryModal();
       const langData = questionBank[currentLanguage] || questionBank['en'];
@@ -443,7 +580,6 @@
       });
     }
 
-    // Memory Game
     function startMemoryGame() {
       showView('view-memory-game');
       const emojis = ['⚡', '🚀', '🏆', '🔥'];
@@ -473,7 +609,6 @@
       });
     }
 
-    // Math Dash
     function startMathDashGame() {
       showView('view-math-dash');
       let score = 0;
@@ -497,7 +632,6 @@
       nextMath();
     }
 
-    // Wheel Canvas
     function initLuckyWheelCanvas() {
       const canvas = document.getElementById('wheel-canvas');
       if (!canvas) return;
@@ -527,7 +661,7 @@
     }
 
     function copyReferralCode() { navigator.clipboard.writeText("PV-GUEST-8821"); showToast("📋 Code Copied!"); }
-    function shareReferralWhatsApp() { window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent("Join PlayVibe Quiz!")}`, '_blank'); }
+    function shareReferralWhatsApp() { window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent("Join PlayVibe Quiz Arena & Referral Challenge!")}`, '_blank'); }
 
     function renderDummyLeaderboard() {
       document.getElementById('leaderboard-list').innerHTML = `
@@ -546,3 +680,4 @@
   </script>
 </body>
 </html>
+
