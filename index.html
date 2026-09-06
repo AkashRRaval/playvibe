@@ -1,242 +1,201 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PlayVibe — Ultimate Quiz Arena</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PlayVibe - Speed Quiz Arena</title>
   
-  <!-- Tailwind CSS -->
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
-  <!-- FontAwesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-
-  <!-- Firebase Compatibility SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-
-  <style>
-    @keyframes pulse-subtle {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.03); }
-    }
-    .animate-pulse-subtle {
-      animation: pulse-subtle 2s infinite ease-in-out;
-    }
-  </style>
+  <!-- Firebase SDKs (v8) -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans antialiased">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between font-sans selection:bg-purple-500 selection:text-white">
 
-  <!-- HEADER CONTAINER -->
-  <header class="bg-slate-800/80 backdrop-blur-md border-b border-slate-700 sticky top-0 z-40 px-4 py-3">
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col items-end space-y-2"></div>
+
+  <!-- HEADER -->
+  <header class="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 p-4 sticky top-0 z-40">
     <div class="max-w-md mx-auto flex items-center justify-between">
-      <!-- App Brand -->
-      <div class="flex items-center space-x-2">
-        <span class="text-2xl font-black bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">PlayVibe</span>
+      <!-- Logo -->
+      <div class="flex items-center space-x-2 cursor-pointer" onclick="resetToHome()">
+        <span class="text-2xl">⚡</span>
+        <span class="font-black text-xl tracking-wider bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">PLAYVIBE</span>
       </div>
 
-      <!-- User Info & Stats Header -->
-      <div id="user-header-stats" class="flex items-center space-x-2.5 text-xs font-semibold">
-        <!-- Language Switcher Badge -->
-        <button id="lang-switcher-btn" onclick="openLanguageSelection()" class="bg-slate-700/80 hover:bg-slate-700 px-2 py-1 rounded-full border border-slate-600 flex items-center space-x-1 text-slate-300 transition">
+      <!-- Controls & User Info -->
+      <div class="flex items-center space-x-3">
+        <!-- Language Switcher -->
+        <button onclick="openLanguageSelection()" class="bg-slate-800 hover:bg-slate-700 text-xs px-2.5 py-1.5 rounded-lg border border-slate-700 flex items-center space-x-1 transition">
           <span>🌐</span>
-          <span id="current-lang-code" class="uppercase text-[10px] font-bold">EN</span>
+          <span id="current-lang-code" class="font-bold uppercase">EN</span>
         </button>
 
-        <!-- Streak -->
-        <div class="flex items-center bg-slate-700/60 px-2.5 py-1 rounded-full border border-slate-600/50">
-          <span class="text-amber-400 mr-1">🔥</span>
-          <span id="streak-count">0</span>
+        <!-- Stats (Points & Streak) -->
+        <div class="flex items-center space-x-2 bg-slate-800 px-3 py-1 rounded-full border border-slate-700 text-xs">
+          <span title="Points">🏆 <b id="user-points">0</b></span>
+          <span class="text-slate-600">|</span>
+          <span title="Streak">🔥 <b id="streak-count">0</b></span>
         </div>
 
-        <!-- Points -->
-        <div class="flex items-center bg-slate-700/60 px-2.5 py-1 rounded-full border border-slate-600/50">
-          <span class="text-yellow-400 mr-1">🪙</span>
-          <span id="user-points">0</span>
-        </div>
-
-        <!-- Auth Button / Avatar -->
-        <div id="auth-container">
-          <button id="login-btn" onclick="handleGoogleSignIn()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1 rounded-lg text-xs font-bold transition">
+        <!-- Login / User Avatar -->
+        <div id="auth-box">
+          <button id="login-btn" onclick="handleGoogleSignIn()" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition shadow-lg shadow-purple-600/30">
             Login
           </button>
-          <img id="user-avatar" class="w-7 h-7 rounded-full hidden border border-purple-400 cursor-pointer" alt="Profile" />
+          <img id="user-avatar" src="" alt="User" class="w-7 h-7 rounded-full border border-purple-500 hidden object-cover">
         </div>
       </div>
     </div>
   </header>
 
-  <!-- MAIN CONTAINER -->
-  <main class="flex-1 max-w-md w-full mx-auto p-4 flex flex-col">
+  <!-- MAIN APP CONTAINER -->
+  <main class="max-w-md mx-auto w-full p-4 flex-1 flex flex-col justify-center">
 
-    <!-- CHALLENGE RECEIVED BANNER (Dynamic) -->
-    <div id="challenge-banner" class="hidden bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-4 rounded-xl mb-4 shadow-lg border border-purple-400/30">
-      <div class="flex items-center justify-between">
-        <div>
-          <span class="text-[10px] uppercase tracking-wider bg-white/20 px-2 py-0.5 rounded font-bold" id="lbl-challenge-title">Challenge Received</span>
-          <h3 id="challenge-banner-text" class="text-sm font-bold mt-1">🔥 Someone challenged you!</h3>
-        </div>
-        <button onclick="acceptChallengeAndStart()" id="btn-accept-challenge" class="bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-extrabold px-3 py-1.5 rounded-lg text-xs transition shadow">
-          ACCEPT 🔥
+    <!-- Challenge Banner -->
+    <div id="challenge-banner" class="hidden mb-4 bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/40 p-3 rounded-xl text-center">
+      <p id="challenge-banner-text" class="text-xs font-bold text-amber-300 mb-2"></p>
+      <button id="btn-accept-challenge" onclick="acceptChallengeAndStart()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs px-4 py-1.5 rounded-lg uppercase tracking-wider transition">
+        ACCEPT 🔥
+      </button>
+    </div>
+
+    <!-- VIEW 1: LANGUAGE SELECTION -->
+    <div id="view-language" class="hidden space-y-4 text-center">
+      <h2 class="text-xl font-bold text-slate-200">Select Your Language / भाषा चुनें</h2>
+      <div class="grid grid-cols-1 gap-3">
+        <button onclick="selectLanguage('en')" class="bg-slate-800 hover:bg-purple-900/40 border border-slate-700 hover:border-purple-500 p-3 rounded-xl font-medium text-sm flex items-center justify-between px-5 transition">
+          <span>English</span>
+          <span class="text-xs text-purple-400">Default</span>
+        </button>
+        <button onclick="selectLanguage('hi')" class="bg-slate-800 hover:bg-purple-900/40 border border-slate-700 hover:border-purple-500 p-3 rounded-xl font-medium text-sm flex items-center justify-between px-5 transition">
+          <span>हिन्दी (Hindi)</span>
+          <span class="text-xs text-purple-400">Popular</span>
+        </button>
+        <button onclick="selectLanguage('gu')" class="bg-slate-800 hover:bg-purple-900/40 border border-slate-700 hover:border-purple-500 p-3 rounded-xl font-medium text-sm flex items-center justify-between px-5 transition">
+          <span>ગુજરાતી (Gujarati)</span>
+          <span class="text-xs text-purple-400">Regional</span>
         </button>
       </div>
     </div>
 
-    <!-- MAIN ARENA CARD -->
-    <div id="quiz-card" class="bg-slate-800 border border-slate-700/80 rounded-2xl p-5 shadow-2xl flex-1 flex flex-col justify-between">
-      
-      <!-- VIEW 0: LANGUAGE SELECTION SCREEN -->
-      <div id="view-language" class="hidden flex-1 flex flex-col items-center justify-center text-center space-y-6 py-4">
-        <div class="w-16 h-16 bg-indigo-500/10 rounded-full flex items-center justify-center text-3xl border border-indigo-500/20">
-          🌐
-        </div>
-        <div>
-          <h2 class="text-xl font-black text-white">Select Your Language</h2>
-          <p class="text-xs text-slate-400 mt-1">Aapni pasandida bhasha chuniye</p>
-        </div>
-
-        <div class="w-full space-y-3 pt-2">
-          <button onclick="selectLanguage('hi')" class="w-full bg-slate-700/80 hover:bg-purple-600/30 border border-slate-600 hover:border-purple-500 text-white font-bold py-3 px-4 rounded-xl transition flex items-center justify-between text-sm group">
-            <span class="flex items-center space-x-2">
-              <span class="text-base">🇮🇳</span>
-              <span>हिंदी (Hindi)</span>
-            </span>
-            <i class="fa-solid fa-chevron-right text-xs text-slate-500 group-hover:text-purple-400"></i>
-          </button>
-
-          <button onclick="selectLanguage('gu')" class="w-full bg-slate-700/80 hover:bg-purple-600/30 border border-slate-600 hover:border-purple-500 text-white font-bold py-3 px-4 rounded-xl transition flex items-center justify-between text-sm group">
-            <span class="flex items-center space-x-2">
-              <span class="text-base">🇮🇳</span>
-              <span>ગુજરાતી (Gujarati)</span>
-            </span>
-            <i class="fa-solid fa-chevron-right text-xs text-slate-500 group-hover:text-purple-400"></i>
-          </button>
-
-          <button onclick="selectLanguage('en')" class="w-full bg-slate-700/80 hover:bg-purple-600/30 border border-slate-600 hover:border-purple-500 text-white font-bold py-3 px-4 rounded-xl transition flex items-center justify-between text-sm group">
-            <span class="flex items-center space-x-2">
-              <span class="text-base">🇬🇧</span>
-              <span>English</span>
-            </span>
-            <i class="fa-solid fa-chevron-right text-xs text-slate-500 group-hover:text-purple-400"></i>
-          </button>
-        </div>
+    <!-- VIEW 2: HOME VIEW -->
+    <div id="view-start" class="space-y-5 text-center">
+      <div class="space-y-2">
+        <h1 id="i18n-title" class="text-2xl font-black tracking-tight text-white">Speed Quiz Arena</h1>
+        <p id="i18n-subtitle" class="text-slate-400 text-xs">Test your knowledge, earn points, maintain your streak, and challenge friends!</p>
       </div>
 
-      <!-- VIEW 1: START SCREEN (HOME) -->
-      <div id="view-start" class="flex-1 flex flex-col items-center justify-center text-center space-y-5 py-4">
-        <div class="w-20 h-20 bg-purple-500/10 rounded-full flex items-center justify-center text-4xl border border-purple-500/20 animate-pulse-subtle">
-          ⚡
-        </div>
-        <div>
-          <h1 id="i18n-title" class="text-2xl font-black text-white">Speed Quiz Arena</h1>
-          <p id="i18n-subtitle" class="text-xs text-slate-400 mt-2 max-w-xs">Test your knowledge, earn points, maintain your streak, and challenge friends!</p>
-        </div>
-
-        <div class="w-full space-y-3 pt-2">
-          <!-- Daily Attendance Button -->
-          <button id="attendance-btn" onclick="claimDailyAttendance()" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold py-3 rounded-xl shadow-lg text-xs transition flex items-center justify-center space-x-2">
-            <span>📅</span>
-            <span id="attendance-btn-text">Mark Daily Attendance (+50 Pts)</span>
-          </button>
-
-          <!-- Play Solo Quiz Button -->
-          <button onclick="startSoloQuiz()" id="btn-start-quiz" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-indigo-500/20 text-sm transition">
-            Play Solo Quiz 🚀
-          </button>
-        </div>
+      <!-- Attendance Button -->
+      <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl text-center space-y-2">
+        <button id="attendance-btn" onclick="claimDailyAttendance()" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs py-3 rounded-xl transition shadow-lg shadow-emerald-900/20 flex items-center justify-center space-x-2">
+          <span id="attendance-btn-text">Mark Daily Attendance (+50 Pts)</span>
+        </button>
       </div>
 
-      <!-- VIEW 2: QUESTION SCREEN -->
-      <div id="view-question" class="hidden flex-1 flex flex-col justify-between">
-        <div>
-          <div class="flex justify-between items-center text-xs font-bold text-slate-400 mb-2">
-            <span id="question-progress">Question 1/5</span>
-            <span id="timer-display" class="text-amber-400 font-mono text-sm">⏱️ 15s</span>
-          </div>
-          <div class="w-full bg-slate-700 h-2 rounded-full overflow-hidden">
-            <div id="progress-bar" class="bg-gradient-to-r from-purple-500 to-pink-500 h-full w-0 transition-all duration-300"></div>
-          </div>
-        </div>
+      <!-- Play Solo Quiz Button -->
+      <button id="btn-start-quiz" onclick="startSoloQuiz()" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-black text-sm py-4 rounded-2xl shadow-xl shadow-purple-900/30 transition transform hover:-translate-y-0.5 uppercase tracking-wider">
+        Play Solo Quiz 🚀
+      </button>
 
-        <div class="my-6">
-          <h2 id="question-text" class="text-lg font-bold text-white leading-snug">Question content goes here?</h2>
+      <!-- Live Leaderboard Widget -->
+      <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl text-left space-y-3">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+          <h3 id="lbl-top-players" class="font-bold text-xs text-slate-300 uppercase tracking-wider">Top Players</h3>
+          <span id="lbl-live-lb" class="text-[10px] bg-purple-900/50 text-purple-300 px-2 py-0.5 rounded-full border border-purple-700/50">Live Leaderboard</span>
         </div>
-
-        <div id="options-container" class="space-y-3">
-          <!-- Dynamic Buttons -->
+        <div id="leaderboard-list" class="space-y-2 text-xs">
+          <p class="text-slate-500 text-center py-2">Loading top players...</p>
         </div>
       </div>
+    </div>
 
-      <!-- VIEW 3: RESULT SCREEN -->
-      <div id="view-result" class="hidden flex-1 flex flex-col items-center justify-center text-center space-y-5 py-4">
-        <div class="text-5xl">🏆</div>
-        <div>
-          <h2 id="i18n-quiz-completed" class="text-xl font-black text-white">Quiz Completed!</h2>
-          <p id="final-score-display" class="text-3xl font-extrabold text-yellow-400 mt-1">0 Pts</p>
+    <!-- VIEW 3: QUESTION PLAYING VIEW -->
+    <div id="view-question" class="hidden space-y-4">
+      <div class="flex items-center justify-between text-xs text-slate-400">
+        <span id="question-progress" class="font-bold text-purple-400">Question 1/5</span>
+        <span id="timer-display" class="font-mono bg-slate-800 px-2.5 py-1 rounded-md text-amber-400 font-bold">⏱️ 15s</span>
+      </div>
+
+      <!-- Timer Progress Bar -->
+      <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+        <div id="progress-bar" class="bg-purple-500 h-full w-full transition-all duration-1000 linear"></div>
+      </div>
+
+      <!-- Question Card -->
+      <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-4">
+        <h2 id="question-text" class="text-sm font-semibold text-white min-h-[48px]">Question text goes here?</h2>
+        <div id="options-container" class="space-y-2.5">
+          <!-- Dynamic Options -->
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW 4: RESULT VIEW -->
+    <div id="view-result" class="hidden text-center space-y-5">
+      <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-4">
+        <div class="inline-block p-3 bg-purple-900/30 text-purple-400 rounded-full border border-purple-500/30">
+          <i class="fa-solid fa-trophy text-3xl"></i>
+        </div>
+        <h2 id="i18n-quiz-completed" class="text-xl font-bold text-white">Quiz Completed!</h2>
+        <div class="text-3xl font-black text-amber-400" id="final-score-display">0 Pts</div>
+
+        <!-- Challenge Outcome Notification -->
+        <div id="challenge-outcome-box" class="hidden p-3 rounded-xl bg-slate-800 border border-slate-700 text-xs font-semibold text-purple-300">
+          <p id="challenge-outcome-text"></p>
         </div>
 
-        <div id="challenge-outcome-box" class="hidden w-full bg-slate-900/80 border border-slate-700 rounded-xl p-3 text-xs text-slate-300">
-          <p id="challenge-outcome-text" class="font-bold text-sm text-purple-300"></p>
-        </div>
-
-        <div class="w-full space-y-3 pt-2">
-          <button id="challenge-share-btn" onclick="initiateChallengeCreation()" class="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black py-3 rounded-xl shadow-lg text-sm transition flex items-center justify-center">
-            <i class="fa-solid fa-swords mr-2"></i> <span id="lbl-challenge-friend">Challenge a Friend ⚔️</span>
+        <div class="pt-2 space-y-2">
+          <button onclick="initiateChallengeCreation()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs py-3 rounded-xl transition shadow-lg shadow-amber-500/20 flex items-center justify-center space-x-2">
+            <span>⚔️</span>
+            <span id="lbl-challenge-friend">Challenge a Friend ⚔️</span>
           </button>
-
-          <button onclick="resetToHome()" id="btn-back-home" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-xl text-xs transition">
+          <button id="btn-back-home" onclick="resetToHome()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs py-3 rounded-xl border border-slate-700 transition">
             Back to Home 🏠
           </button>
         </div>
-      </div>
-
-    </div>
-
-    <!-- LEADERBOARD PREVIEW -->
-    <div class="mt-6 bg-slate-800/60 border border-slate-700/60 rounded-2xl p-4">
-      <div class="flex items-center justify-between mb-3">
-        <h3 id="lbl-top-players" class="text-xs font-bold text-slate-300 uppercase tracking-wider">Top Players</h3>
-        <span id="lbl-live-lb" class="text-[10px] text-purple-400 font-semibold">Live Leaderboard</span>
-      </div>
-      <div id="leaderboard-list" class="space-y-2 text-xs">
-        <p class="text-slate-500 text-center py-2">Loading leaderboard...</p>
       </div>
     </div>
 
   </main>
 
-  <!-- SHARE & CHALLENGE MODAL -->
-  <div id="share-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 max-w-xs w-full text-center space-y-4 shadow-2xl">
-      <div class="w-12 h-12 bg-amber-500/10 text-amber-400 rounded-full flex items-center justify-center text-2xl mx-auto border border-amber-500/20">
-        ⚔️
-      </div>
-      <div>
-        <h3 id="modal-challenge-title" class="text-base font-bold text-white">Challenge Your Friend</h3>
-        <p id="modal-challenge-desc" class="text-xs text-slate-400 mt-1">Share this challenge link. See if they can beat your score!</p>
-      </div>
-
-      <div class="space-y-2 pt-2">
-        <button onclick="shareOnWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center transition">
-          <i class="fa-brands fa-whatsapp text-base mr-2"></i> Share on WhatsApp
+  <!-- SHARE MODAL -->
+  <div id="share-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-sm rounded-2xl p-5 space-y-4 text-center">
+      <h3 id="modal-challenge-title" class="font-bold text-white text-base">Challenge Your Friend</h3>
+      <p id="modal-challenge-desc" class="text-xs text-slate-400">Share this challenge link. See if they can beat your score!</p>
+      
+      <div class="flex space-x-2">
+        <button onclick="shareOnWhatsApp()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-2.5 rounded-xl transition flex items-center justify-center space-x-1">
+          <i class="fa-brands fa-whatsapp text-sm"></i>
+          <span>WhatsApp</span>
         </button>
-        <button onclick="copyChallengeLink()" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center transition">
-          <i class="fa-regular fa-copy mr-2"></i> Copy Link
+        <button onclick="copyChallengeLink()" class="flex-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-bold text-xs py-2.5 rounded-xl transition flex items-center justify-center space-x-1">
+          <i class="fa-regular fa-copy text-sm"></i>
+          <span>Copy Link</span>
         </button>
       </div>
 
-      <button onclick="closeShareModal()" id="btn-modal-close" class="text-xs text-slate-400 hover:text-white pt-2 block mx-auto">
+      <button id="btn-modal-close" onclick="closeShareModal()" class="w-full bg-slate-800 text-slate-400 text-xs py-2 rounded-lg border border-slate-700">
         Close
       </button>
     </div>
   </div>
 
-  <!-- TOAST NOTIFICATION CONTAINER -->
-  <div id="toast-container" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 pointer-events-none"></div>
-    <!-- FIREBASE & APP LOGIC -->
+  <!-- FOOTER -->
+  <footer class="text-center py-3 text-[10px] text-slate-600 border-t border-slate-900">
+    PlayVibe Arena &copy; 2026. All rights reserved.
+  </footer>
+
+  <!-- JAVASCRIPT LOGIC -->
   <script>
-    // 1. Firebase Config
+    // 1. Firebase Config Initialization
     const firebaseConfig = {
       apiKey: "AIzaSyAY-q5jpMCMUkCF_TM3YQ_6wKtyfvDySDk",
       authDomain: "playvibe-71ed3.firebaseapp.com",
@@ -252,7 +211,7 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    // App State
+    // App State Variables
     let currentUser = null;
     let userPoints = 0;
     let userStreak = 0;
@@ -262,12 +221,11 @@
     let timeLeft = 15;
     let currentLanguage = localStorage.getItem('playvibe_lang') || 'en';
     
-    // Challenge State
     let currentChallengeId = null;
     let activeChallengeData = null;
     let generatedShareUrl = "";
 
-    // 2. Multilingual Dictionary Architecture (i18n)
+    // 2. Multilingual Dictionary (i18n)
     const translations = {
       en: {
         title: "Speed Quiz Arena",
@@ -352,7 +310,7 @@
       }
     };
 
-    // 3. Language Controller
+    // 3. Language Functions
     function selectLanguage(langCode) {
       currentLanguage = langCode;
       localStorage.setItem('playvibe_lang', langCode);
@@ -360,7 +318,7 @@
       if (currentUser) {
         db.collection('users').doc(currentUser.uid).update({
           language: langCode
-        }).catch(e => console.error("Language save error:", e));
+        }).catch(e => console.error("Lang save error:", e));
       }
 
       applyTranslations();
@@ -390,7 +348,6 @@
       document.getElementById('modal-challenge-desc').innerText = langData.shareDesc;
       document.getElementById('btn-modal-close').innerText = langData.closeBtn;
 
-      // Update Attendance button text if not disabled
       const attBtnText = document.getElementById('attendance-btn-text');
       const attBtn = document.getElementById('attendance-btn');
       if (attBtn && !attBtn.disabled) {
@@ -398,28 +355,16 @@
       }
     }
 
-    // 4. Initialization & URL Param Check
+    // 4. Page Load Initialization
     window.addEventListener('DOMContentLoaded', async () => {
       applyTranslations();
       setupAuthListener();
       fetchLeaderboard();
 
-      // Check if user needs language selection first
       if (!localStorage.getItem('playvibe_lang')) {
         showView('view-language');
       }
 
-      // Handle Google Redirect Result
-      try {
-        const result = await auth.getRedirectResult();
-        if (result && result.user) {
-          showToast(translations[currentLanguage].loginToast);
-        }
-      } catch (error) {
-        console.error("Redirect Login Error:", error);
-      }
-
-      // Check URL for challengeId
       const urlParams = new URLSearchParams(window.location.search);
       currentChallengeId = urlParams.get('challengeId');
 
@@ -428,7 +373,7 @@
       }
     });
 
-    // 5. Auth Management
+    // 5. Auth Management (Google Login with Popup)
     function setupAuthListener() {
       auth.onAuthStateChanged(async (user) => {
         currentUser = user;
@@ -453,10 +398,20 @@
     async function handleGoogleSignIn() {
       const provider = new firebase.auth.GoogleAuthProvider();
       try {
-        showToast("Redirecting to Google Login... ⏳");
-        await auth.signInWithRedirect(provider);
+        showToast("Opening Google Login... ⏳");
+        const result = await auth.signInWithPopup(provider);
+        if (result && result.user) {
+                    showToast(translations[currentLanguage].loginToast);
+        }
       } catch (err) {
         console.error("Auth Error:", err);
+        if (err.code === 'auth/unauthorized-domain') {
+          showToast("❌ Domain not authorized! Add 'playvibe-nine.vercel.app' in Firebase.");
+        } else if (err.code === 'auth/popup-closed-by-user') {
+          showToast("⚠️ Login popup closed.");
+        } else {
+          showToast(`❌ Login Error: ${err.message || err.code}`);
+        }
       }
     }
 
@@ -471,7 +426,6 @@
           userPoints = data.points || 0;
           userStreak = data.streak || 0;
 
-          // If user already has a saved language preference in DB
           if (data.language) {
             currentLanguage = data.language;
             localStorage.setItem('playvibe_lang', data.language);
@@ -505,7 +459,7 @@
       document.getElementById('streak-count').innerText = userStreak;
     }
 
-    // 6. Daily Attendance Logic
+    // 6. Daily Attendance
     async function claimDailyAttendance() {
       const langData = translations[currentLanguage];
       if (!currentUser) {
@@ -557,7 +511,7 @@
       }
     }
 
-    // 7. Challenge System Core Logic
+    // 7. Challenge Logic
     async function loadChallengeDetails(challengeId) {
       try {
         const doc = await db.collection('challenges').doc(challengeId).get();
@@ -655,7 +609,7 @@
       }
     }
 
-    // 8. Multilingual Quiz Engine
+    // 8. Quiz Engine Logic
     function startSoloQuiz() {
       currentScore = 0;
       currentQuestionIndex = 0;
@@ -756,7 +710,7 @@
       document.getElementById(viewId).classList.remove('hidden');
     }
 
-    // 9. Sharing Utilities
+    // 9. Sharing Helpers
     function openShareModal() {
       document.getElementById('share-modal').classList.remove('hidden');
     }
@@ -766,4 +720,56 @@
     }
 
     function shareOnWhatsApp() {
-      const text = encodeURIComponent(`🔥 Main PlayVibe par Speed Quiz khel raha hoon! Kya tum mera score
+      const text = encodeURIComponent(`🔥 Main PlayVibe par Speed Quiz khel raha hoon! Kya tum mera score beat kar sakte ho?\n\nChallenge Link: ${generatedShareUrl}`);
+      window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
+    }
+
+    function copyChallengeLink() {
+      navigator.clipboard.writeText(generatedShareUrl).then(() => {
+        showToast("📋 Link copied to clipboard!");
+      }).catch(() => {
+        showToast("❌ Failed to copy link.");
+      });
+    }
+
+    // 10. Fetch Live Leaderboard
+    async function fetchLeaderboard() {
+      const box = document.getElementById('leaderboard-list');
+      try {
+        const snap = await db.collection('users').orderBy('points', 'desc').limit(5).get();
+        if (snap.empty) {
+          box.innerHTML = `<p class="text-slate-500 text-center py-2">No players yet.</p>`;
+          return;
+        }
+
+        box.innerHTML = '';
+        let rank = 1;
+        snap.forEach(doc => {
+          const d = doc.data();
+          box.innerHTML += `
+            <div class="flex items-center justify-between bg-slate-900/50 p-2 rounded-lg">
+              <div class="flex items-center space-x-2">
+                <span class="font-bold text-slate-400">#${rank++}</span>
+                <span class="font-medium text-white">${d.name || 'Anonymous'}</span>
+              </div>
+              <span class="font-bold text-yellow-400">${d.points || 0} Pts</span>
+            </div>
+          `;
+        });
+      } catch (e) {
+        box.innerHTML = `<p class="text-slate-500 text-center py-2">Leaderboard offline.</p>`;
+      }
+    }
+
+    // Toast Alert Helper
+    function showToast(msg) {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = "bg-slate-800 text-white text-xs px-4 py-2 rounded-full border border-slate-700 shadow-xl mb-2 transition-all duration-300";
+      toast.innerText = msg;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 4000);
+    }
+  </script>
+</body>
+</html>
