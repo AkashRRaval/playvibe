@@ -14,14 +14,6 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-
-  <style>
-    /* Card Flip Animation */
-    .perspective-1000 { perspective: 1000px; }
-    .transform-style-3d { transform-style: preserve-3d; }
-    .backface-hidden { backface-visibility: hidden; }
-    .rotate-y-180 { transform: rotateY(180deg); }
-  </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between font-sans selection:bg-purple-500 selection:text-white pb-20">
 
@@ -60,7 +52,6 @@
           <button id="login-btn" onclick="handleAuthAction()" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition shadow-lg shadow-purple-600/30">
             Guest 👤
           </button>
-          <img id="user-avatar" src="" alt="User" class="w-7 h-7 rounded-full border border-purple-500 hidden object-cover">
         </div>
       </div>
     </div>
@@ -71,7 +62,7 @@
 
     <!-- Guest Mode Banner Notice -->
     <div id="guest-notice" class="mb-4 bg-purple-900/30 border border-purple-500/30 p-2.5 rounded-xl flex items-center justify-between text-xs">
-      <span class="text-purple-300">🧪 <b>Testing Mode Active:</b> All games & features unlocked!</span>
+      <span class="text-purple-300">🧪 <b>Guest Testing Mode:</b> All games unlocked!</span>
       <button onclick="handleAuthAction()" class="text-amber-400 font-bold underline text-[11px]">Login</button>
     </div>
 
@@ -96,7 +87,6 @@
 
     <!-- VIEW: HOME DASHBOARD -->
     <div id="view-home" class="space-y-5">
-      
       <!-- Daily Check-In Widget -->
       <div class="bg-gradient-to-r from-slate-900 to-purple-950/50 border border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-xl">
         <div>
@@ -108,36 +98,27 @@
         </button>
       </div>
 
-      <!-- Featured Games Hub Header -->
+      <!-- Games Arena -->
       <div class="space-y-2">
         <h3 class="font-black text-sm uppercase tracking-wider text-purple-400 flex items-center gap-2">
           <span>🎮 Select Game Arena</span>
         </h3>
-        
-        <!-- Game Cards Grid -->
         <div class="grid grid-cols-2 gap-3">
-          <!-- Game 1: Speed Quiz -->
           <div onclick="showCategoryModal()" class="bg-slate-900 border border-slate-800 hover:border-purple-500 p-4 rounded-2xl cursor-pointer transition transform hover:-translate-y-1 group">
             <div class="text-3xl mb-2 group-hover:scale-110 transition">🎯</div>
             <h4 class="font-bold text-xs text-white">Speed Quiz</h4>
             <p class="text-[10px] text-slate-400">Multi-Category Trivia</p>
           </div>
-
-          <!-- Game 2: Memory Card -->
           <div onclick="startMemoryGame()" class="bg-slate-900 border border-slate-800 hover:border-purple-500 p-4 rounded-2xl cursor-pointer transition transform hover:-translate-y-1 group">
             <div class="text-3xl mb-2 group-hover:scale-110 transition">🃏</div>
             <h4 class="font-bold text-xs text-white">Memory Flip</h4>
             <p class="text-[10px] text-slate-400">Match Emoji Pairs</p>
           </div>
-
-          <!-- Game 3: Math Dash -->
           <div onclick="startMathDashGame()" class="bg-slate-900 border border-slate-800 hover:border-purple-500 p-4 rounded-2xl cursor-pointer transition transform hover:-translate-y-1 group">
             <div class="text-3xl mb-2 group-hover:scale-110 transition">⚡</div>
             <h4 class="font-bold text-xs text-white">Math Dash</h4>
             <p class="text-[10px] text-slate-400">Fast Speed Calculator</p>
           </div>
-
-          <!-- Game 4: Lucky Spin -->
           <div onclick="showView('view-spin-wheel')" class="bg-slate-900 border border-slate-800 hover:border-purple-500 p-4 rounded-2xl cursor-pointer transition transform hover:-translate-y-1 group">
             <div class="text-3xl mb-2 group-hover:scale-110 transition">🎡</div>
             <h4 class="font-bold text-xs text-white">Lucky Wheel</h4>
@@ -146,51 +127,38 @@
         </div>
       </div>
 
-      <!-- Live Leaderboard Widget -->
+      <!-- Leaderboard Widget -->
       <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-3">
         <div class="flex items-center justify-between border-b border-slate-800 pb-2">
           <h3 class="font-bold text-xs text-slate-300 uppercase tracking-wider">🏆 Top Players</h3>
           <span class="text-[10px] bg-purple-900/50 text-purple-300 px-2 py-0.5 rounded-full border border-purple-700/50">Live</span>
         </div>
-        <div id="leaderboard-list" class="space-y-2 text-xs">
-          <!-- Dynamic Leaderboard Items -->
-        </div>
+        <div id="leaderboard-list" class="space-y-2 text-xs"></div>
       </div>
-
     </div>
 
-    <!-- VIEW: SPEED QUIZ PLAYING -->
+    <!-- VIEW: SPEED QUIZ -->
     <div id="view-quiz" class="hidden space-y-4">
       <div class="flex items-center justify-between text-xs text-slate-400">
         <span id="quiz-category-badge" class="font-bold text-purple-400 bg-purple-950/60 px-2.5 py-1 rounded-md border border-purple-800">Category</span>
         <span id="timer-display" class="font-mono bg-slate-800 px-2.5 py-1 rounded-md text-amber-400 font-bold">⏱️ 15s</span>
       </div>
-
-      <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
-        <div id="progress-bar" class="bg-purple-500 h-full w-full transition-all duration-1000 linear"></div>
-      </div>
-
       <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-4 shadow-xl">
-        <h2 id="question-text" class="text-sm font-semibold text-white min-h-[48px]">Question text goes here?</h2>
+        <h2 id="question-text" class="text-sm font-semibold text-white min-h-[48px]">Question text...</h2>
         <div id="options-container" class="space-y-2.5"></div>
       </div>
     </div>
 
-    <!-- VIEW: MEMORY FLIP GAME -->
+    <!-- VIEW: MEMORY GAME -->
     <div id="view-memory-game" class="hidden space-y-4 text-center">
       <div class="flex items-center justify-between text-xs text-slate-400">
         <span class="font-bold text-purple-400">🃏 Memory Match</span>
-        <span>Moves: <b id="memory-moves" class="text-white">0</b></span>
       </div>
       <div id="memory-grid" class="grid grid-cols-4 gap-2.5"></div>
     </div>
 
-    <!-- VIEW: MATH DASH GAME -->
+    <!-- VIEW: MATH DASH -->
     <div id="view-math-dash" class="hidden space-y-4 text-center">
-      <div class="flex items-center justify-between text-xs text-slate-400">
-        <span class="font-bold text-purple-400">⚡ Math Dash</span>
-        <span>Time Left: <b id="math-timer" class="text-amber-400">20s</b></span>
-      </div>
       <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-4">
         <div id="math-equation" class="text-2xl font-black text-amber-400">5 + 7 = ?</div>
         <div id="math-options" class="grid grid-cols-2 gap-3"></div>
@@ -200,15 +168,11 @@
     <!-- VIEW: LUCKY SPIN WHEEL -->
     <div id="view-spin-wheel" class="hidden space-y-5 text-center">
       <h2 class="text-base font-bold text-slate-200">🎡 Spin the Wheel of Fortune</h2>
-      
       <div class="relative w-64 h-64 mx-auto flex items-center justify-center">
-        <!-- Wheel Pointer -->
         <div class="absolute -top-3 z-20 text-red-500 text-2xl">▼</div>
-        <!-- Canvas Wheel -->
         <canvas id="wheel-canvas" width="256" height="256" class="w-full h-full rounded-full border-4 border-slate-800 shadow-2xl"></canvas>
       </div>
-
-      <button id="btn-spin-wheel" onclick="spinLuckyWheel()" class="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black py-3 rounded-2xl shadow-lg transition">
+      <button id="btn-spin-wheel" onclick="spinLuckyWheel()" class="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 text-slate-950 font-black py-3 rounded-2xl shadow-lg transition">
         SPIN NOW 🚀
       </button>
     </div>
@@ -217,68 +181,29 @@
     <div id="view-rewards" class="hidden space-y-4">
       <div class="text-center space-y-1">
         <h2 class="text-lg font-black text-white">🎁 Rewards Store</h2>
-        <p class="text-xs text-slate-400">Redeem earned points for real gift vouchers!</p>
+        <p class="text-xs text-slate-400">Redeem points for gift vouchers!</p>
       </div>
-
       <div class="space-y-3">
-        <!-- Reward Item 1 -->
         <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between">
-          <div class="flex items-center space-x-3">
-            <div class="text-2xl">🛒</div>
-            <div>
-              <h4 class="font-bold text-xs text-white">₹50 Amazon Voucher</h4>
-              <p class="text-[10px] text-slate-400">Costs 1,000 Points</p>
-            </div>
-          </div>
-          <button onclick="redeemReward('Amazon Voucher', 1000)" class="bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs px-3 py-1.5 rounded-lg border border-purple-500">
-            Redeem
-          </button>
+          <div><h4 class="font-bold text-xs text-white">₹50 Amazon Voucher</h4><p class="text-[10px] text-slate-400">1,000 Points</p></div>
+          <button onclick="redeemReward('Amazon Voucher', 1000)" class="bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs px-3 py-1.5 rounded-lg">Redeem</button>
         </div>
-
-        <!-- Reward Item 2 -->
         <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between">
-          <div class="flex items-center space-x-3">
-            <div class="text-2xl">📲</div>
-            <div>
-              <h4 class="font-bold text-xs text-white">₹50 Paytm Cash</h4>
-              <p class="text-[10px] text-slate-400">Costs 1,000 Points</p>
-            </div>
-          </div>
-          <button onclick="redeemReward('Paytm Cash', 1000)" class="bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs px-3 py-1.5 rounded-lg border border-purple-500">
-            Redeem
-          </button>
-        </div>
-
-        <!-- Reward Item 3 -->
-        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between">
-          <div class="flex items-center space-x-3">
-            <div class="text-2xl">🎮</div>
-            <div>
-              <h4 class="font-bold text-xs text-white">₹100 Google Play Code</h4>
-              <p class="text-[10px] text-slate-400">Costs 2,000 Points</p>
-            </div>
-          </div>
-          <button onclick="redeemReward('Google Play Code', 2000)" class="bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs px-3 py-1.5 rounded-lg border border-purple-500">
-            Redeem
-          </button>
+          <div><h4 class="font-bold text-xs text-white">₹50 Paytm Cash</h4><p class="text-[10px] text-slate-400">1,000 Points</p></div>
+          <button onclick="redeemReward('Paytm Cash', 1000)" class="bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs px-3 py-1.5 rounded-lg">Redeem</button>
         </div>
       </div>
     </div>
 
-    <!-- VIEW: REFERRAL & SHARE -->
+    <!-- VIEW: REFERRAL -->
     <div id="view-referral" class="hidden space-y-4 text-center">
       <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-4">
-        <div class="text-4xl">👥</div>
         <h2 class="text-lg font-bold text-white">Invite Friends & Earn Points!</h2>
-        <p class="text-xs text-slate-400">Share your referral link with friends. Get <b>+100 Points</b> for every friend who joins!</p>
-
-        <div class="bg-slate-800 p-3 rounded-xl border border-slate-700 font-mono text-xs font-bold text-amber-400 flex items-center justify-between">
-          <span id="referral-code-display">PV-GUEST-8821</span>
+        <div class="bg-slate-800 p-3 rounded-xl font-mono text-xs font-bold text-amber-400 flex items-center justify-between">
+          <span>PV-GUEST-8821</span>
           <button onclick="copyReferralCode()" class="text-white hover:text-purple-300">📋 Copy</button>
         </div>
-
         <button onclick="shareReferralWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-3 rounded-xl flex items-center justify-center space-x-2">
-          <i class="fa-brands fa-whatsapp text-base"></i>
           <span>Share on WhatsApp</span>
         </button>
       </div>
@@ -287,15 +212,9 @@
     <!-- VIEW: RESULT SCREEN -->
     <div id="view-result" class="hidden text-center space-y-5 my-auto">
       <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-4">
-        <div class="inline-block p-3 bg-purple-900/30 text-purple-400 rounded-full border border-purple-500/30">
-          <i class="fa-solid fa-trophy text-3xl"></i>
-        </div>
         <h2 class="text-xl font-bold text-white">Game Finished!</h2>
         <div class="text-3xl font-black text-amber-400" id="final-score-display">+0 Pts</div>
-
-        <button onclick="showView('view-home')" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs py-3 rounded-xl border border-slate-700 transition">
-          Back to Home 🏠
-        </button>
+        <button onclick="showView('view-home')" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs py-3 rounded-xl border border-slate-700">Back to Home 🏠</button>
       </div>
     </div>
 
@@ -305,64 +224,29 @@
   <div id="category-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-800 w-full max-w-sm rounded-2xl p-5 space-y-4 text-center">
       <h3 class="font-bold text-white text-base">Select Quiz Category</h3>
-      
       <div class="grid grid-cols-2 gap-2.5">
-        <button onclick="startCategoryQuiz('cricket')" class="bg-slate-800 hover:bg-purple-900/40 border border-slate-700 p-3 rounded-xl text-xs font-semibold flex flex-col items-center gap-1">
-          <span class="text-2xl">🏏</span>
-          <span>Cricket</span>
-        </button>
-        <button onclick="startCategoryQuiz('bollywood')" class="bg-slate-800 hover:bg-purple-900/40 border border-slate-700 p-3 rounded-xl text-xs font-semibold flex flex-col items-center gap-1">
-          <span class="text-2xl">🎬</span>
-          <span>Bollywood</span>
-        </button>
-        <button onclick="startCategoryQuiz('tech')" class="bg-slate-800 hover:bg-purple-900/40 border border-slate-700 p-3 rounded-xl text-xs font-semibold flex flex-col items-center gap-1">
-          <span class="text-2xl">💻</span>
-          <span>Tech & AI</span>
-        </button>
-        <button onclick="startCategoryQuiz('science')" class="bg-slate-800 hover:bg-purple-900/40 border border-slate-700 p-3 rounded-xl text-xs font-semibold flex flex-col items-center gap-1">
-          <span class="text-2xl">🔬</span>
-          <span>Science</span>
-        </button>
+        <button onclick="startCategoryQuiz('cricket')" class="bg-slate-800 border border-slate-700 p-3 rounded-xl text-xs font-semibold">🏏 Cricket</button>
+        <button onclick="startCategoryQuiz('bollywood')" class="bg-slate-800 border border-slate-700 p-3 rounded-xl text-xs font-semibold">🎬 Bollywood</button>
+        <button onclick="startCategoryQuiz('tech')" class="bg-slate-800 border border-slate-700 p-3 rounded-xl text-xs font-semibold">💻 Tech</button>
+        <button onclick="startCategoryQuiz('science')" class="bg-slate-800 border border-slate-700 p-3 rounded-xl text-xs font-semibold">🔬 Science</button>
       </div>
-
-      <button onclick="closeCategoryModal()" class="w-full bg-slate-800 text-slate-400 text-xs py-2 rounded-lg border border-slate-700">
-        Close
-      </button>
+      <button onclick="closeCategoryModal()" class="w-full bg-slate-800 text-slate-400 text-xs py-2 rounded-lg border border-slate-700">Close</button>
     </div>
   </div>
 
-  <!-- BOTTOM NAVIGATION BAR -->
+  <!-- BOTTOM NAVIGATION -->
   <nav class="fixed bottom-0 left-0 right-0 bg-slate-900/90 backdrop-blur-md border-t border-slate-800 py-2.5 px-4 z-40">
     <div class="max-w-md mx-auto flex items-center justify-around text-center text-[10px] text-slate-400">
-      <button onclick="showView('view-home')" class="hover:text-purple-400 flex flex-col items-center gap-1">
-        <i class="fa-solid fa-house text-sm"></i>
-        <span>Home</span>
-      </button>
-      <button onclick="showCategoryModal()" class="hover:text-purple-400 flex flex-col items-center gap-1">
-        <i class="fa-solid fa-gamepad text-sm"></i>
-        <span>Quiz</span>
-      </button>
-      <button onclick="showView('view-rewards')" class="hover:text-purple-400 flex flex-col items-center gap-1">
-        <i class="fa-solid fa-gift text-sm"></i>
-        <span>Rewards</span>
-      </button>
-      <button onclick="showView('view-referral')" class="hover:text-purple-400 flex flex-col items-center gap-1">
-        <i class="fa-solid fa-user-plus text-sm"></i>
-        <span>Invite</span>
-      </button>
+      <button onclick="showView('view-home')" class="hover:text-purple-400 flex flex-col items-center gap-1"><i class="fa-solid fa-house"></i><span>Home</span></button>
+      <button onclick="showCategoryModal()" class="hover:text-purple-400 flex flex-col items-center gap-1"><i class="fa-solid fa-gamepad"></i><span>Quiz</span></button>
+      <button onclick="showView('view-rewards')" class="hover:text-purple-400 flex flex-col items-center gap-1"><i class="fa-solid fa-gift"></i><span>Rewards</span></button>
+      <button onclick="showView('view-referral')" class="hover:text-purple-400 flex flex-col items-center gap-1"><i class="fa-solid fa-user-plus"></i><span>Invite</span></button>
     </div>
   </nav>
 
-  <!-- JAVASCRIPT LOGIC -->
   <script>
-    // ===================================================
-    // GLOBAL CONFIGURATION SWITCH
-    // Set 'ENFORCE_LOGIN = true' in future when login is required!
-    // Currently 'false' for Guest Testing Mode!
-    // ===================================================
-    const ENFORCE_LOGIN = false;
+              const ENFORCE_LOGIN = false;
 
-    // Firebase Config
     const firebaseConfig = {
       apiKey: "AIzaSyAY-q5jpMCMUkCF_TM3YQ_6wKtyfvDySDk",
       authDomain: "playvibe-71ed3.firebaseapp.com",
@@ -372,55 +256,73 @@
       appId: "1:154300720449:web:cb6feeda486f71e15eadc0"
     };
 
-    if (!firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
-    }
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
-    const db = firebase.firestore();
 
-    // App State Variables
-    let currentUser = null;
-    let userPoints = 150; // Default points for Guest Mode
+    let userPoints = 150;
     let userStreak = 1;
     let currentLanguage = localStorage.getItem('playvibe_lang') || 'en';
 
-    // Quiz Engine State
     let activeQuizQuestions = [];
     let currentQIndex = 0;
-    let quizTimer = null;
-    let timeLeft = 15;
     let quizScore = 0;
 
-    // Question Bank per Category
-        const questionBank = {
-      cricket: [
-        { q: "Who scored the first double century in ODI Cricket?", options: ["Sachin Tendulkar", "Virender Sehwag", "Rohit Sharma", "MS Dhoni"], answer: 0 },
-        { q: "How many players are on the field in a cricket team?", options: ["10", "11", "12", "9"], answer: 1 },
-        { q: "Which country won the 2011 ICC Cricket World Cup?", options: ["Sri Lanka", "Australia", "India", "England"], answer: 2 }
-      ],
-      bollywood: [
-        { q: "Who played Gabbar Singh in the film Sholay?", options: ["Amjad Khan", "Pran", "Danny Denzongpa", "Kader Khan"], answer: 0 },
-        { q: "What is Shah Rukh Khan's bungalow named?", options: ["Jalsa", "Mannat", "Ashiyana", "Galaxy"], answer: 1 }
-      ],
-      tech: [
-        { q: "What does CPU stand for in computers?", options: ["Central Processing Unit", "Central Power Unit", "Computer Program Unit", "Control Panel Unit"], answer: 0 },
-        { q: "Who is the co-founder of Microsoft?", options: ["Steve Jobs", "Bill Gates", "Elon Musk", "Mark Zuckerberg"], answer: 1 }
-      ],
-      science: [
-        { q: "What is the chemical formula of Water?", options: ["CO2", "H2O", "O2", "NaCl"], answer: 1 },
-        { q: "Which organ pumps blood in human body?", options: ["Lungs", "Brain", "Heart", "Kidney"], answer: 2 }
-      ]
+    // Multi-Language Questions Database (English, Hindi, Gujarati)
+    const questionBank = {
+      en: {
+        cricket: [
+          { q: "Who scored the first double century in ODI Cricket?", options: ["Sachin Tendulkar", "Virender Sehwag", "Rohit Sharma", "MS Dhoni"], answer: 0 },
+          { q: "How many players are on the field in a cricket team?", options: ["10", "11", "12", "9"], answer: 1 }
+        ],
+        bollywood: [
+          { q: "Who played Gabbar Singh in the film Sholay?", options: ["Amjad Khan", "Pran", "Danny Denzongpa", "Kader Khan"], answer: 0 }
+        ],
+        tech: [
+          { q: "What does CPU stand for in computers?", options: ["Central Processing Unit", "Central Power Unit", "Computer Program Unit", "Control Panel Unit"], answer: 0 }
+        ],
+        science: [
+          { q: "What is the chemical formula of Water?", options: ["CO2", "H2O", "O2", "NaCl"], answer: 1 }
+        ]
+      },
+      hi: {
+        cricket: [
+          { q: "वनडे क्रिकेट में पहला दोहरा शतक किसने बनाया था?", options: ["सचिन तेंदुलकर", "वीरेंद्र सहवाग", "रोहित शर्मा", "एमएस धोनी"], answer: 0 },
+          { q: "क्रिकेट टीम में मैदान पर कितने खिलाड़ी होते हैं?", options: ["10", "11", "12", "9"], answer: 1 }
+        ],
+        bollywood: [
+          { q: "शोले फिल्म में गब्बर सिंह का किरदार किसने निभाया था?", options: ["अमजद खान", "प्राण", "डैनी डेन्जोंगपा", "कादर खान"], answer: 0 }
+        ],
+        tech: [
+          { q: "कंप्यूटर में CPU का पूरा नाम क्या है?", options: ["सेंट्रल प्रोसेसिंग यूनिट", "सेंट्रल पावर यूनिट", "कंप्यूटर प्रोग्राम यूनिट", "कंट्रोल पैनल यूनिट"], answer: 0 }
+        ],
+        science: [
+          { q: "पानी का रासायनिक सूत्र क्या है?", options: ["CO2", "H2O", "O2", "NaCl"], answer: 1 }
+        ]
+      },
+      gu: {
+        cricket: [
+          { q: "ODI ક્રિકેટમાં પ્રથમ બેવડી સદી કોણે ફટકારી હતી?", options: ["સચિન તેંડુલકર", "વિરેન્દ્ર સેહવાગ", "રોહિત શર્મા", "એમએસ ધોની"], answer: 0 },
+          { q: "ક્રિકેટ ટીમમાં મેદાન પર કેટલા ખેલાડીઓ હોય છે?", options: ["10", "11", "12", "9"], answer: 1 }
+        ],
+        bollywood: [
+          { q: "શોલે ફિલ્મમાં ગબ્બર સિંહનો રોલ કોણે ભજવ્યો હતો?", options: ["અમજદ ખાન", "પ્રાણ", "ડેની ડેન્ઝોન્ગપા", "કાદર ખાન"], answer: 0 }
+        ],
+        tech: [
+          { q: "કમ્પ્યુટરમાં CPU નું પૂરું નામ શું છે?", options: ["સેન્ટ્રલ પ્રોસેસિંગ યુનિટ", "સેન્ટ્રલ પાવર યુનિટ", "કમ્પ્યુટર પ્રોગ્રામ યુનિટ", "કંટ્રોલ પેનલ યુનિટ"], answer: 0 }
+        ],
+        science: [
+          { q: "પાણીનું રાસાયણિક સૂત્ર શું છે?", options: ["CO2", "H2O", "O2", "NaCl"], answer: 1 }
+        ]
+      }
     };
 
-    // Synthesizer Web Audio API Sounds
+    // Sound FX Engine
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     function playSound(type) {
       if (audioCtx.state === 'suspended') audioCtx.resume();
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      
+      osc.connect(gain); gain.connect(audioCtx.destination);
       if (type === 'correct') {
         osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
         osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.2);
@@ -434,55 +336,32 @@
         gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.25);
         osc.start(); osc.stop(audioCtx.currentTime + 0.25);
-      } else if (type === 'win') {
-        [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
-          const o = audioCtx.createOscillator();
-          const g = audioCtx.createGain();
-          o.connect(g); g.connect(audioCtx.destination);
-          o.frequency.value = freq;
-          g.gain.setValueAtTime(0.1, audioCtx.currentTime + idx*0.08);
-          g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + idx*0.08 + 0.25);
-          o.start(audioCtx.currentTime + idx*0.08);
-          o.stop(audioCtx.currentTime + idx*0.08 + 0.25);
-        });
       }
     }
 
-    // Confetti Fireworks Engine
+    // Confetti Fireworks
     function triggerConfetti() {
       const canvas = document.getElementById('confetti-canvas');
       if (!canvas) return;
       const ctx = canvas.getContext('2d');
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      
+      canvas.width = window.innerWidth; canvas.height = window.innerHeight;
       let particles = [];
-      const colors = ['#f43f5e', '#8b5cf6', '#ec4899', '#3b82f6', '#10b981', '#f59e0b'];
-      for (let i = 0; i < 60; i++) {
+      const colors = ['#f43f5e', '#8b5cf6', '#ec4899', '#3b82f6', '#10b981'];
+      for (let i = 0; i < 50; i++) {
         particles.push({
-          x: canvas.width / 2,
-          y: canvas.height / 2,
-          vx: (Math.random() - 0.5) * 12,
-          vy: (Math.random() - 0.8) * 12,
-          size: Math.random() * 8 + 4,
-          color: colors[Math.floor(Math.random() * colors.length)],
-          alpha: 1
+          x: canvas.width / 2, y: canvas.height / 2,
+          vx: (Math.random() - 0.5) * 10, vy: (Math.random() - 0.8) * 10,
+          size: Math.random() * 6 + 4, color: colors[Math.floor(Math.random() * colors.length)], alpha: 1
         });
       }
-      
       function render() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         let active = false;
         particles.forEach(p => {
-          p.x += p.vx;
-          p.y += p.vy;
-          p.vy += 0.3;
-          p.alpha -= 0.015;
+          p.x += p.vx; p.y += p.vy; p.vy += 0.3; p.alpha -= 0.02;
           if (p.alpha > 0) {
-            active = true;
-            ctx.globalAlpha = Math.max(0, p.alpha);
-            ctx.fillStyle = p.color;
-            ctx.fillRect(p.x, p.y, p.size, p.size);
+            active = true; ctx.globalAlpha = Math.max(0, p.alpha);
+            ctx.fillStyle = p.color; ctx.fillRect(p.x, p.y, p.size, p.size);
           }
         });
         if (active) requestAnimationFrame(render);
@@ -491,8 +370,8 @@
       render();
     }
 
-    // Page Load Init
     window.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('current-lang-code').innerText = currentLanguage.toUpperCase();
       updateHeaderStats();
       renderDummyLeaderboard();
       initLuckyWheelCanvas();
@@ -504,14 +383,10 @@
     }
 
     function handleAuthAction() {
-      if (ENFORCE_LOGIN) {
-        auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
-      } else {
-        showToast("ℹ️ Currently in Guest Testing Mode!");
-      }
+      if (ENFORCE_LOGIN) auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
+      else showToast("ℹ️ Guest Testing Mode Active!");
     }
 
-    // Navigation Helper
     function showView(viewId) {
       ['view-language', 'view-home', 'view-quiz', 'view-memory-game', 'view-math-dash', 'view-spin-wheel', 'view-rewards', 'view-referral', 'view-result'].forEach(id => {
         document.getElementById(id).classList.add('hidden');
@@ -525,28 +400,23 @@
       localStorage.setItem('playvibe_lang', lang);
       document.getElementById('current-lang-code').innerText = lang.toUpperCase();
       showView('view-home');
-      showToast(`Language: ${lang.toUpperCase()}`);
+      showToast(`Language set to: ${lang.toUpperCase()}`);
     }
 
-    // Daily Attendance
     function claimDailyAttendance() {
-      userPoints += 50;
-      updateHeaderStats();
-      playSound('win');
-      triggerConfetti();
-      showToast("🎉 Daily Check-in claimed! +50 Points");
+      userPoints += 50; updateHeaderStats(); triggerConfetti(); playSound('correct');
+      showToast("🎉 Claimed +50 Points!");
     }
 
-    // Modal Helpers
     function showCategoryModal() { document.getElementById('category-modal').classList.remove('hidden'); }
     function closeCategoryModal() { document.getElementById('category-modal').classList.add('hidden'); }
 
-    // GAME 1: Category Speed Quiz
+    // Quiz Engine with Multi-Language Support
     function startCategoryQuiz(catKey) {
       closeCategoryModal();
-      activeQuizQuestions = questionBank[catKey] || questionBank['cricket'];
-      currentQIndex = 0;
-      quizScore = 0;
+      const langData = questionBank[currentLanguage] || questionBank['en'];
+      activeQuizQuestions = langData[catKey] || langData['cricket'];
+      currentQIndex = 0; quizScore = 0;
       document.getElementById('quiz-category-badge').innerText = catKey.toUpperCase();
       showView('view-quiz');
       loadQuizQuestion();
@@ -554,74 +424,47 @@
 
     function loadQuizQuestion() {
       if (currentQIndex >= activeQuizQuestions.length) {
-        finishGame(quizScore);
-        return;
+        finishGame(quizScore); return;
       }
-
       const q = activeQuizQuestions[currentQIndex];
       document.getElementById('question-text').innerText = q.q;
       const optsBox = document.getElementById('options-container');
       optsBox.innerHTML = '';
-
       q.options.forEach((opt, idx) => {
         const btn = document.createElement('button');
-        btn.className = "w-full text-left bg-slate-800 hover:bg-slate-700 text-white text-xs p-3 rounded-xl border border-slate-700 transition flex items-center justify-between";
+        btn.className = "w-full text-left bg-slate-800 hover:bg-slate-700 text-white text-xs p-3 rounded-xl border border-slate-700 flex items-center justify-between";
         btn.innerHTML = `<span>${opt}</span><i class="fa-regular fa-circle text-slate-500"></i>`;
         btn.onclick = () => {
-          if (idx === q.answer) {
-            playSound('correct');
-            quizScore += 20;
-          } else {
-            playSound('wrong');
-          }
-          currentQIndex++;
-          loadQuizQuestion();
+          if (idx === q.answer) { playSound('correct'); quizScore += 20; }
+          else { playSound('wrong'); }
+          currentQIndex++; loadQuizQuestion();
         };
         optsBox.appendChild(btn);
       });
     }
 
-    // GAME 2: Memory Card Flip Game
+    // Memory Game
     function startMemoryGame() {
       showView('view-memory-game');
-      const emojis = ['⚡', '🚀', '🏆', '🔥', '💎', '🎮', '🎯', '🌟'];
+      const emojis = ['⚡', '🚀', '🏆', '🔥'];
       const cards = [...emojis, ...emojis].sort(() => Math.random() - 0.5);
       const grid = document.getElementById('memory-grid');
       grid.innerHTML = '';
-      
-      let flipped = [];
-      let matchedCount = 0;
-
+      let flipped = []; let matched = 0;
       cards.forEach(emoji => {
         const card = document.createElement('div');
-        card.className = "bg-slate-800 h-16 rounded-xl border border-slate-700 flex items-center justify-center text-2xl cursor-pointer transition transform duration-200 select-none";
-        card.dataset.emoji = emoji;
+        card.className = "bg-slate-800 h-16 rounded-xl border border-slate-700 flex items-center justify-center text-2xl cursor-pointer select-none";
         card.innerText = '❓';
-
         card.onclick = () => {
-          if (flipped.length < 2 && !card.classList.contains('matched') && card.innerText === '❓') {
-            card.innerText = emoji;
-            card.classList.add('bg-purple-900/60', 'border-purple-500');
-            flipped.push(card);
-
+          if (flipped.length < 2 && card.innerText === '❓') {
+            card.innerText = emoji; flipped.push(card);
             if (flipped.length === 2) {
-              if (flipped[0].dataset.emoji === flipped[1].dataset.emoji) {
-                playSound('correct');
-                flipped.forEach(c => c.classList.add('matched'));
-                matchedCount += 2;
-                flipped = [];
-                if (matchedCount === cards.length) {
-                  finishGame(100);
-                }
+              if (flipped[0].innerText === flipped[1].innerText) {
+                playSound('correct'); matched += 2; flipped = [];
+                if (matched === cards.length) finishGame(80);
               } else {
                 playSound('wrong');
-                setTimeout(() => {
-                  flipped.forEach(c => {
-                    c.innerText = '❓';
-                    c.classList.remove('bg-purple-900/60', 'border-purple-500');
-                  });
-                  flipped = [];
-                }, 800);
+                setTimeout(() => { flipped.forEach(c => c.innerText = '❓'); flipped = []; }, 800);
               }
             }
           }
@@ -630,34 +473,23 @@
       });
     }
 
-    // GAME 3: Fast Math Dash
+    // Math Dash
     function startMathDashGame() {
       showView('view-math-dash');
       let score = 0;
-      
       function nextMath() {
-        const a = Math.floor(Math.random() * 15) + 1;
-        const b = Math.floor(Math.random() * 15) + 1;
-        const correct = a + b;
+        const a = Math.floor(Math.random() * 10) + 1;
+        const b = Math.floor(Math.random() * 10) + 1;
         document.getElementById('math-equation').innerText = `${a} + ${b} = ?`;
-        
         const optsBox = document.getElementById('math-options');
         optsBox.innerHTML = '';
-
-        const opts = [correct, correct + 2, Math.max(1, correct - 3), correct + 5].sort(() => Math.random() - 0.5);
-        opts.forEach(opt => {
+        [a+b, a+b+2, a+b-1, a+b+4].sort(() => Math.random() - 0.5).forEach(opt => {
           const btn = document.createElement('button');
           btn.className = "bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl border border-slate-700 text-sm";
           btn.innerText = opt;
           btn.onclick = () => {
-            if (opt === correct) {
-              playSound('correct');
-              score += 15;
-              nextMath();
-            } else {
-              playSound('wrong');
-              finishGame(score);
-            }
+            if (opt === a+b) { playSound('correct'); score += 15; nextMath(); }
+            else { playSound('wrong'); finishGame(score); }
           };
           optsBox.appendChild(btn);
         });
@@ -665,111 +497,52 @@
       nextMath();
     }
 
-    // GAME 4: Canvas Lucky Wheel
+    // Wheel Canvas
     function initLuckyWheelCanvas() {
       const canvas = document.getElementById('wheel-canvas');
       if (!canvas) return;
       const ctx = canvas.getContext('2d');
-      const segments = ['10 Pts', '50 Pts', '20 Pts', '100 Pts', '200 Pts', 'Try Again'];
-      const colors = ['#8b5cf6', '#ec4899', '#3b82f6', '#10b981', '#f59e0b', '#64748b'];
-
-      for (let i = 0; i < segments.length; i++) {
-        const angle = (Math.PI * 2) / segments.length;
-        ctx.beginPath();
-        ctx.fillStyle = colors[i];
-        ctx.moveTo(128, 128);
-        ctx.arc(128, 128, 128, i * angle, (i + 1) * angle);
-        ctx.fill();
-
-        ctx.save();
-        ctx.translate(128, 128);
-        ctx.rotate(i * angle + angle / 2);
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 12px sans-serif';
-        ctx.fillText(segments[i], 50, 4);
-        ctx.restore();
+      const colors = ['#8b5cf6', '#ec4899', '#3b82f6', '#10b981'];
+      for (let i = 0; i < 4; i++) {
+        ctx.beginPath(); ctx.fillStyle = colors[i]; ctx.moveTo(128, 128);
+        ctx.arc(128, 128, 128, i * (Math.PI/2), (i+1) * (Math.PI/2)); ctx.fill();
       }
     }
 
     function spinLuckyWheel() {
-      const btn = document.getElementById('btn-spin-wheel');
-      btn.disabled = true;
-      playSound('correct');
-
-      let reward = 50;
-      userPoints += reward;
-      updateHeaderStats();
-
-      setTimeout(() => {
-        triggerConfetti();
-        playSound('win');
-        showToast(`🎉 You won +${reward} Points from Wheel!`);
-        btn.disabled = false;
-      }, 1500);
+      playSound('correct'); userPoints += 50; updateHeaderStats();
+      setTimeout(() => { triggerConfetti(); showToast("🎉 Won +50 Points!"); }, 1000);
     }
 
-    // Common Finish Game Helper
-    function finishGame(ptsGained) {
-      userPoints += ptsGained;
-      updateHeaderStats();
-      triggerConfetti();
-      playSound('win');
-      document.getElementById('final-score-display').innerText = `+${ptsGained} Pts`;
+    function finishGame(pts) {
+      userPoints += pts; updateHeaderStats(); triggerConfetti(); playSound('correct');
+      document.getElementById('final-score-display').innerText = `+${pts} Pts`;
       showView('view-result');
     }
 
-    // Rewards & Referral System
     function redeemReward(name, cost) {
       if (userPoints >= cost) {
-        userPoints -= cost;
-        updateHeaderStats();
-        playSound('win');
-        triggerConfetti();
-        showToast(`🎉 Successfully Redeemed: ${name}!`);
-      } else {
-        playSound('wrong');
-        showToast(`⚠️ Insufficient Points! Need ${cost - userPoints} more.`);
-      }
+        userPoints -= cost; updateHeaderStats(); triggerConfetti(); showToast(`🎉 Redeemed ${name}!`);
+      } else showToast(`⚠️ Need ${cost - userPoints} more points.`);
     }
 
-    function copyReferralCode() {
-      navigator.clipboard.writeText("PV-GUEST-8821");
-      showToast("📋 Referral Code Copied!");
-    }
-
-    function shareReferralWhatsApp() {
-      const text = encodeURIComponent("🔥 Join me on PlayVibe Speed Quiz & Games! Earn points and redeem free Gift Vouchers! Code: PV-GUEST-8821");
-      window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
-    }
+    function copyReferralCode() { navigator.clipboard.writeText("PV-GUEST-8821"); showToast("📋 Code Copied!"); }
+    function shareReferralWhatsApp() { window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent("Join PlayVibe Quiz!")}`, '_blank'); }
 
     function renderDummyLeaderboard() {
-      const list = document.getElementById('leaderboard-list');
-      const topPlayers = [
-        { name: "Rahul Sharma", pts: 1450 },
-        { name: "Akash Patel", pts: 1200 },
-        { name: "Priya Singh", pts: 980 }
-      ];
-      list.innerHTML = topPlayers.map((p, idx) => `
-        <div class="flex items-center justify-between bg-slate-800/50 p-2 rounded-lg border border-slate-800">
-          <div class="flex items-center space-x-2">
-            <span class="font-bold text-amber-400">#${idx + 1}</span>
-            <span class="text-white">${p.name}</span>
-          </div>
-          <span class="font-bold text-purple-400">${p.pts} Pts</span>
-        </div>
-      `).join('');
+      document.getElementById('leaderboard-list').innerHTML = `
+        <div class="flex justify-between bg-slate-800/50 p-2 rounded-lg border border-slate-800">
+          <span>#1 Rahul Sharma</span><span class="text-purple-400">1450 Pts</span>
+        </div>`;
     }
 
     function showToast(msg) {
       const container = document.getElementById('toast-container');
       const toast = document.createElement('div');
-      toast.className = "bg-slate-800 text-white text-xs px-4 py-2 rounded-full border border-slate-700 shadow-xl mb-2 transition-all duration-300";
-      toast.innerText = msg;
-      container.appendChild(toast);
-      setTimeout(() => toast.remove(), 3500);
+      toast.className = "bg-slate-800 text-white text-xs px-4 py-2 rounded-full border border-slate-700 shadow-xl mb-2";
+      toast.innerText = msg; container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
     }
   </script>
 </body>
 </html>
-
-    
