@@ -37,17 +37,25 @@
       </div>
 
       <!-- User Info & Stats Header -->
-      <div id="user-header-stats" class="flex items-center space-x-3 text-xs font-semibold">
+      <div id="user-header-stats" class="flex items-center space-x-2.5 text-xs font-semibold">
+        <!-- Language Switcher Badge -->
+        <button id="lang-switcher-btn" onclick="openLanguageSelection()" class="bg-slate-700/80 hover:bg-slate-700 px-2 py-1 rounded-full border border-slate-600 flex items-center space-x-1 text-slate-300 transition">
+          <span>🌐</span>
+          <span id="current-lang-code" class="uppercase text-[10px] font-bold">EN</span>
+        </button>
+
         <!-- Streak -->
         <div class="flex items-center bg-slate-700/60 px-2.5 py-1 rounded-full border border-slate-600/50">
           <span class="text-amber-400 mr-1">🔥</span>
           <span id="streak-count">0</span>
         </div>
+
         <!-- Points -->
         <div class="flex items-center bg-slate-700/60 px-2.5 py-1 rounded-full border border-slate-600/50">
           <span class="text-yellow-400 mr-1">🪙</span>
           <span id="user-points">0</span>
         </div>
+
         <!-- Auth Button / Avatar -->
         <div id="auth-container">
           <button id="login-btn" onclick="handleGoogleSignIn()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1 rounded-lg text-xs font-bold transition">
@@ -66,26 +74,63 @@
     <div id="challenge-banner" class="hidden bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-4 rounded-xl mb-4 shadow-lg border border-purple-400/30">
       <div class="flex items-center justify-between">
         <div>
-          <span class="text-[10px] uppercase tracking-wider bg-white/20 px-2 py-0.5 rounded font-bold">Challenge Received</span>
+          <span class="text-[10px] uppercase tracking-wider bg-white/20 px-2 py-0.5 rounded font-bold" id="lbl-challenge-title">Challenge Received</span>
           <h3 id="challenge-banner-text" class="text-sm font-bold mt-1">🔥 Someone challenged you!</h3>
         </div>
-        <button onclick="acceptChallengeAndStart()" class="bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-extrabold px-3 py-1.5 rounded-lg text-xs transition shadow">
+        <button onclick="acceptChallengeAndStart()" id="btn-accept-challenge" class="bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-extrabold px-3 py-1.5 rounded-lg text-xs transition shadow">
           ACCEPT 🔥
         </button>
       </div>
     </div>
 
-    <!-- QUIZ ARENA CARD -->
+    <!-- MAIN ARENA CARD -->
     <div id="quiz-card" class="bg-slate-800 border border-slate-700/80 rounded-2xl p-5 shadow-2xl flex-1 flex flex-col justify-between">
       
-      <!-- VIEW 1: START SCREEN -->
+      <!-- VIEW 0: LANGUAGE SELECTION SCREEN -->
+      <div id="view-language" class="hidden flex-1 flex flex-col items-center justify-center text-center space-y-6 py-4">
+        <div class="w-16 h-16 bg-indigo-500/10 rounded-full flex items-center justify-center text-3xl border border-indigo-500/20">
+          🌐
+        </div>
+        <div>
+          <h2 class="text-xl font-black text-white">Select Your Language</h2>
+          <p class="text-xs text-slate-400 mt-1">Aapni pasandida bhasha chuniye</p>
+        </div>
+
+        <div class="w-full space-y-3 pt-2">
+          <button onclick="selectLanguage('hi')" class="w-full bg-slate-700/80 hover:bg-purple-600/30 border border-slate-600 hover:border-purple-500 text-white font-bold py-3 px-4 rounded-xl transition flex items-center justify-between text-sm group">
+            <span class="flex items-center space-x-2">
+              <span class="text-base">🇮🇳</span>
+              <span>हिंदी (Hindi)</span>
+            </span>
+            <i class="fa-solid fa-chevron-right text-xs text-slate-500 group-hover:text-purple-400"></i>
+          </button>
+
+          <button onclick="selectLanguage('gu')" class="w-full bg-slate-700/80 hover:bg-purple-600/30 border border-slate-600 hover:border-purple-500 text-white font-bold py-3 px-4 rounded-xl transition flex items-center justify-between text-sm group">
+            <span class="flex items-center space-x-2">
+              <span class="text-base">🇮🇳</span>
+              <span>ગુજરાતી (Gujarati)</span>
+            </span>
+            <i class="fa-solid fa-chevron-right text-xs text-slate-500 group-hover:text-purple-400"></i>
+          </button>
+
+          <button onclick="selectLanguage('en')" class="w-full bg-slate-700/80 hover:bg-purple-600/30 border border-slate-600 hover:border-purple-500 text-white font-bold py-3 px-4 rounded-xl transition flex items-center justify-between text-sm group">
+            <span class="flex items-center space-x-2">
+              <span class="text-base">🇬🇧</span>
+              <span>English</span>
+            </span>
+            <i class="fa-solid fa-chevron-right text-xs text-slate-500 group-hover:text-purple-400"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- VIEW 1: START SCREEN (HOME) -->
       <div id="view-start" class="flex-1 flex flex-col items-center justify-center text-center space-y-5 py-4">
         <div class="w-20 h-20 bg-purple-500/10 rounded-full flex items-center justify-center text-4xl border border-purple-500/20 animate-pulse-subtle">
           ⚡
         </div>
         <div>
-          <h1 class="text-2xl font-black text-white">Speed Quiz Arena</h1>
-          <p class="text-xs text-slate-400 mt-2 max-w-xs">Test your knowledge, earn points, maintain your streak, and challenge friends!</p>
+          <h1 id="i18n-title" class="text-2xl font-black text-white">Speed Quiz Arena</h1>
+          <p id="i18n-subtitle" class="text-xs text-slate-400 mt-2 max-w-xs">Test your knowledge, earn points, maintain your streak, and challenge friends!</p>
         </div>
 
         <div class="w-full space-y-3 pt-2">
@@ -96,7 +141,7 @@
           </button>
 
           <!-- Play Solo Quiz Button -->
-          <button onclick="startSoloQuiz()" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-indigo-500/20 text-sm transition">
+          <button onclick="startSoloQuiz()" id="btn-start-quiz" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-indigo-500/20 text-sm transition">
             Play Solo Quiz 🚀
           </button>
         </div>
@@ -104,7 +149,6 @@
 
       <!-- VIEW 2: QUESTION SCREEN -->
       <div id="view-question" class="hidden flex-1 flex flex-col justify-between">
-        <!-- Progress & Timer -->
         <div>
           <div class="flex justify-between items-center text-xs font-bold text-slate-400 mb-2">
             <span id="question-progress">Question 1/5</span>
@@ -115,12 +159,10 @@
           </div>
         </div>
 
-        <!-- Question Text -->
         <div class="my-6">
           <h2 id="question-text" class="text-lg font-bold text-white leading-snug">Question content goes here?</h2>
         </div>
 
-        <!-- Options Container -->
         <div id="options-container" class="space-y-3">
           <!-- Dynamic Buttons -->
         </div>
@@ -130,23 +172,20 @@
       <div id="view-result" class="hidden flex-1 flex flex-col items-center justify-center text-center space-y-5 py-4">
         <div class="text-5xl">🏆</div>
         <div>
-          <h2 class="text-xl font-black text-white">Quiz Completed!</h2>
+          <h2 id="i18n-quiz-completed" class="text-xl font-black text-white">Quiz Completed!</h2>
           <p id="final-score-display" class="text-3xl font-extrabold text-yellow-400 mt-1">0 Pts</p>
         </div>
 
-        <!-- Dynamic Challenge Outcome Banner -->
         <div id="challenge-outcome-box" class="hidden w-full bg-slate-900/80 border border-slate-700 rounded-xl p-3 text-xs text-slate-300">
           <p id="challenge-outcome-text" class="font-bold text-sm text-purple-300"></p>
         </div>
 
-        <!-- Action Buttons -->
         <div class="w-full space-y-3 pt-2">
-          <!-- Challenge Button -->
           <button id="challenge-share-btn" onclick="initiateChallengeCreation()" class="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black py-3 rounded-xl shadow-lg text-sm transition flex items-center justify-center">
-            <i class="fa-solid fa-swords mr-2"></i> Challenge a Friend ⚔️
+            <i class="fa-solid fa-swords mr-2"></i> <span id="lbl-challenge-friend">Challenge a Friend ⚔️</span>
           </button>
 
-          <button onclick="resetToHome()" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-xl text-xs transition">
+          <button onclick="resetToHome()" id="btn-back-home" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-xl text-xs transition">
             Back to Home 🏠
           </button>
         </div>
@@ -157,8 +196,8 @@
     <!-- LEADERBOARD PREVIEW -->
     <div class="mt-6 bg-slate-800/60 border border-slate-700/60 rounded-2xl p-4">
       <div class="flex items-center justify-between mb-3">
-        <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Top Players</h3>
-        <span class="text-[10px] text-purple-400 font-semibold">Live Leaderboard</span>
+        <h3 id="lbl-top-players" class="text-xs font-bold text-slate-300 uppercase tracking-wider">Top Players</h3>
+        <span id="lbl-live-lb" class="text-[10px] text-purple-400 font-semibold">Live Leaderboard</span>
       </div>
       <div id="leaderboard-list" class="space-y-2 text-xs">
         <p class="text-slate-500 text-center py-2">Loading leaderboard...</p>
@@ -174,8 +213,8 @@
         ⚔️
       </div>
       <div>
-        <h3 class="text-base font-bold text-white">Challenge Your Friend</h3>
-        <p class="text-xs text-slate-400 mt-1">Share this challenge link. See if they can beat your score!</p>
+        <h3 id="modal-challenge-title" class="text-base font-bold text-white">Challenge Your Friend</h3>
+        <p id="modal-challenge-desc" class="text-xs text-slate-400 mt-1">Share this challenge link. See if they can beat your score!</p>
       </div>
 
       <div class="space-y-2 pt-2">
@@ -187,7 +226,7 @@
         </button>
       </div>
 
-      <button onclick="closeShareModal()" class="text-xs text-slate-400 hover:text-white pt-2 block mx-auto">
+      <button onclick="closeShareModal()" id="btn-modal-close" class="text-xs text-slate-400 hover:text-white pt-2 block mx-auto">
         Close
       </button>
     </div>
@@ -195,9 +234,9 @@
 
   <!-- TOAST NOTIFICATION CONTAINER -->
   <div id="toast-container" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 pointer-events-none"></div>
-          <!-- FIREBASE & APP LOGIC -->
+    <!-- FIREBASE & APP LOGIC -->
   <script>
-    // 1. Firebase Config (With Full Key)
+    // 1. Firebase Config
     const firebaseConfig = {
       apiKey: "AIzaSyAY-q5jpMCMUkCF_TM3YQ_6wKtyfvDySDk",
       authDomain: "playvibe-71ed3.firebaseapp.com",
@@ -221,35 +260,163 @@
     let currentQuestionIndex = 0;
     let timerInterval = null;
     let timeLeft = 15;
+    let currentLanguage = localStorage.getItem('playvibe_lang') || 'en';
     
     // Challenge State
     let currentChallengeId = null;
     let activeChallengeData = null;
     let generatedShareUrl = "";
 
-    // Quiz Questions Data
-    const quizQuestions = [
-      { q: "Which planet is known as the Red Planet?", options: ["Earth", "Mars", "Jupiter", "Venus"], answer: 1 },
-      { q: "What is the capital of France?", options: ["Berlin", "Madrid", "Paris", "Rome"], answer: 2 },
-      { q: "What is 5 + 7?", options: ["10", "11", "12", "13"], answer: 2 },
-      { q: "Which gas do plants absorb from atmosphere?", options: ["Oxygen", "Carbon Dioxide", "Nitrogen", "Hydrogen"], answer: 1 },
-      { q: "How many days are in a leap year?", options: ["365", "366", "364", "367"], answer: 1 }
-    ];
+    // 2. Multilingual Dictionary Architecture (i18n)
+    const translations = {
+      en: {
+        title: "Speed Quiz Arena",
+        subtitle: "Test your knowledge, earn points, maintain your streak, and challenge friends!",
+        attendanceBtn: "Mark Daily Attendance (+50 Pts)",
+        attendanceClaimed: "✅ Today's Attendance Marked",
+        startQuizBtn: "Play Solo Quiz 🚀",
+        topPlayers: "Top Players",
+        liveLeaderboard: "Live Leaderboard",
+        quizCompleted: "Quiz Completed!",
+        challengeFriend: "Challenge a Friend ⚔️",
+        backHome: "Back to Home 🏠",
+        challengeTitle: "Challenge Received",
+        acceptBtn: "ACCEPT 🔥",
+        shareTitle: "Challenge Your Friend",
+        shareDesc: "Share this challenge link. See if they can beat your score!",
+        closeBtn: "Close",
+        loginToast: "Logged in successfully! 🎉",
+        loginRequired: "⚠️ Please Login first!",
+        attendanceSuccess: "🎉 Attendance Marked! +50 Points earned!",
+        questions: [
+          { q: "Which planet is known as the Red Planet?", options: ["Earth", "Mars", "Jupiter", "Venus"], answer: 1 },
+          { q: "What is the capital of France?", options: ["Berlin", "Madrid", "Paris", "Rome"], answer: 2 },
+          { q: "What is 5 + 7?", options: ["10", "11", "12", "13"], answer: 2 },
+          { q: "Which gas do plants absorb from atmosphere?", options: ["Oxygen", "Carbon Dioxide", "Nitrogen", "Hydrogen"], answer: 1 },
+          { q: "How many days are in a leap year?", options: ["365", "366", "364", "367"], answer: 1 }
+        ]
+      },
+      hi: {
+        title: "स्पीड क्विज़ अरीना",
+        subtitle: "अपना ज्ञान परखें, अंक कमाएं, अपनी स्ट्राइक बनाए रखें और दोस्तों को चुनौती दें!",
+        attendanceBtn: "दैनिक हाजिरी लगाएं (+50 अंक)",
+        attendanceClaimed: "✅ आज की हाजिरी दर्ज हो चुकी है",
+        startQuizBtn: "अकेले क्विज़ खेलें 🚀",
+        topPlayers: "शीर्ष खिलाड़ी",
+        liveLeaderboard: "लाइव लीडरबोर्ड",
+        quizCompleted: "क्विज़ पूरा हुआ!",
+        challengeFriend: "दोस्त को चुनौती दें ⚔️",
+        backHome: "होम पर वापस जाएं 🏠",
+        challengeTitle: "चुनौती प्राप्त हुई",
+        acceptBtn: "स्वीकार करें 🔥",
+        shareTitle: "अपने दोस्त को चुनौती दें",
+        shareDesc: "यह चुनौती लिंक साझा करें। देखें कि क्या वे आपके स्कोर को हरा सकते हैं!",
+        closeBtn: "बंद करें",
+        loginToast: "सफलतापूर्वक लॉगिन हो गया! 🎉",
+        loginRequired: "⚠️ कृपया पहले लॉगिन करें!",
+        attendanceSuccess: "🎉 हाजिरी दर्ज हुई! +50 अंक मिले!",
+        questions: [
+          { q: "किस ग्रह को लाल ग्रह के नाम से जाना जाता है?", options: ["पृथ्वी", "मंगल", "बृहस्पति", "शुक्र"], answer: 1 },
+          { q: "फ्रांस की राजधानी क्या है?", options: ["बर्लिन", "मैड्रिड", "पेरिस", "रोम"], answer: 2 },
+          { q: "5 + 7 कितना होता है?", options: ["10", "11", "12", "13"], answer: 2 },
+          { q: "पौधे वायुमंडल से कौन सी गैस अवशोषित करते हैं?", options: ["ऑक्सीजन", "कार्बन डाइऑक्साइड", "नाइट्रोजन", "हाइड्रोजन"], answer: 1 },
+          { q: "एक लीप वर्ष में कितने दिन होते हैं?", options: ["365", "366", "364", "367"], answer: 1 }
+        ]
+      },
+      gu: {
+        title: "સ્પીડ ક્વિઝ એરેના",
+        subtitle: "તમારું જ્ઞાન ચકાસો, પોઈન્ટ્સ મેળવો, તમારી સ્ટ્રીક જાળવી રાખો અને મિત્રોને ચેલેન્જ કરો!",
+        attendanceBtn: "દૈનિક હાજરી પૂરો (+50 પોઈન્ટ્સ)",
+        attendanceClaimed: "✅ આજની હાજરી પુરાઈ ગઈ છે",
+        startQuizBtn: "સોલો ક્વિઝ રમો 🚀",
+        topPlayers: "ટોચના ખેલાડીઓ",
+        liveLeaderboard: "લાઈવ લીડરબોર્ડ",
+        quizCompleted: "ક્વિઝ પૂર્ણ થઈ!",
+        challengeFriend: "મિત્રને ચેલેન્જ કરો ⚔️",
+        backHome: "હોમ પર પાછા જાઓ 🏠",
+        challengeTitle: "ચેલેન્જ મળી",
+        acceptBtn: "સ્વીકારો 🔥",
+        shareTitle: "તમારા મિત્રને ચેલેન્જ કરો",
+        shareDesc: "આ ચેલેન્જ લિંક શેર કરો. જુઓ કે તેઓ તમારા સ્કોરને હરાવી શકે છે કે નહીં!",
+        closeBtn: "બંધ કરો",
+        loginToast: "સફળતાપૂર્વક લોગીન થયું! 🎉",
+        loginRequired: "⚠️ કૃપા કરીને પહેલા લોગીન કરો!",
+        attendanceSuccess: "🎉 હાજરી પુરાઈ ગઈ! +50 પોઈન્ટ્સ મળ્યા!",
+        questions: [
+          { q: "કયા ગ્રહને લાલ ગ્રહ તરીકે ઓળખવામાં આવે છે?", options: ["પૃથ્વી", "મંગળ", "ગુરુ", "શુક્ર"], answer: 1 },
+          { q: "ફ્રાન્સની રાજધાની કઈ છે?", options: ["બર્લિન", "મેડ્રિડ", "પેરિસ", "રોમ"], answer: 2 },
+          { q: "5 + 7 કેટલા થાય?", options: ["10", "11", "12", "13"], answer: 2 },
+          { q: "છોડ વાતાવરણમાંથી કયો ગેસ શોષી લે છે?", options: ["ઓક્સિજન", "કાર્બન ડાયોક્સાઇડ", "નાઇટ્રોજન", "હાઇડ્રોજન"], answer: 1 },
+          { q: "લીપ વર્ષમાં કેટલા દિવસો હોય છે?", options: ["365", "366", "364", "367"], answer: 1 }
+        ]
+      }
+    };
 
-    // 2. Initialization & URL Param Check
+    // 3. Language Controller
+    function selectLanguage(langCode) {
+      currentLanguage = langCode;
+      localStorage.setItem('playvibe_lang', langCode);
+
+      if (currentUser) {
+        db.collection('users').doc(currentUser.uid).update({
+          language: langCode
+        }).catch(e => console.error("Language save error:", e));
+      }
+
+      applyTranslations();
+      showView('view-start');
+      showToast(`Language updated: ${langCode.toUpperCase()}`);
+    }
+
+    function openLanguageSelection() {
+      showView('view-language');
+    }
+
+    function applyTranslations() {
+      const langData = translations[currentLanguage] || translations['en'];
+
+      document.getElementById('current-lang-code').innerText = currentLanguage.toUpperCase();
+      document.getElementById('i18n-title').innerText = langData.title;
+      document.getElementById('i18n-subtitle').innerText = langData.subtitle;
+      document.getElementById('btn-start-quiz').innerText = langData.startQuizBtn;
+      document.getElementById('lbl-top-players').innerText = langData.topPlayers;
+      document.getElementById('lbl-live-lb').innerText = langData.liveLeaderboard;
+      document.getElementById('i18n-quiz-completed').innerText = langData.quizCompleted;
+      document.getElementById('lbl-challenge-friend').innerText = langData.challengeFriend;
+      document.getElementById('btn-back-home').innerText = langData.backHome;
+      document.getElementById('lbl-challenge-title').innerText = langData.challengeTitle;
+      document.getElementById('btn-accept-challenge').innerText = langData.acceptBtn;
+      document.getElementById('modal-challenge-title').innerText = langData.shareTitle;
+      document.getElementById('modal-challenge-desc').innerText = langData.shareDesc;
+      document.getElementById('btn-modal-close').innerText = langData.closeBtn;
+
+      // Update Attendance button text if not disabled
+      const attBtnText = document.getElementById('attendance-btn-text');
+      const attBtn = document.getElementById('attendance-btn');
+      if (attBtn && !attBtn.disabled) {
+        attBtnText.innerText = langData.attendanceBtn;
+      }
+    }
+
+    // 4. Initialization & URL Param Check
     window.addEventListener('DOMContentLoaded', async () => {
+      applyTranslations();
       setupAuthListener();
       fetchLeaderboard();
+
+      // Check if user needs language selection first
+      if (!localStorage.getItem('playvibe_lang')) {
+        showView('view-language');
+      }
 
       // Handle Google Redirect Result
       try {
         const result = await auth.getRedirectResult();
         if (result && result.user) {
-          showToast("Logged in successfully! 🎉");
+          showToast(translations[currentLanguage].loginToast);
         }
       } catch (error) {
         console.error("Redirect Login Error:", error);
-        showToast("Error: " + (error.code || error.message));
       }
 
       // Check URL for challengeId
@@ -261,7 +428,7 @@
       }
     });
 
-    // 3. Auth Management
+    // 5. Auth Management
     function setupAuthListener() {
       auth.onAuthStateChanged(async (user) => {
         currentUser = user;
@@ -283,7 +450,6 @@
       });
     }
 
-    // Direct Google Sign In via Redirect
     async function handleGoogleSignIn() {
       const provider = new firebase.auth.GoogleAuthProvider();
       try {
@@ -291,7 +457,6 @@
         await auth.signInWithRedirect(provider);
       } catch (err) {
         console.error("Auth Error:", err);
-        showToast("Error: " + (err.code || err.message));
       }
     }
 
@@ -306,7 +471,13 @@
           userPoints = data.points || 0;
           userStreak = data.streak || 0;
 
-          // Check if today's attendance is already claimed
+          // If user already has a saved language preference in DB
+          if (data.language) {
+            currentLanguage = data.language;
+            localStorage.setItem('playvibe_lang', data.language);
+            applyTranslations();
+          }
+
           if (data.lastAttendanceDate === todayStr) {
             markAttendanceBtnClaimed();
           }
@@ -316,6 +487,7 @@
             email: user.email,
             points: 0,
             streak: 1,
+            language: currentLanguage,
             lastAttendanceDate: "",
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
           });
@@ -333,10 +505,11 @@
       document.getElementById('streak-count').innerText = userStreak;
     }
 
-    // 4. Daily Attendance Logic
+    // 6. Daily Attendance Logic
     async function claimDailyAttendance() {
+      const langData = translations[currentLanguage];
       if (!currentUser) {
-        showToast("⚠️ Attendance lagane ke liye pehle Login karein!");
+        showToast(langData.loginRequired);
         handleGoogleSignIn();
         return;
       }
@@ -350,7 +523,6 @@
           const data = doc.data();
 
           if (data.lastAttendanceDate === todayStr) {
-            showToast("📅 Aaj ki attendance aap pehle hi laga chuke hain!");
             markAttendanceBtnClaimed();
             return;
           }
@@ -367,25 +539,25 @@
           updateHeaderStats();
 
           markAttendanceBtnClaimed();
-          showToast(`🎉 Attendance Marked! +${bonusPoints} Points Mile!`);
+          showToast(langData.attendanceSuccess);
         }
       } catch (e) {
         console.error("Attendance Error:", e);
-        showToast("❌ Attendance mark karne mein error aaya.");
       }
     }
 
     function markAttendanceBtnClaimed() {
       const btn = document.getElementById('attendance-btn');
       const btnText = document.getElementById('attendance-btn-text');
+      const langData = translations[currentLanguage];
       if (btn && btnText) {
-        btnText.innerText = "✅ Today's Attendance Marked";
+        btnText.innerText = langData.attendanceClaimed;
         btn.disabled = true;
         btn.classList.add('opacity-60', 'cursor-not-allowed');
       }
     }
 
-    // 5. Challenge System Core Logic
+    // 7. Challenge System Core Logic
     async function loadChallengeDetails(challengeId) {
       try {
         const doc = await db.collection('challenges').doc(challengeId).get();
@@ -448,7 +620,6 @@
       try {
         const existing = await attemptRef.get();
         if (existing.exists) {
-          showToast("ℹ️ Challenge already attempted earlier.");
           renderChallengeComparisonUI(score, activeChallengeData.creatorScore, true);
           return;
         }
@@ -484,7 +655,7 @@
       }
     }
 
-    // 6. Quiz Engine
+    // 8. Multilingual Quiz Engine
     function startSoloQuiz() {
       currentScore = 0;
       currentQuestionIndex = 0;
@@ -493,13 +664,15 @@
     }
 
     function loadQuestion() {
-      if (currentQuestionIndex >= quizQuestions.length) {
+      const activeQuestions = (translations[currentLanguage] || translations['en']).questions;
+
+      if (currentQuestionIndex >= activeQuestions.length) {
         finishQuiz();
         return;
       }
 
-      const qData = quizQuestions[currentQuestionIndex];
-      document.getElementById('question-progress').innerText = `Question ${currentQuestionIndex + 1}/${quizQuestions.length}`;
+      const qData = activeQuestions[currentQuestionIndex];
+      document.getElementById('question-progress').innerText = `Question ${currentQuestionIndex + 1}/${activeQuestions.length}`;
       document.getElementById('question-text').innerText = qData.q;
       
       const optionsBox = document.getElementById('options-container');
@@ -577,13 +750,13 @@
     }
 
     function showView(viewId) {
-      ['view-start', 'view-question', 'view-result'].forEach(id => {
+      ['view-language', 'view-start', 'view-question', 'view-result'].forEach(id => {
         document.getElementById(id).classList.add('hidden');
       });
       document.getElementById(viewId).classList.remove('hidden');
     }
 
-    // 7. Sharing Utilities
+    // 9. Sharing Utilities
     function openShareModal() {
       document.getElementById('share-modal').classList.remove('hidden');
     }
@@ -593,56 +766,4 @@
     }
 
     function shareOnWhatsApp() {
-      const text = encodeURIComponent(`🔥 Main PlayVibe par Speed Quiz khel raha hoon! Kya tum mera score beat kar sakte ho?\n\nChallenge Link: ${generatedShareUrl}`);
-      window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
-    }
-
-    function copyChallengeLink() {
-      navigator.clipboard.writeText(generatedShareUrl).then(() => {
-        showToast("📋 Link copied to clipboard!");
-      }).catch(() => {
-        showToast("❌ Failed to copy link.");
-      });
-    }
-
-    // 8. Leaderboard Fetch
-    async function fetchLeaderboard() {
-      const box = document.getElementById('leaderboard-list');
-      try {
-        const snap = await db.collection('users').orderBy('points', 'desc').limit(5).get();
-        if (snap.empty) {
-          box.innerHTML = `<p class="text-slate-500 text-center py-2">No players yet.</p>`;
-          return;
-        }
-
-        box.innerHTML = '';
-        let rank = 1;
-        snap.forEach(doc => {
-          const d = doc.data();
-          box.innerHTML += `
-            <div class="flex items-center justify-between bg-slate-900/50 p-2 rounded-lg">
-              <div class="flex items-center space-x-2">
-                <span class="font-bold text-slate-400">#${rank++}</span>
-                <span class="font-medium text-white">${d.name || 'Anonymous'}</span>
-              </div>
-              <span class="font-bold text-yellow-400">${d.points || 0} Pts</span>
-            </div>
-          `;
-        });
-      } catch (e) {
-        box.innerHTML = `<p class="text-slate-500 text-center py-2">Leaderboard offline.</p>`;
-      }
-    }
-
-    // Helper Toast
-    function showToast(msg) {
-      const container = document.getElementById('toast-container');
-      const toast = document.createElement('div');
-      toast.className = "bg-slate-800 text-white text-xs px-4 py-2 rounded-full border border-slate-700 shadow-xl mb-2 transition-all duration-300";
-      toast.innerText = msg;
-      container.appendChild(toast);
-      setTimeout(() => toast.remove(), 5000);
-    }
-  </script>
-</body>
-</html>
+      const text = encodeURIComponent(`🔥 Main PlayVibe par Speed Quiz khel raha hoon! Kya tum mera score
