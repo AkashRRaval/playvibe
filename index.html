@@ -53,7 +53,7 @@
           <button id="login-btn" onclick="handleGoogleSignIn()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1 rounded-lg text-xs font-bold transition">
             Login
           </button>
-          <img id="user-avatar" class="w-7 h-7 rounded-full hidden border border-purple-400 cursor-pointer" onclick="toggleProfileMenu()" alt="Profile" />
+          <img id="user-avatar" class="w-7 h-7 rounded-full hidden border border-purple-400 cursor-pointer" alt="Profile" />
         </div>
       </div>
     </div>
@@ -79,7 +79,7 @@
     <div id="quiz-card" class="bg-slate-800 border border-slate-700/80 rounded-2xl p-5 shadow-2xl flex-1 flex flex-col justify-between">
       
       <!-- VIEW 1: START SCREEN -->
-      <div id="view-start" class="flex-1 flex flex-col items-center justify-center text-center space-y-6 py-6">
+      <div id="view-start" class="flex-1 flex flex-col items-center justify-center text-center space-y-5 py-4">
         <div class="w-20 h-20 bg-purple-500/10 rounded-full flex items-center justify-center text-4xl border border-purple-500/20 animate-pulse-subtle">
           ⚡
         </div>
@@ -87,9 +87,19 @@
           <h1 class="text-2xl font-black text-white">Speed Quiz Arena</h1>
           <p class="text-xs text-slate-400 mt-2 max-w-xs">Test your knowledge, earn points, maintain your streak, and challenge friends!</p>
         </div>
-        <button onclick="startSoloQuiz()" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-indigo-500/20 text-base transition">
-          Play Solo Quiz 🚀
-        </button>
+
+        <div class="w-full space-y-3 pt-2">
+          <!-- Daily Attendance Button -->
+          <button id="attendance-btn" onclick="claimDailyAttendance()" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold py-3 rounded-xl shadow-lg text-xs transition flex items-center justify-center space-x-2">
+            <span>📅</span>
+            <span id="attendance-btn-text">Mark Daily Attendance (+50 Pts)</span>
+          </button>
+
+          <!-- Play Solo Quiz Button -->
+          <button onclick="startSoloQuiz()" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-indigo-500/20 text-sm transition">
+            Play Solo Quiz 🚀
+          </button>
+        </div>
       </div>
 
       <!-- VIEW 2: QUESTION SCREEN -->
@@ -187,7 +197,7 @@
   <div id="toast-container" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 pointer-events-none"></div>
           <!-- FIREBASE & APP LOGIC -->
   <script>
-    // 1. Firebase Config
+    // 1. Firebase Config (With Full Key)
     const firebaseConfig = {
       apiKey: "AIzaSyAY-q5jpMCMUkCF_TM3YQ_6wKtyfvDySDk",
       authDomain: "playvibe-71ed3.firebaseapp.com",
@@ -287,18 +297,26 @@
 
     async function syncUserData(user) {
       const userRef = db.collection('users').doc(user.uid);
+      const todayStr = new Date().toISOString().split('T')[0];
+
       try {
         const doc = await userRef.get();
         if (doc.exists) {
           const data = doc.data();
           userPoints = data.points || 0;
           userStreak = data.streak || 0;
+
+          // Check if today's attendance is already claimed
+          if (data.lastAttendanceDate === todayStr) {
+            markAttendanceBtnClaimed();
+          }
         } else {
           await userRef.set({
             name: user.displayName || 'Player',
             email: user.email,
             points: 0,
             streak: 1,
+            lastAttendanceDate: "",
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
           });
           userPoints = 0;
@@ -315,7 +333,59 @@
       document.getElementById('streak-count').innerText = userStreak;
     }
 
-    // 4. Challenge System Core Logic
+    // 4. Daily Attendance Logic
+    async function claimDailyAttendance() {
+      if (!currentUser) {
+        showToast("⚠️ Attendance lagane ke liye pehle Login karein!");
+        handleGoogleSignIn();
+        return;
+      }
+
+      const todayStr = new Date().toISOString().split('T')[0];
+      const userRef = db.collection('users').doc(currentUser.uid);
+
+      try {
+        const doc = await userRef.get();
+        if (doc.exists) {
+          const data = doc.data();
+
+          if (data.lastAttendanceDate === todayStr) {
+            showToast("📅 Aaj ki attendance aap pehle hi laga chuke hain!");
+            markAttendanceBtnClaimed();
+            return;
+          }
+
+          const bonusPoints = 50;
+          await userRef.update({
+            lastAttendanceDate: todayStr,
+            points: firebase.firestore.FieldValue.increment(bonusPoints),
+            streak: firebase.firestore.FieldValue.increment(1)
+          });
+
+          userPoints += bonusPoints;
+          userStreak += 1;
+          updateHeaderStats();
+
+          markAttendanceBtnClaimed();
+          showToast(`🎉 Attendance Marked! +${bonusPoints} Points Mile!`);
+        }
+      } catch (e) {
+        console.error("Attendance Error:", e);
+        showToast("❌ Attendance mark karne mein error aaya.");
+      }
+    }
+
+    function markAttendanceBtnClaimed() {
+      const btn = document.getElementById('attendance-btn');
+      const btnText = document.getElementById('attendance-btn-text');
+      if (btn && btnText) {
+        btnText.innerText = "✅ Today's Attendance Marked";
+        btn.disabled = true;
+        btn.classList.add('opacity-60', 'cursor-not-allowed');
+      }
+    }
+
+    // 5. Challenge System Core Logic
     async function loadChallengeDetails(challengeId) {
       try {
         const doc = await db.collection('challenges').doc(challengeId).get();
@@ -414,7 +484,7 @@
       }
     }
 
-    // 5. Quiz Engine
+    // 6. Quiz Engine
     function startSoloQuiz() {
       currentScore = 0;
       currentQuestionIndex = 0;
@@ -513,7 +583,7 @@
       document.getElementById(viewId).classList.remove('hidden');
     }
 
-    // 6. Sharing Utilities
+    // 7. Sharing Utilities
     function openShareModal() {
       document.getElementById('share-modal').classList.remove('hidden');
     }
@@ -535,7 +605,7 @@
       });
     }
 
-    // 7. Leaderboard Fetch
+    // 8. Leaderboard Fetch
     async function fetchLeaderboard() {
       const box = document.getElementById('leaderboard-list');
       try {
@@ -576,4 +646,3 @@
   </script>
 </body>
 </html>
-
