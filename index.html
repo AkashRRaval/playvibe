@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PlayVibe - Speed Quiz Arena</title>
+  <title>PlayVibe - Ultimate Gaming & Quiz Arena</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -14,23 +14,34 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+  <style>
+    /* Card Flip Animation */
+    .perspective-1000 { perspective: 1000px; }
+    .transform-style-3d { transform-style: preserve-3d; }
+    .backface-hidden { backface-visibility: hidden; }
+    .rotate-y-180 { transform: rotateY(180deg); }
+  </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between font-sans selection:bg-purple-500 selection:text-white">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between font-sans selection:bg-purple-500 selection:text-white pb-20">
+
+  <!-- Confetti Canvas -->
+  <canvas id="confetti-canvas" class="fixed inset-0 pointer-events-none z-50"></canvas>
 
   <!-- Toast Notification Container -->
   <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col items-end space-y-2"></div>
 
   <!-- HEADER -->
-  <header class="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 p-4 sticky top-0 z-40">
+  <header class="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 p-3.5 sticky top-0 z-40">
     <div class="max-w-md mx-auto flex items-center justify-between">
       <!-- Logo -->
-      <div class="flex items-center space-x-2 cursor-pointer" onclick="resetToHome()">
+      <div class="flex items-center space-x-2 cursor-pointer" onclick="showView('view-home')">
         <span class="text-2xl">⚡</span>
-        <span class="font-black text-xl tracking-wider bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">PLAYVIBE</span>
+        <span class="font-black text-xl tracking-wider bg-gradient-to-r from-purple-400 via-pink-500 to-amber-400 bg-clip-text text-transparent">PLAYVIBE</span>
       </div>
 
       <!-- Controls & User Info -->
-      <div class="flex items-center space-x-3">
+      <div class="flex items-center space-x-2.5">
         <!-- Language Switcher -->
         <button onclick="openLanguageSelection()" class="bg-slate-800 hover:bg-slate-700 text-xs px-2.5 py-1.5 rounded-lg border border-slate-700 flex items-center space-x-1 transition">
           <span>🌐</span>
@@ -38,16 +49,16 @@
         </button>
 
         <!-- Stats (Points & Streak) -->
-        <div class="flex items-center space-x-2 bg-slate-800 px-3 py-1 rounded-full border border-slate-700 text-xs">
-          <span title="Points">🏆 <b id="user-points">0</b></span>
+        <div class="flex items-center space-x-2 bg-slate-800/80 px-3 py-1 rounded-full border border-slate-700 text-xs">
+          <span title="Points">🏆 <b id="user-points" class="text-amber-400">150</b></span>
           <span class="text-slate-600">|</span>
-          <span title="Streak">🔥 <b id="streak-count">0</b></span>
+          <span title="Streak">🔥 <b id="streak-count" class="text-orange-400">1</b></span>
         </div>
 
         <!-- Login / User Avatar -->
         <div id="auth-box">
-          <button id="login-btn" onclick="handleGoogleSignIn()" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition shadow-lg shadow-purple-600/30">
-            Login
+          <button id="login-btn" onclick="handleAuthAction()" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition shadow-lg shadow-purple-600/30">
+            Guest 👤
           </button>
           <img id="user-avatar" src="" alt="User" class="w-7 h-7 rounded-full border border-purple-500 hidden object-cover">
         </div>
@@ -56,146 +67,302 @@
   </header>
 
   <!-- MAIN APP CONTAINER -->
-  <main class="max-w-md mx-auto w-full p-4 flex-1 flex flex-col justify-center">
+  <main class="max-w-md mx-auto w-full p-4 flex-1 flex flex-col justify-start">
 
-    <!-- Challenge Banner -->
-    <div id="challenge-banner" class="hidden mb-4 bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/40 p-3 rounded-xl text-center">
-      <p id="challenge-banner-text" class="text-xs font-bold text-amber-300 mb-2"></p>
-      <button id="btn-accept-challenge" onclick="acceptChallengeAndStart()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs px-4 py-1.5 rounded-lg uppercase tracking-wider transition">
-        ACCEPT 🔥
-      </button>
+    <!-- Guest Mode Banner Notice -->
+    <div id="guest-notice" class="mb-4 bg-purple-900/30 border border-purple-500/30 p-2.5 rounded-xl flex items-center justify-between text-xs">
+      <span class="text-purple-300">🧪 <b>Testing Mode Active:</b> All games & features unlocked!</span>
+      <button onclick="handleAuthAction()" class="text-amber-400 font-bold underline text-[11px]">Login</button>
     </div>
 
-    <!-- VIEW 1: LANGUAGE SELECTION -->
-    <div id="view-language" class="hidden space-y-4 text-center">
-      <h2 class="text-xl font-bold text-slate-200">Select Your Language / भाषा चुनें</h2>
+    <!-- VIEW: LANGUAGE SELECTION -->
+    <div id="view-language" class="hidden space-y-4 text-center my-auto">
+      <h2 class="text-xl font-bold text-slate-200">Select Language / भाषा चुनें</h2>
       <div class="grid grid-cols-1 gap-3">
-        <button onclick="selectLanguage('en')" class="bg-slate-800 hover:bg-purple-900/40 border border-slate-700 hover:border-purple-500 p-3 rounded-xl font-medium text-sm flex items-center justify-between px-5 transition">
+        <button onclick="selectLanguage('en')" class="bg-slate-800 hover:bg-purple-900/40 border border-slate-700 hover:border-purple-500 p-3.5 rounded-xl font-medium text-sm flex items-center justify-between px-5 transition">
           <span>English</span>
           <span class="text-xs text-purple-400">Default</span>
         </button>
-        <button onclick="selectLanguage('hi')" class="bg-slate-800 hover:bg-purple-900/40 border border-slate-700 hover:border-purple-500 p-3 rounded-xl font-medium text-sm flex items-center justify-between px-5 transition">
+        <button onclick="selectLanguage('hi')" class="bg-slate-800 hover:bg-purple-900/40 border border-slate-700 hover:border-purple-500 p-3.5 rounded-xl font-medium text-sm flex items-center justify-between px-5 transition">
           <span>हिन्दी (Hindi)</span>
           <span class="text-xs text-purple-400">Popular</span>
         </button>
-        <button onclick="selectLanguage('gu')" class="bg-slate-800 hover:bg-purple-900/40 border border-slate-700 hover:border-purple-500 p-3 rounded-xl font-medium text-sm flex items-center justify-between px-5 transition">
+        <button onclick="selectLanguage('gu')" class="bg-slate-800 hover:bg-purple-900/40 border border-slate-700 hover:border-purple-500 p-3.5 rounded-xl font-medium text-sm flex items-center justify-between px-5 transition">
           <span>ગુજરાતી (Gujarati)</span>
           <span class="text-xs text-purple-400">Regional</span>
         </button>
       </div>
     </div>
 
-    <!-- VIEW 2: HOME VIEW -->
-    <div id="view-start" class="space-y-5 text-center">
-      <div class="space-y-2">
-        <h1 id="i18n-title" class="text-2xl font-black tracking-tight text-white">Speed Quiz Arena</h1>
-        <p id="i18n-subtitle" class="text-slate-400 text-xs">Test your knowledge, earn points, maintain your streak, and challenge friends!</p>
-      </div>
-
-      <!-- Attendance Button -->
-      <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl text-center space-y-2">
-        <button id="attendance-btn" onclick="claimDailyAttendance()" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs py-3 rounded-xl transition shadow-lg shadow-emerald-900/20 flex items-center justify-center space-x-2">
-          <span id="attendance-btn-text">Mark Daily Attendance (+50 Pts)</span>
+    <!-- VIEW: HOME DASHBOARD -->
+    <div id="view-home" class="space-y-5">
+      
+      <!-- Daily Check-In Widget -->
+      <div class="bg-gradient-to-r from-slate-900 to-purple-950/50 border border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-xl">
+        <div>
+          <h4 class="font-bold text-sm text-white flex items-center gap-1.5">📅 Daily Reward</h4>
+          <p class="text-[11px] text-slate-400">Claim +50 free points every day!</p>
+        </div>
+        <button id="attendance-btn" onclick="claimDailyAttendance()" class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold text-xs px-3.5 py-2 rounded-xl transition shadow-lg shadow-emerald-900/30">
+          Claim +50 🎁
         </button>
       </div>
 
-      <!-- Play Solo Quiz Button -->
-      <button id="btn-start-quiz" onclick="startSoloQuiz()" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-black text-sm py-4 rounded-2xl shadow-xl shadow-purple-900/30 transition transform hover:-translate-y-0.5 uppercase tracking-wider">
-        Play Solo Quiz 🚀
-      </button>
+      <!-- Featured Games Hub Header -->
+      <div class="space-y-2">
+        <h3 class="font-black text-sm uppercase tracking-wider text-purple-400 flex items-center gap-2">
+          <span>🎮 Select Game Arena</span>
+        </h3>
+        
+        <!-- Game Cards Grid -->
+        <div class="grid grid-cols-2 gap-3">
+          <!-- Game 1: Speed Quiz -->
+          <div onclick="showCategoryModal()" class="bg-slate-900 border border-slate-800 hover:border-purple-500 p-4 rounded-2xl cursor-pointer transition transform hover:-translate-y-1 group">
+            <div class="text-3xl mb-2 group-hover:scale-110 transition">🎯</div>
+            <h4 class="font-bold text-xs text-white">Speed Quiz</h4>
+            <p class="text-[10px] text-slate-400">Multi-Category Trivia</p>
+          </div>
 
-      <!-- Live Leaderboard Widget -->
-      <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl text-left space-y-3">
-        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-          <h3 id="lbl-top-players" class="font-bold text-xs text-slate-300 uppercase tracking-wider">Top Players</h3>
-          <span id="lbl-live-lb" class="text-[10px] bg-purple-900/50 text-purple-300 px-2 py-0.5 rounded-full border border-purple-700/50">Live Leaderboard</span>
-        </div>
-        <div id="leaderboard-list" class="space-y-2 text-xs">
-          <p class="text-slate-500 text-center py-2">Loading top players...</p>
+          <!-- Game 2: Memory Card -->
+          <div onclick="startMemoryGame()" class="bg-slate-900 border border-slate-800 hover:border-purple-500 p-4 rounded-2xl cursor-pointer transition transform hover:-translate-y-1 group">
+            <div class="text-3xl mb-2 group-hover:scale-110 transition">🃏</div>
+            <h4 class="font-bold text-xs text-white">Memory Flip</h4>
+            <p class="text-[10px] text-slate-400">Match Emoji Pairs</p>
+          </div>
+
+          <!-- Game 3: Math Dash -->
+          <div onclick="startMathDashGame()" class="bg-slate-900 border border-slate-800 hover:border-purple-500 p-4 rounded-2xl cursor-pointer transition transform hover:-translate-y-1 group">
+            <div class="text-3xl mb-2 group-hover:scale-110 transition">⚡</div>
+            <h4 class="font-bold text-xs text-white">Math Dash</h4>
+            <p class="text-[10px] text-slate-400">Fast Speed Calculator</p>
+          </div>
+
+          <!-- Game 4: Lucky Spin -->
+          <div onclick="showView('view-spin-wheel')" class="bg-slate-900 border border-slate-800 hover:border-purple-500 p-4 rounded-2xl cursor-pointer transition transform hover:-translate-y-1 group">
+            <div class="text-3xl mb-2 group-hover:scale-110 transition">🎡</div>
+            <h4 class="font-bold text-xs text-white">Lucky Wheel</h4>
+            <p class="text-[10px] text-slate-400">Spin & Win Points</p>
+          </div>
         </div>
       </div>
+
+      <!-- Live Leaderboard Widget -->
+      <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-3">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+          <h3 class="font-bold text-xs text-slate-300 uppercase tracking-wider">🏆 Top Players</h3>
+          <span class="text-[10px] bg-purple-900/50 text-purple-300 px-2 py-0.5 rounded-full border border-purple-700/50">Live</span>
+        </div>
+        <div id="leaderboard-list" class="space-y-2 text-xs">
+          <!-- Dynamic Leaderboard Items -->
+        </div>
+      </div>
+
     </div>
 
-    <!-- VIEW 3: QUESTION PLAYING VIEW -->
-    <div id="view-question" class="hidden space-y-4">
+    <!-- VIEW: SPEED QUIZ PLAYING -->
+    <div id="view-quiz" class="hidden space-y-4">
       <div class="flex items-center justify-between text-xs text-slate-400">
-        <span id="question-progress" class="font-bold text-purple-400">Question 1/5</span>
+        <span id="quiz-category-badge" class="font-bold text-purple-400 bg-purple-950/60 px-2.5 py-1 rounded-md border border-purple-800">Category</span>
         <span id="timer-display" class="font-mono bg-slate-800 px-2.5 py-1 rounded-md text-amber-400 font-bold">⏱️ 15s</span>
       </div>
 
-      <!-- Timer Progress Bar -->
       <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
         <div id="progress-bar" class="bg-purple-500 h-full w-full transition-all duration-1000 linear"></div>
       </div>
 
-      <!-- Question Card -->
-      <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-4">
+      <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-4 shadow-xl">
         <h2 id="question-text" class="text-sm font-semibold text-white min-h-[48px]">Question text goes here?</h2>
-        <div id="options-container" class="space-y-2.5">
-          <!-- Dynamic Options -->
+        <div id="options-container" class="space-y-2.5"></div>
+      </div>
+    </div>
+
+    <!-- VIEW: MEMORY FLIP GAME -->
+    <div id="view-memory-game" class="hidden space-y-4 text-center">
+      <div class="flex items-center justify-between text-xs text-slate-400">
+        <span class="font-bold text-purple-400">🃏 Memory Match</span>
+        <span>Moves: <b id="memory-moves" class="text-white">0</b></span>
+      </div>
+      <div id="memory-grid" class="grid grid-cols-4 gap-2.5"></div>
+    </div>
+
+    <!-- VIEW: MATH DASH GAME -->
+    <div id="view-math-dash" class="hidden space-y-4 text-center">
+      <div class="flex items-center justify-between text-xs text-slate-400">
+        <span class="font-bold text-purple-400">⚡ Math Dash</span>
+        <span>Time Left: <b id="math-timer" class="text-amber-400">20s</b></span>
+      </div>
+      <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-4">
+        <div id="math-equation" class="text-2xl font-black text-amber-400">5 + 7 = ?</div>
+        <div id="math-options" class="grid grid-cols-2 gap-3"></div>
+      </div>
+    </div>
+
+    <!-- VIEW: LUCKY SPIN WHEEL -->
+    <div id="view-spin-wheel" class="hidden space-y-5 text-center">
+      <h2 class="text-base font-bold text-slate-200">🎡 Spin the Wheel of Fortune</h2>
+      
+      <div class="relative w-64 h-64 mx-auto flex items-center justify-center">
+        <!-- Wheel Pointer -->
+        <div class="absolute -top-3 z-20 text-red-500 text-2xl">▼</div>
+        <!-- Canvas Wheel -->
+        <canvas id="wheel-canvas" width="256" height="256" class="w-full h-full rounded-full border-4 border-slate-800 shadow-2xl"></canvas>
+      </div>
+
+      <button id="btn-spin-wheel" onclick="spinLuckyWheel()" class="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black py-3 rounded-2xl shadow-lg transition">
+        SPIN NOW 🚀
+      </button>
+    </div>
+
+    <!-- VIEW: REWARDS STORE -->
+    <div id="view-rewards" class="hidden space-y-4">
+      <div class="text-center space-y-1">
+        <h2 class="text-lg font-black text-white">🎁 Rewards Store</h2>
+        <p class="text-xs text-slate-400">Redeem earned points for real gift vouchers!</p>
+      </div>
+
+      <div class="space-y-3">
+        <!-- Reward Item 1 -->
+        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <div class="text-2xl">🛒</div>
+            <div>
+              <h4 class="font-bold text-xs text-white">₹50 Amazon Voucher</h4>
+              <p class="text-[10px] text-slate-400">Costs 1,000 Points</p>
+            </div>
+          </div>
+          <button onclick="redeemReward('Amazon Voucher', 1000)" class="bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs px-3 py-1.5 rounded-lg border border-purple-500">
+            Redeem
+          </button>
+        </div>
+
+        <!-- Reward Item 2 -->
+        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <div class="text-2xl">📲</div>
+            <div>
+              <h4 class="font-bold text-xs text-white">₹50 Paytm Cash</h4>
+              <p class="text-[10px] text-slate-400">Costs 1,000 Points</p>
+            </div>
+          </div>
+          <button onclick="redeemReward('Paytm Cash', 1000)" class="bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs px-3 py-1.5 rounded-lg border border-purple-500">
+            Redeem
+          </button>
+        </div>
+
+        <!-- Reward Item 3 -->
+        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <div class="text-2xl">🎮</div>
+            <div>
+              <h4 class="font-bold text-xs text-white">₹100 Google Play Code</h4>
+              <p class="text-[10px] text-slate-400">Costs 2,000 Points</p>
+            </div>
+          </div>
+          <button onclick="redeemReward('Google Play Code', 2000)" class="bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs px-3 py-1.5 rounded-lg border border-purple-500">
+            Redeem
+          </button>
         </div>
       </div>
     </div>
 
-    <!-- VIEW 4: RESULT VIEW -->
-    <div id="view-result" class="hidden text-center space-y-5">
+    <!-- VIEW: REFERRAL & SHARE -->
+    <div id="view-referral" class="hidden space-y-4 text-center">
+      <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-4">
+        <div class="text-4xl">👥</div>
+        <h2 class="text-lg font-bold text-white">Invite Friends & Earn Points!</h2>
+        <p class="text-xs text-slate-400">Share your referral link with friends. Get <b>+100 Points</b> for every friend who joins!</p>
+
+        <div class="bg-slate-800 p-3 rounded-xl border border-slate-700 font-mono text-xs font-bold text-amber-400 flex items-center justify-between">
+          <span id="referral-code-display">PV-GUEST-8821</span>
+          <button onclick="copyReferralCode()" class="text-white hover:text-purple-300">📋 Copy</button>
+        </div>
+
+        <button onclick="shareReferralWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-3 rounded-xl flex items-center justify-center space-x-2">
+          <i class="fa-brands fa-whatsapp text-base"></i>
+          <span>Share on WhatsApp</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- VIEW: RESULT SCREEN -->
+    <div id="view-result" class="hidden text-center space-y-5 my-auto">
       <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-4">
         <div class="inline-block p-3 bg-purple-900/30 text-purple-400 rounded-full border border-purple-500/30">
           <i class="fa-solid fa-trophy text-3xl"></i>
         </div>
-        <h2 id="i18n-quiz-completed" class="text-xl font-bold text-white">Quiz Completed!</h2>
-        <div class="text-3xl font-black text-amber-400" id="final-score-display">0 Pts</div>
+        <h2 class="text-xl font-bold text-white">Game Finished!</h2>
+        <div class="text-3xl font-black text-amber-400" id="final-score-display">+0 Pts</div>
 
-        <!-- Challenge Outcome Notification -->
-        <div id="challenge-outcome-box" class="hidden p-3 rounded-xl bg-slate-800 border border-slate-700 text-xs font-semibold text-purple-300">
-          <p id="challenge-outcome-text"></p>
-        </div>
-
-        <div class="pt-2 space-y-2">
-          <button onclick="initiateChallengeCreation()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs py-3 rounded-xl transition shadow-lg shadow-amber-500/20 flex items-center justify-center space-x-2">
-            <span>⚔️</span>
-            <span id="lbl-challenge-friend">Challenge a Friend ⚔️</span>
-          </button>
-          <button id="btn-back-home" onclick="resetToHome()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs py-3 rounded-xl border border-slate-700 transition">
-            Back to Home 🏠
-          </button>
-        </div>
+        <button onclick="showView('view-home')" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs py-3 rounded-xl border border-slate-700 transition">
+          Back to Home 🏠
+        </button>
       </div>
     </div>
 
   </main>
 
-  <!-- SHARE MODAL -->
-  <div id="share-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+  <!-- CATEGORY SELECTION MODAL -->
+  <div id="category-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-800 w-full max-w-sm rounded-2xl p-5 space-y-4 text-center">
-      <h3 id="modal-challenge-title" class="font-bold text-white text-base">Challenge Your Friend</h3>
-      <p id="modal-challenge-desc" class="text-xs text-slate-400">Share this challenge link. See if they can beat your score!</p>
+      <h3 class="font-bold text-white text-base">Select Quiz Category</h3>
       
-      <div class="flex space-x-2">
-        <button onclick="shareOnWhatsApp()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-2.5 rounded-xl transition flex items-center justify-center space-x-1">
-          <i class="fa-brands fa-whatsapp text-sm"></i>
-          <span>WhatsApp</span>
+      <div class="grid grid-cols-2 gap-2.5">
+        <button onclick="startCategoryQuiz('cricket')" class="bg-slate-800 hover:bg-purple-900/40 border border-slate-700 p-3 rounded-xl text-xs font-semibold flex flex-col items-center gap-1">
+          <span class="text-2xl">🏏</span>
+          <span>Cricket</span>
         </button>
-        <button onclick="copyChallengeLink()" class="flex-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-bold text-xs py-2.5 rounded-xl transition flex items-center justify-center space-x-1">
-          <i class="fa-regular fa-copy text-sm"></i>
-          <span>Copy Link</span>
+        <button onclick="startCategoryQuiz('bollywood')" class="bg-slate-800 hover:bg-purple-900/40 border border-slate-700 p-3 rounded-xl text-xs font-semibold flex flex-col items-center gap-1">
+          <span class="text-2xl">🎬</span>
+          <span>Bollywood</span>
+        </button>
+        <button onclick="startCategoryQuiz('tech')" class="bg-slate-800 hover:bg-purple-900/40 border border-slate-700 p-3 rounded-xl text-xs font-semibold flex flex-col items-center gap-1">
+          <span class="text-2xl">💻</span>
+          <span>Tech & AI</span>
+        </button>
+        <button onclick="startCategoryQuiz('science')" class="bg-slate-800 hover:bg-purple-900/40 border border-slate-700 p-3 rounded-xl text-xs font-semibold flex flex-col items-center gap-1">
+          <span class="text-2xl">🔬</span>
+          <span>Science</span>
         </button>
       </div>
 
-      <button id="btn-modal-close" onclick="closeShareModal()" class="w-full bg-slate-800 text-slate-400 text-xs py-2 rounded-lg border border-slate-700">
+      <button onclick="closeCategoryModal()" class="w-full bg-slate-800 text-slate-400 text-xs py-2 rounded-lg border border-slate-700">
         Close
       </button>
     </div>
   </div>
 
-  <!-- FOOTER -->
-  <footer class="text-center py-3 text-[10px] text-slate-600 border-t border-slate-900">
-    PlayVibe Arena &copy; 2026. All rights reserved.
-  </footer>
+  <!-- BOTTOM NAVIGATION BAR -->
+  <nav class="fixed bottom-0 left-0 right-0 bg-slate-900/90 backdrop-blur-md border-t border-slate-800 py-2.5 px-4 z-40">
+    <div class="max-w-md mx-auto flex items-center justify-around text-center text-[10px] text-slate-400">
+      <button onclick="showView('view-home')" class="hover:text-purple-400 flex flex-col items-center gap-1">
+        <i class="fa-solid fa-house text-sm"></i>
+        <span>Home</span>
+      </button>
+      <button onclick="showCategoryModal()" class="hover:text-purple-400 flex flex-col items-center gap-1">
+        <i class="fa-solid fa-gamepad text-sm"></i>
+        <span>Quiz</span>
+      </button>
+      <button onclick="showView('view-rewards')" class="hover:text-purple-400 flex flex-col items-center gap-1">
+        <i class="fa-solid fa-gift text-sm"></i>
+        <span>Rewards</span>
+      </button>
+      <button onclick="showView('view-referral')" class="hover:text-purple-400 flex flex-col items-center gap-1">
+        <i class="fa-solid fa-user-plus text-sm"></i>
+        <span>Invite</span>
+      </button>
+    </div>
+  </nav>
 
   <!-- JAVASCRIPT LOGIC -->
   <script>
-    // 1. Firebase Config Initialization
+    // ===================================================
+    // GLOBAL CONFIGURATION SWITCH
+    // Set 'ENFORCE_LOGIN = true' in future when login is required!
+    // Currently 'false' for Guest Testing Mode!
+    // ===================================================
+    const ENFORCE_LOGIN = false;
+
+    // Firebase Config
     const firebaseConfig = {
       apiKey: "AIzaSyAY-q5jpMCMUkCF_TM3YQ_6wKtyfvDySDk",
       authDomain: "playvibe-71ed3.firebaseapp.com",
@@ -213,563 +380,396 @@
 
     // App State Variables
     let currentUser = null;
-    let userPoints = 0;
-    let userStreak = 0;
-    let currentScore = 0;
-    let currentQuestionIndex = 0;
-    let timerInterval = null;
-    let timeLeft = 15;
+    let userPoints = 150; // Default points for Guest Mode
+    let userStreak = 1;
     let currentLanguage = localStorage.getItem('playvibe_lang') || 'en';
-    
-    let currentChallengeId = null;
-    let activeChallengeData = null;
-    let generatedShareUrl = "";
 
-    // 2. Multilingual Dictionary (i18n)
-    const translations = {
-      en: {
-        title: "Speed Quiz Arena",
-        subtitle: "Test your knowledge, earn points, maintain your streak, and challenge friends!",
-        attendanceBtn: "Mark Daily Attendance (+50 Pts)",
-        attendanceClaimed: "✅ Today's Attendance Marked",
-        startQuizBtn: "Play Solo Quiz 🚀",
-        topPlayers: "Top Players",
-        liveLeaderboard: "Live Leaderboard",
-        quizCompleted: "Quiz Completed!",
-        challengeFriend: "Challenge a Friend ⚔️",
-        backHome: "Back to Home 🏠",
-        challengeTitle: "Challenge Received",
-        acceptBtn: "ACCEPT 🔥",
-        shareTitle: "Challenge Your Friend",
-        shareDesc: "Share this challenge link. See if they can beat your score!",
-        closeBtn: "Close",
-        loginToast: "Logged in successfully! 🎉",
-        loginRequired: "⚠️ Please Login first!",
-        attendanceSuccess: "🎉 Attendance Marked! +50 Points earned!",
-        questions: [
-          { q: "Which planet is known as the Red Planet?", options: ["Earth", "Mars", "Jupiter", "Venus"], answer: 1 },
-          { q: "What is the capital of France?", options: ["Berlin", "Madrid", "Paris", "Rome"], answer: 2 },
-          { q: "What is 5 + 7?", options: ["10", "11", "12", "13"], answer: 2 },
-          { q: "Which gas do plants absorb from atmosphere?", options: ["Oxygen", "Carbon Dioxide", "Nitrogen", "Hydrogen"], answer: 1 },
-          { q: "How many days are in a leap year?", options: ["365", "366", "364", "367"], answer: 1 }
-        ]
-      },
-      hi: {
-        title: "स्पीड क्विज़ अरीना",
-        subtitle: "अपना ज्ञान परखें, अंक कमाएं, अपनी स्ट्राइक बनाए रखें और दोस्तों को चुनौती दें!",
-        attendanceBtn: "दैनिक हाजिरी लगाएं (+50 अंक)",
-        attendanceClaimed: "✅ आज की हाजिरी दर्ज हो चुकी है",
-        startQuizBtn: "अकेले क्विज़ खेलें 🚀",
-        topPlayers: "शीर्ष खिलाड़ी",
-        liveLeaderboard: "लाइव लीडरबोर्ड",
-        quizCompleted: "क्विज़ पूरा हुआ!",
-        challengeFriend: "दोस्त को चुनौती दें ⚔️",
-        backHome: "होम पर वापस जाएं 🏠",
-        challengeTitle: "चुनौती प्राप्त हुई",
-        acceptBtn: "स्वीकार करें 🔥",
-        shareTitle: "अपने दोस्त को चुनौती दें",
-        shareDesc: "यह चुनौती लिंक साझा करें। देखें कि क्या वे आपके स्कोर को हरा सकते हैं!",
-        closeBtn: "बंद करें",
-        loginToast: "सफलतापूर्वक लॉगिन हो गया! 🎉",
-        loginRequired: "⚠️ कृपया पहले लॉगिन करें!",
-        attendanceSuccess: "🎉 हाजिरी दर्ज हुई! +50 अंक मिले!",
-        questions: [
-          { q: "किस ग्रह को लाल ग्रह के नाम से जाना जाता है?", options: ["पृथ्वी", "मंगल", "बृहस्पति", "शुक्र"], answer: 1 },
-          { q: "फ्रांस की राजधानी क्या है?", options: ["बर्लिन", "मैड्रिड", "पेरिस", "रोम"], answer: 2 },
-          { q: "5 + 7 कितना होता है?", options: ["10", "11", "12", "13"], answer: 2 },
-          { q: "पौधे वायुमंडल से कौन सी गैस अवशोषित करते हैं?", options: ["ऑक्सीजन", "कार्बन डाइऑक्साइड", "नाइट्रोजन", "हाइड्रोजन"], answer: 1 },
-          { q: "एक लीप वर्ष में कितने दिन होते हैं?", options: ["365", "366", "364", "367"], answer: 1 }
-        ]
-      },
-      gu: {
-        title: "સ્પીડ ક્વિઝ એરેના",
-        subtitle: "તમારું જ્ઞાન ચકાસો, પોઈન્ટ્સ મેળવો, તમારી સ્ટ્રીક જાળવી રાખો અને મિત્રોને ચેલેન્જ કરો!",
-        attendanceBtn: "દૈનિક હાજરી પૂરો (+50 પોઈન્ટ્સ)",
-        attendanceClaimed: "✅ આજની હાજરી પુરાઈ ગઈ છે",
-        startQuizBtn: "સોલો ક્વિઝ રમો 🚀",
-        topPlayers: "ટોચના ખેલાડીઓ",
-        liveLeaderboard: "લાઈવ લીડરબોર્ડ",
-        quizCompleted: "ક્વિઝ પૂર્ણ થઈ!",
-        challengeFriend: "મિત્રને ચેલેન્જ કરો ⚔️",
-        backHome: "હોમ પર પાછા જાઓ 🏠",
-        challengeTitle: "ચેલેન્જ મળી",
-        acceptBtn: "સ્વીકારો 🔥",
-        shareTitle: "તમારા મિત્રને ચેલેન્જ કરો",
-        shareDesc: "આ ચેલેન્જ લિંક શેર કરો. જુઓ કે તેઓ તમારા સ્કોરને હરાવી શકે છે કે નહીં!",
-        closeBtn: "બંધ કરો",
-        loginToast: "સફળતાપૂર્વક લોગીન થયું! 🎉",
-        loginRequired: "⚠️ કૃપા કરીને પહેલા લોગીન કરો!",
-        attendanceSuccess: "🎉 હાજરી પુરાઈ ગઈ! +50 પોઈન્ટ્સ મળ્યા!",
-        questions: [
-          { q: "કયા ગ્રહને લાલ ગ્રહ તરીકે ઓળખવામાં આવે છે?", options: ["પૃથ્વી", "મંગળ", "ગુરુ", "શુક્ર"], answer: 1 },
-          { q: "ફ્રાન્સની રાજધાની કઈ છે?", options: ["બર્લિન", "મેડ્રિડ", "પેરિસ", "રોમ"], answer: 2 },
-          { q: "5 + 7 કેટલા થાય?", options: ["10", "11", "12", "13"], answer: 2 },
-          { q: "છોડ વાતાવરણમાંથી કયો ગેસ શોષી લે છે?", options: ["ઓક્સિજન", "કાર્બન ડાયોક્સાઇડ", "નાઇટ્રોજન", "હાઇડ્રોજન"], answer: 1 },
-          { q: "લીપ વર્ષમાં કેટલા દિવસો હોય છે?", options: ["365", "366", "364", "367"], answer: 1 }
-        ]
-      }
+    // Quiz Engine State
+    let activeQuizQuestions = [];
+    let currentQIndex = 0;
+    let quizTimer = null;
+    let timeLeft = 15;
+    let quizScore = 0;
+
+    // Question Bank per Category
+        const questionBank = {
+      cricket: [
+        { q: "Who scored the first double century in ODI Cricket?", options: ["Sachin Tendulkar", "Virender Sehwag", "Rohit Sharma", "MS Dhoni"], answer: 0 },
+        { q: "How many players are on the field in a cricket team?", options: ["10", "11", "12", "9"], answer: 1 },
+        { q: "Which country won the 2011 ICC Cricket World Cup?", options: ["Sri Lanka", "Australia", "India", "England"], answer: 2 }
+      ],
+      bollywood: [
+        { q: "Who played Gabbar Singh in the film Sholay?", options: ["Amjad Khan", "Pran", "Danny Denzongpa", "Kader Khan"], answer: 0 },
+        { q: "What is Shah Rukh Khan's bungalow named?", options: ["Jalsa", "Mannat", "Ashiyana", "Galaxy"], answer: 1 }
+      ],
+      tech: [
+        { q: "What does CPU stand for in computers?", options: ["Central Processing Unit", "Central Power Unit", "Computer Program Unit", "Control Panel Unit"], answer: 0 },
+        { q: "Who is the co-founder of Microsoft?", options: ["Steve Jobs", "Bill Gates", "Elon Musk", "Mark Zuckerberg"], answer: 1 }
+      ],
+      science: [
+        { q: "What is the chemical formula of Water?", options: ["CO2", "H2O", "O2", "NaCl"], answer: 1 },
+        { q: "Which organ pumps blood in human body?", options: ["Lungs", "Brain", "Heart", "Kidney"], answer: 2 }
+      ]
     };
 
-    // 3. Language Functions
-    function selectLanguage(langCode) {
-      currentLanguage = langCode;
-      localStorage.setItem('playvibe_lang', langCode);
-
-      if (currentUser) {
-        db.collection('users').doc(currentUser.uid).update({
-          language: langCode
-        }).catch(e => console.error("Lang save error:", e));
-      }
-
-      applyTranslations();
-      showView('view-start');
-      showToast(`Language updated: ${langCode.toUpperCase()}`);
-    }
-
-    function openLanguageSelection() {
-      showView('view-language');
-    }
-
-    function applyTranslations() {
-      const langData = translations[currentLanguage] || translations['en'];
-
-      document.getElementById('current-lang-code').innerText = currentLanguage.toUpperCase();
-      document.getElementById('i18n-title').innerText = langData.title;
-      document.getElementById('i18n-subtitle').innerText = langData.subtitle;
-      document.getElementById('btn-start-quiz').innerText = langData.startQuizBtn;
-      document.getElementById('lbl-top-players').innerText = langData.topPlayers;
-      document.getElementById('lbl-live-lb').innerText = langData.liveLeaderboard;
-      document.getElementById('i18n-quiz-completed').innerText = langData.quizCompleted;
-      document.getElementById('lbl-challenge-friend').innerText = langData.challengeFriend;
-      document.getElementById('btn-back-home').innerText = langData.backHome;
-      document.getElementById('lbl-challenge-title').innerText = langData.challengeTitle;
-      document.getElementById('btn-accept-challenge').innerText = langData.acceptBtn;
-      document.getElementById('modal-challenge-title').innerText = langData.shareTitle;
-      document.getElementById('modal-challenge-desc').innerText = langData.shareDesc;
-      document.getElementById('btn-modal-close').innerText = langData.closeBtn;
-
-      const attBtnText = document.getElementById('attendance-btn-text');
-      const attBtn = document.getElementById('attendance-btn');
-      if (attBtn && !attBtn.disabled) {
-        attBtnText.innerText = langData.attendanceBtn;
+    // Synthesizer Web Audio API Sounds
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playSound(type) {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      
+      if (type === 'correct') {
+        osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.2);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+      } else if (type === 'wrong') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.25);
+        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.25);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.25);
+      } else if (type === 'win') {
+        [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+          const o = audioCtx.createOscillator();
+          const g = audioCtx.createGain();
+          o.connect(g); g.connect(audioCtx.destination);
+          o.frequency.value = freq;
+          g.gain.setValueAtTime(0.1, audioCtx.currentTime + idx*0.08);
+          g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + idx*0.08 + 0.25);
+          o.start(audioCtx.currentTime + idx*0.08);
+          o.stop(audioCtx.currentTime + idx*0.08 + 0.25);
+        });
       }
     }
 
-    // 4. Page Load Initialization
-    window.addEventListener('DOMContentLoaded', async () => {
-      applyTranslations();
-      setupAuthListener();
-      fetchLeaderboard();
-
-      if (!localStorage.getItem('playvibe_lang')) {
-        showView('view-language');
+    // Confetti Fireworks Engine
+    function triggerConfetti() {
+      const canvas = document.getElementById('confetti-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      
+      let particles = [];
+      const colors = ['#f43f5e', '#8b5cf6', '#ec4899', '#3b82f6', '#10b981', '#f59e0b'];
+      for (let i = 0; i < 60; i++) {
+        particles.push({
+          x: canvas.width / 2,
+          y: canvas.height / 2,
+          vx: (Math.random() - 0.5) * 12,
+          vy: (Math.random() - 0.8) * 12,
+          size: Math.random() * 8 + 4,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          alpha: 1
+        });
       }
-
-      const urlParams = new URLSearchParams(window.location.search);
-      currentChallengeId = urlParams.get('challengeId');
-
-      if (currentChallengeId) {
-        await loadChallengeDetails(currentChallengeId);
+      
+      function render() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        let active = false;
+        particles.forEach(p => {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.3;
+          p.alpha -= 0.015;
+          if (p.alpha > 0) {
+            active = true;
+            ctx.globalAlpha = Math.max(0, p.alpha);
+            ctx.fillStyle = p.color;
+            ctx.fillRect(p.x, p.y, p.size, p.size);
+          }
+        });
+        if (active) requestAnimationFrame(render);
+        else ctx.clearRect(0, 0, canvas.width, canvas.height);
       }
+      render();
+    }
+
+    // Page Load Init
+    window.addEventListener('DOMContentLoaded', () => {
+      updateHeaderStats();
+      renderDummyLeaderboard();
+      initLuckyWheelCanvas();
     });
-
-    // 5. Auth Management (Google Login with Popup)
-    function setupAuthListener() {
-      auth.onAuthStateChanged(async (user) => {
-        currentUser = user;
-        const loginBtn = document.getElementById('login-btn');
-        const userAvatar = document.getElementById('user-avatar');
-
-        if (user) {
-          loginBtn.classList.add('hidden');
-          userAvatar.classList.remove('hidden');
-          userAvatar.src = user.photoURL || 'https://via.placeholder.com/30';
-          await syncUserData(user);
-        } else {
-          loginBtn.classList.remove('hidden');
-          userAvatar.classList.add('hidden');
-          userPoints = 0;
-          userStreak = 0;
-          updateHeaderStats();
-        }
-      });
-    }
-
-    async function handleGoogleSignIn() {
-      const provider = new firebase.auth.GoogleAuthProvider();
-      try {
-        showToast("Opening Google Login... ⏳");
-        const result = await auth.signInWithPopup(provider);
-        if (result && result.user) {
-                    showToast(translations[currentLanguage].loginToast);
-        }
-      } catch (err) {
-        console.error("Auth Error:", err);
-        if (err.code === 'auth/unauthorized-domain') {
-          showToast("❌ Domain not authorized! Add 'playvibe-nine.vercel.app' in Firebase.");
-        } else if (err.code === 'auth/popup-closed-by-user') {
-          showToast("⚠️ Login popup closed.");
-        } else {
-          showToast(`❌ Login Error: ${err.message || err.code}`);
-        }
-      }
-    }
-
-    async function syncUserData(user) {
-      const userRef = db.collection('users').doc(user.uid);
-      const todayStr = new Date().toISOString().split('T')[0];
-
-      try {
-        const doc = await userRef.get();
-        if (doc.exists) {
-          const data = doc.data();
-          userPoints = data.points || 0;
-          userStreak = data.streak || 0;
-
-          if (data.language) {
-            currentLanguage = data.language;
-            localStorage.setItem('playvibe_lang', data.language);
-            applyTranslations();
-          }
-
-          if (data.lastAttendanceDate === todayStr) {
-            markAttendanceBtnClaimed();
-          }
-        } else {
-          await userRef.set({
-            name: user.displayName || 'Player',
-            email: user.email,
-            points: 0,
-            streak: 1,
-            language: currentLanguage,
-            lastAttendanceDate: "",
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-          });
-          userPoints = 0;
-          userStreak = 1;
-        }
-        updateHeaderStats();
-      } catch (e) {
-        console.error("Sync user error:", e);
-      }
-    }
 
     function updateHeaderStats() {
       document.getElementById('user-points').innerText = userPoints;
       document.getElementById('streak-count').innerText = userStreak;
     }
 
-    // 6. Daily Attendance
-    async function claimDailyAttendance() {
-      const langData = translations[currentLanguage];
-      if (!currentUser) {
-        showToast(langData.loginRequired);
-        handleGoogleSignIn();
-        return;
-      }
-
-      const todayStr = new Date().toISOString().split('T')[0];
-      const userRef = db.collection('users').doc(currentUser.uid);
-
-      try {
-        const doc = await userRef.get();
-        if (doc.exists) {
-          const data = doc.data();
-
-          if (data.lastAttendanceDate === todayStr) {
-            markAttendanceBtnClaimed();
-            return;
-          }
-
-          const bonusPoints = 50;
-          await userRef.update({
-            lastAttendanceDate: todayStr,
-            points: firebase.firestore.FieldValue.increment(bonusPoints),
-            streak: firebase.firestore.FieldValue.increment(1)
-          });
-
-          userPoints += bonusPoints;
-          userStreak += 1;
-          updateHeaderStats();
-
-          markAttendanceBtnClaimed();
-          showToast(langData.attendanceSuccess);
-        }
-      } catch (e) {
-        console.error("Attendance Error:", e);
-      }
-    }
-
-    function markAttendanceBtnClaimed() {
-      const btn = document.getElementById('attendance-btn');
-      const btnText = document.getElementById('attendance-btn-text');
-      const langData = translations[currentLanguage];
-      if (btn && btnText) {
-        btnText.innerText = langData.attendanceClaimed;
-        btn.disabled = true;
-        btn.classList.add('opacity-60', 'cursor-not-allowed');
-      }
-    }
-
-    // 7. Challenge Logic
-    async function loadChallengeDetails(challengeId) {
-      try {
-        const doc = await db.collection('challenges').doc(challengeId).get();
-        if (!doc.exists) {
-          showToast("❌ Challenge link invalid or expired.");
-          window.history.replaceState({}, document.title, window.location.pathname);
-          return;
-        }
-
-        activeChallengeData = doc.data();
-        const banner = document.getElementById('challenge-banner');
-        const bannerText = document.getElementById('challenge-banner-text');
-
-        bannerText.innerText = `🔥 ${activeChallengeData.creatorName} challenged you! Beat: ${activeChallengeData.creatorScore} Pts`;
-        banner.classList.remove('hidden');
-      } catch (e) {
-        console.error("Load Challenge Error:", e);
-      }
-    }
-
-    function acceptChallengeAndStart() {
-      document.getElementById('challenge-banner').classList.add('hidden');
-      startSoloQuiz();
-    }
-
-    async function initiateChallengeCreation() {
-      if (!currentUser) {
-        showToast("⚠️ Please Login to challenge friends!");
-        handleGoogleSignIn();
-        return;
-      }
-
-      try {
-        const challengeRef = db.collection('challenges').doc();
-        const challengeData = {
-          creatorUid: currentUser.uid,
-          creatorName: currentUser.displayName || 'Player',
-          creatorScore: currentScore,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-          status: 'active'
-        };
-
-        await challengeRef.set(challengeData);
-        generatedShareUrl = `${window.location.origin}${window.location.pathname}?challengeId=${challengeRef.id}`;
-        openShareModal();
-      } catch (e) {
-        console.error("Challenge Creation Error:", e);
-        showToast("❌ Could not generate challenge link.");
-      }
-    }
-
-    async function handleChallengeAttemptSubmission(score) {
-      if (!currentChallengeId || !activeChallengeData || !currentUser) return;
-
-      const attemptRef = db.collection('challenges')
-                           .doc(currentChallengeId)
-                           .collection('attempts')
-                           .doc(currentUser.uid);
-
-      try {
-        const existing = await attemptRef.get();
-        if (existing.exists) {
-          renderChallengeComparisonUI(score, activeChallengeData.creatorScore, true);
-          return;
-        }
-
-        await attemptRef.set({
-          userUid: currentUser.uid,
-          userName: currentUser.displayName || 'Challenger',
-          score: Number(score),
-          attemptedAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-
-        renderChallengeComparisonUI(score, activeChallengeData.creatorScore, false);
-      } catch (e) {
-        console.error("Attempt Submission Error:", e);
-      }
-    }
-
-    function renderChallengeComparisonUI(userScore, creatorScore, isRepeat) {
-      const outcomeBox = document.getElementById('challenge-outcome-box');
-      const outcomeText = document.getElementById('challenge-outcome-text');
-      outcomeBox.classList.remove('hidden');
-
-      if (userScore > creatorScore) {
-        outcomeText.innerText = `🏆 YOU WON! You beat ${activeChallengeData.creatorName} (${userScore} vs ${creatorScore} Pts)!`;
-      } else if (userScore === creatorScore) {
-        outcomeText.innerText = `🤝 IT'S A TIE! Both scored ${userScore} Pts!`;
+    function handleAuthAction() {
+      if (ENFORCE_LOGIN) {
+        auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
       } else {
-        outcomeText.innerText = `🔥 ${activeChallengeData.creatorName} WON (${creatorScore} vs ${userScore} Pts). Try again!`;
-      }
-
-      if (isRepeat) {
-        outcomeText.innerText += " (Previous Attempt Recorded)";
+        showToast("ℹ️ Currently in Guest Testing Mode!");
       }
     }
 
-    // 8. Quiz Engine Logic
-    function startSoloQuiz() {
-      currentScore = 0;
-      currentQuestionIndex = 0;
-      showView('view-question');
-      loadQuestion();
-    }
-
-    function loadQuestion() {
-      const activeQuestions = (translations[currentLanguage] || translations['en']).questions;
-
-      if (currentQuestionIndex >= activeQuestions.length) {
-        finishQuiz();
-        return;
-      }
-
-      const qData = activeQuestions[currentQuestionIndex];
-      document.getElementById('question-progress').innerText = `Question ${currentQuestionIndex + 1}/${activeQuestions.length}`;
-      document.getElementById('question-text').innerText = qData.q;
-      
-      const optionsBox = document.getElementById('options-container');
-      optionsBox.innerHTML = '';
-
-      qData.options.forEach((opt, idx) => {
-        const btn = document.createElement('button');
-        btn.className = "w-full text-left bg-slate-700/70 hover:bg-slate-600/90 text-white font-medium p-3 rounded-xl border border-slate-600 transition text-xs flex items-center justify-between";
-        btn.innerHTML = `<span>${opt}</span><i class="fa-regular fa-circle text-slate-400"></i>`;
-        btn.onclick = () => selectOption(idx, qData.answer);
-        optionsBox.appendChild(btn);
-      });
-
-      startTimer();
-    }
-
-    function startTimer() {
-      clearInterval(timerInterval);
-      timeLeft = 15;
-      updateTimerUI();
-
-      timerInterval = setInterval(() => {
-        timeLeft--;
-        updateTimerUI();
-        if (timeLeft <= 0) {
-          clearInterval(timerInterval);
-          nextQuestion();
-        }
-      }, 1000);
-    }
-
-    function updateTimerUI() {
-      document.getElementById('timer-display').innerText = `⏱️ ${timeLeft}s`;
-      const percentage = (timeLeft / 15) * 100;
-      document.getElementById('progress-bar').style.width = `${percentage}%`;
-    }
-
-    function selectOption(selected, correct) {
-      clearInterval(timerInterval);
-      if (selected === correct) {
-        currentScore += 20;
-      }
-      nextQuestion();
-    }
-
-    function nextQuestion() {
-      currentQuestionIndex++;
-      loadQuestion();
-    }
-
-    async function finishQuiz() {
-      clearInterval(timerInterval);
-      document.getElementById('final-score-display').innerText = `${currentScore} Pts`;
-      showView('view-result');
-
-      if (currentUser) {
-        userPoints += currentScore;
-        updateHeaderStats();
-        
-        try {
-          await db.collection('users').doc(currentUser.uid).update({
-            points: firebase.firestore.FieldValue.increment(currentScore)
-          });
-        } catch(e) { console.error("Points update failed", e); }
-      }
-
-      if (currentChallengeId && activeChallengeData) {
-        await handleChallengeAttemptSubmission(currentScore);
-      }
-    }
-
-    function resetToHome() {
-      document.getElementById('challenge-outcome-box').classList.add('hidden');
-      showView('view-start');
-    }
-
+    // Navigation Helper
     function showView(viewId) {
-      ['view-language', 'view-start', 'view-question', 'view-result'].forEach(id => {
+      ['view-language', 'view-home', 'view-quiz', 'view-memory-game', 'view-math-dash', 'view-spin-wheel', 'view-rewards', 'view-referral', 'view-result'].forEach(id => {
         document.getElementById(id).classList.add('hidden');
       });
       document.getElementById(viewId).classList.remove('hidden');
     }
 
-    // 9. Sharing Helpers
-    function openShareModal() {
-      document.getElementById('share-modal').classList.remove('hidden');
+    function openLanguageSelection() { showView('view-language'); }
+    function selectLanguage(lang) {
+      currentLanguage = lang;
+      localStorage.setItem('playvibe_lang', lang);
+      document.getElementById('current-lang-code').innerText = lang.toUpperCase();
+      showView('view-home');
+      showToast(`Language: ${lang.toUpperCase()}`);
     }
 
-    function closeShareModal() {
-      document.getElementById('share-modal').classList.add('hidden');
+    // Daily Attendance
+    function claimDailyAttendance() {
+      userPoints += 50;
+      updateHeaderStats();
+      playSound('win');
+      triggerConfetti();
+      showToast("🎉 Daily Check-in claimed! +50 Points");
     }
 
-    function shareOnWhatsApp() {
-      const text = encodeURIComponent(`🔥 Main PlayVibe par Speed Quiz khel raha hoon! Kya tum mera score beat kar sakte ho?\n\nChallenge Link: ${generatedShareUrl}`);
-      window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
+    // Modal Helpers
+    function showCategoryModal() { document.getElementById('category-modal').classList.remove('hidden'); }
+    function closeCategoryModal() { document.getElementById('category-modal').classList.add('hidden'); }
+
+    // GAME 1: Category Speed Quiz
+    function startCategoryQuiz(catKey) {
+      closeCategoryModal();
+      activeQuizQuestions = questionBank[catKey] || questionBank['cricket'];
+      currentQIndex = 0;
+      quizScore = 0;
+      document.getElementById('quiz-category-badge').innerText = catKey.toUpperCase();
+      showView('view-quiz');
+      loadQuizQuestion();
     }
 
-    function copyChallengeLink() {
-      navigator.clipboard.writeText(generatedShareUrl).then(() => {
-        showToast("📋 Link copied to clipboard!");
-      }).catch(() => {
-        showToast("❌ Failed to copy link.");
+    function loadQuizQuestion() {
+      if (currentQIndex >= activeQuizQuestions.length) {
+        finishGame(quizScore);
+        return;
+      }
+
+      const q = activeQuizQuestions[currentQIndex];
+      document.getElementById('question-text').innerText = q.q;
+      const optsBox = document.getElementById('options-container');
+      optsBox.innerHTML = '';
+
+      q.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = "w-full text-left bg-slate-800 hover:bg-slate-700 text-white text-xs p-3 rounded-xl border border-slate-700 transition flex items-center justify-between";
+        btn.innerHTML = `<span>${opt}</span><i class="fa-regular fa-circle text-slate-500"></i>`;
+        btn.onclick = () => {
+          if (idx === q.answer) {
+            playSound('correct');
+            quizScore += 20;
+          } else {
+            playSound('wrong');
+          }
+          currentQIndex++;
+          loadQuizQuestion();
+        };
+        optsBox.appendChild(btn);
       });
     }
 
-    // 10. Fetch Live Leaderboard
-    async function fetchLeaderboard() {
-      const box = document.getElementById('leaderboard-list');
-      try {
-        const snap = await db.collection('users').orderBy('points', 'desc').limit(5).get();
-        if (snap.empty) {
-          box.innerHTML = `<p class="text-slate-500 text-center py-2">No players yet.</p>`;
-          return;
-        }
+    // GAME 2: Memory Card Flip Game
+    function startMemoryGame() {
+      showView('view-memory-game');
+      const emojis = ['⚡', '🚀', '🏆', '🔥', '💎', '🎮', '🎯', '🌟'];
+      const cards = [...emojis, ...emojis].sort(() => Math.random() - 0.5);
+      const grid = document.getElementById('memory-grid');
+      grid.innerHTML = '';
+      
+      let flipped = [];
+      let matchedCount = 0;
 
-        box.innerHTML = '';
-        let rank = 1;
-        snap.forEach(doc => {
-          const d = doc.data();
-          box.innerHTML += `
-            <div class="flex items-center justify-between bg-slate-900/50 p-2 rounded-lg">
-              <div class="flex items-center space-x-2">
-                <span class="font-bold text-slate-400">#${rank++}</span>
-                <span class="font-medium text-white">${d.name || 'Anonymous'}</span>
-              </div>
-              <span class="font-bold text-yellow-400">${d.points || 0} Pts</span>
-            </div>
-          `;
+      cards.forEach(emoji => {
+        const card = document.createElement('div');
+        card.className = "bg-slate-800 h-16 rounded-xl border border-slate-700 flex items-center justify-center text-2xl cursor-pointer transition transform duration-200 select-none";
+        card.dataset.emoji = emoji;
+        card.innerText = '❓';
+
+        card.onclick = () => {
+          if (flipped.length < 2 && !card.classList.contains('matched') && card.innerText === '❓') {
+            card.innerText = emoji;
+            card.classList.add('bg-purple-900/60', 'border-purple-500');
+            flipped.push(card);
+
+            if (flipped.length === 2) {
+              if (flipped[0].dataset.emoji === flipped[1].dataset.emoji) {
+                playSound('correct');
+                flipped.forEach(c => c.classList.add('matched'));
+                matchedCount += 2;
+                flipped = [];
+                if (matchedCount === cards.length) {
+                  finishGame(100);
+                }
+              } else {
+                playSound('wrong');
+                setTimeout(() => {
+                  flipped.forEach(c => {
+                    c.innerText = '❓';
+                    c.classList.remove('bg-purple-900/60', 'border-purple-500');
+                  });
+                  flipped = [];
+                }, 800);
+              }
+            }
+          }
+        };
+        grid.appendChild(card);
+      });
+    }
+
+    // GAME 3: Fast Math Dash
+    function startMathDashGame() {
+      showView('view-math-dash');
+      let score = 0;
+      
+      function nextMath() {
+        const a = Math.floor(Math.random() * 15) + 1;
+        const b = Math.floor(Math.random() * 15) + 1;
+        const correct = a + b;
+        document.getElementById('math-equation').innerText = `${a} + ${b} = ?`;
+        
+        const optsBox = document.getElementById('math-options');
+        optsBox.innerHTML = '';
+
+        const opts = [correct, correct + 2, Math.max(1, correct - 3), correct + 5].sort(() => Math.random() - 0.5);
+        opts.forEach(opt => {
+          const btn = document.createElement('button');
+          btn.className = "bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl border border-slate-700 text-sm";
+          btn.innerText = opt;
+          btn.onclick = () => {
+            if (opt === correct) {
+              playSound('correct');
+              score += 15;
+              nextMath();
+            } else {
+              playSound('wrong');
+              finishGame(score);
+            }
+          };
+          optsBox.appendChild(btn);
         });
-      } catch (e) {
-        box.innerHTML = `<p class="text-slate-500 text-center py-2">Leaderboard offline.</p>`;
+      }
+      nextMath();
+    }
+
+    // GAME 4: Canvas Lucky Wheel
+    function initLuckyWheelCanvas() {
+      const canvas = document.getElementById('wheel-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const segments = ['10 Pts', '50 Pts', '20 Pts', '100 Pts', '200 Pts', 'Try Again'];
+      const colors = ['#8b5cf6', '#ec4899', '#3b82f6', '#10b981', '#f59e0b', '#64748b'];
+
+      for (let i = 0; i < segments.length; i++) {
+        const angle = (Math.PI * 2) / segments.length;
+        ctx.beginPath();
+        ctx.fillStyle = colors[i];
+        ctx.moveTo(128, 128);
+        ctx.arc(128, 128, 128, i * angle, (i + 1) * angle);
+        ctx.fill();
+
+        ctx.save();
+        ctx.translate(128, 128);
+        ctx.rotate(i * angle + angle / 2);
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 12px sans-serif';
+        ctx.fillText(segments[i], 50, 4);
+        ctx.restore();
       }
     }
 
-    // Toast Alert Helper
+    function spinLuckyWheel() {
+      const btn = document.getElementById('btn-spin-wheel');
+      btn.disabled = true;
+      playSound('correct');
+
+      let reward = 50;
+      userPoints += reward;
+      updateHeaderStats();
+
+      setTimeout(() => {
+        triggerConfetti();
+        playSound('win');
+        showToast(`🎉 You won +${reward} Points from Wheel!`);
+        btn.disabled = false;
+      }, 1500);
+    }
+
+    // Common Finish Game Helper
+    function finishGame(ptsGained) {
+      userPoints += ptsGained;
+      updateHeaderStats();
+      triggerConfetti();
+      playSound('win');
+      document.getElementById('final-score-display').innerText = `+${ptsGained} Pts`;
+      showView('view-result');
+    }
+
+    // Rewards & Referral System
+    function redeemReward(name, cost) {
+      if (userPoints >= cost) {
+        userPoints -= cost;
+        updateHeaderStats();
+        playSound('win');
+        triggerConfetti();
+        showToast(`🎉 Successfully Redeemed: ${name}!`);
+      } else {
+        playSound('wrong');
+        showToast(`⚠️ Insufficient Points! Need ${cost - userPoints} more.`);
+      }
+    }
+
+    function copyReferralCode() {
+      navigator.clipboard.writeText("PV-GUEST-8821");
+      showToast("📋 Referral Code Copied!");
+    }
+
+    function shareReferralWhatsApp() {
+      const text = encodeURIComponent("🔥 Join me on PlayVibe Speed Quiz & Games! Earn points and redeem free Gift Vouchers! Code: PV-GUEST-8821");
+      window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
+    }
+
+    function renderDummyLeaderboard() {
+      const list = document.getElementById('leaderboard-list');
+      const topPlayers = [
+        { name: "Rahul Sharma", pts: 1450 },
+        { name: "Akash Patel", pts: 1200 },
+        { name: "Priya Singh", pts: 980 }
+      ];
+      list.innerHTML = topPlayers.map((p, idx) => `
+        <div class="flex items-center justify-between bg-slate-800/50 p-2 rounded-lg border border-slate-800">
+          <div class="flex items-center space-x-2">
+            <span class="font-bold text-amber-400">#${idx + 1}</span>
+            <span class="text-white">${p.name}</span>
+          </div>
+          <span class="font-bold text-purple-400">${p.pts} Pts</span>
+        </div>
+      `).join('');
+    }
+
     function showToast(msg) {
       const container = document.getElementById('toast-container');
       const toast = document.createElement('div');
       toast.className = "bg-slate-800 text-white text-xs px-4 py-2 rounded-full border border-slate-700 shadow-xl mb-2 transition-all duration-300";
       toast.innerText = msg;
       container.appendChild(toast);
-      setTimeout(() => toast.remove(), 4000);
+      setTimeout(() => toast.remove(), 3500);
     }
   </script>
 </body>
 </html>
+
+    
