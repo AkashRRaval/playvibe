@@ -4,26 +4,26 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PlayVibe Games Hub</title>
-  <!-- Tailwind CSS & FontAwesome -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <link rel="stylesheet" href="style.css" />
+  <style>
+    .view-section { display: none !important; }
+    .view-section.active { display: block !important; }
+  </style>
 </head>
 <body class="bg-slate-900 text-white min-h-screen font-sans flex flex-col justify-between">
 
-  <!-- TOP HEADER / STATS BAR -->
+  <!-- TOP HEADER -->
   <header class="bg-slate-800 border-b border-slate-700 p-4 sticky top-0 z-50 flex justify-between items-center shadow-lg">
     <div class="flex items-center space-x-2 cursor-pointer" onclick="showView('view-home')">
       <i class="fa-solid fa-gamepad text-purple-500 text-2xl"></i>
       <span class="font-bold text-lg tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">PlayVibe</span>
     </div>
-    
     <div class="flex items-center space-x-3">
-      <button onclick="openLanguageSelection()" class="bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded-full text-xs flex items-center space-x-1 border border-slate-600">
+      <button onclick="openLanguageSelection()" class="bg-slate-700 px-3 py-1 rounded-full text-xs flex items-center space-x-1 border border-slate-600">
         <i class="fa-solid fa-globe text-cyan-400"></i>
         <span id="current-lang-code">EN</span>
       </button>
-
       <div class="bg-purple-900/50 border border-purple-500/40 px-3 py-1 rounded-full flex items-center space-x-2">
         <i class="fa-solid fa-coins text-yellow-400 text-sm"></i>
         <span id="header-points" class="font-bold text-sm text-yellow-300">200</span>
@@ -42,7 +42,7 @@
           <h3 class="font-bold text-sm text-purple-200">Daily Attendance</h3>
           <p class="text-xs text-slate-400">Claim daily bonus points!</p>
         </div>
-        <button onclick="claimDailyAttendance()" class="bg-gradient-to-r from-purple-500 to-pink-500 hover:opacity-90 font-bold text-xs px-4 py-2 rounded-xl shadow-lg transition active:scale-95">
+        <button onclick="claimDailyAttendance()" class="bg-gradient-to-r from-purple-500 to-pink-500 font-bold text-xs px-4 py-2 rounded-xl active:scale-95 transition">
           Claim +50
         </button>
       </div>
@@ -51,7 +51,7 @@
       
       <div class="grid grid-cols-2 gap-3">
         <!-- Ludo Card -->
-        <div class="bg-slate-800 border border-slate-700 hover:border-purple-500 p-4 rounded-2xl flex flex-col items-center justify-between space-y-3 text-center shadow-md transition">
+        <div class="bg-slate-800 border border-slate-700 p-4 rounded-2xl flex flex-col items-center justify-between space-y-3 text-center">
           <div class="w-12 h-12 bg-red-500/20 text-red-400 rounded-full flex items-center justify-center text-2xl">
             <i class="fa-solid fa-dice"></i>
           </div>
@@ -65,7 +65,7 @@
         </div>
 
         <!-- Quiz Card -->
-        <div class="bg-slate-800 border border-slate-700 hover:border-purple-500 p-4 rounded-2xl flex flex-col items-center justify-between space-y-3 text-center shadow-md transition">
+        <div class="bg-slate-800 border border-slate-700 p-4 rounded-2xl flex flex-col items-center justify-between space-y-3 text-center">
           <div class="w-12 h-12 bg-blue-500/20 text-blue-400 rounded-full flex items-center justify-center text-2xl">
             <i class="fa-solid fa-brain"></i>
           </div>
@@ -75,34 +75,6 @@
           </div>
           <button onclick="showCategoryModal()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs py-2 rounded-xl active:scale-95 transition">
             Start Quiz
-          </button>
-        </div>
-
-        <!-- Memory Card Game -->
-        <div class="bg-slate-800 border border-slate-700 hover:border-purple-500 p-4 rounded-2xl flex flex-col items-center justify-between space-y-3 text-center shadow-md transition">
-          <div class="w-12 h-12 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center text-2xl">
-            <i class="fa-solid fa-layer-group"></i>
-          </div>
-          <div>
-            <h4 class="font-bold text-sm">Memory Game</h4>
-            <p class="text-[10px] text-slate-400">Match cards to win</p>
-          </div>
-          <button onclick="startMemoryGame()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-2 rounded-xl active:scale-95 transition">
-            Play Memory
-          </button>
-        </div>
-
-        <!-- Spin Wheel -->
-        <div class="bg-slate-800 border border-slate-700 hover:border-purple-500 p-4 rounded-2xl flex flex-col items-center justify-between space-y-3 text-center shadow-md transition">
-          <div class="w-12 h-12 bg-amber-500/20 text-amber-400 rounded-full flex items-center justify-center text-2xl">
-            <i class="fa-solid fa-arrows-spin"></i>
-          </div>
-          <div>
-            <h4 class="font-bold text-sm">Lucky Wheel</h4>
-            <p class="text-[10px] text-slate-400">Free daily spin</p>
-          </div>
-          <button onclick="openLuckyWheel()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs py-2 rounded-xl active:scale-95 transition">
-            Spin Now
           </button>
         </div>
       </div>
@@ -115,7 +87,7 @@
           <i class="fa-solid fa-arrow-left mr-1"></i> Exit
         </button>
         <span class="font-bold text-sm text-red-400">Ludo Arena</span>
-        <span id="ludo-turn-indicator" class="text-xs bg-purple-900/60 text-purple-300 px-2.5 py-1 rounded-full border border-purple-500/30">Player 1 Turn</span>
+        <span class="text-xs bg-purple-900/60 text-purple-300 px-2.5 py-1 rounded-full border border-purple-500/30">Player 1 Turn</span>
       </div>
 
       <div class="bg-slate-800 border border-slate-700 p-2 rounded-2xl flex justify-center items-center">
@@ -127,7 +99,7 @@
           <p class="text-[10px] text-slate-400">Dice Result</p>
           <div id="dice-value" class="text-3xl font-black text-yellow-400 mt-1">🎲</div>
         </div>
-        <button onclick="rollLudoDice()" class="bg-gradient-to-r from-red-500 to-pink-600 hover:opacity-90 font-bold px-6 py-3 rounded-xl text-sm shadow-lg active:scale-95 transition">
+        <button onclick="rollLudoDice()" class="bg-gradient-to-r from-red-500 to-pink-600 font-bold px-6 py-3 rounded-xl text-sm active:scale-95 transition">
           Roll Dice
         </button>
       </div>
@@ -148,51 +120,12 @@
       </div>
     </section>
 
-    <!-- 4. MEMORY GAME VIEW -->
-    <section id="view-memory-game" class="view-section space-y-4">
-      <div class="flex justify-between items-center bg-slate-800 p-3 rounded-xl border border-slate-700">
-        <button onclick="showView('view-home')" class="text-xs bg-slate-700 px-3 py-1.5 rounded-lg">
-          <i class="fa-solid fa-arrow-left mr-1"></i> Exit
-        </button>
-        <span class="text-xs font-bold text-emerald-400">MEMORY GAME</span>
-      </div>
-
-      <div id="memory-grid" class="grid grid-cols-4 gap-3 bg-slate-800 p-4 rounded-2xl border border-slate-700"></div>
-    </section>
-
-    <!-- 5. LUCKY WHEEL VIEW -->
-    <section id="view-wheel" class="view-section space-y-4 text-center">
-      <div class="flex justify-between items-center bg-slate-800 p-3 rounded-xl border border-slate-700">
-        <button onclick="showView('view-home')" class="text-xs bg-slate-700 px-3 py-1.5 rounded-lg">
-          <i class="fa-solid fa-arrow-left mr-1"></i> Exit
-        </button>
-        <span class="text-xs font-bold text-amber-400">LUCKY WHEEL</span>
-      </div>
-
-      <div class="bg-slate-800 border border-slate-700 p-6 rounded-2xl flex flex-col items-center space-y-4">
-        <canvas id="wheel-canvas" width="220" height="220" class="rounded-full border-4 border-amber-500/50 shadow-xl"></canvas>
-        <button onclick="spinLuckyWheel()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black px-8 py-3 rounded-xl text-sm active:scale-95 transition">
-          SPIN & WIN
-        </button>
-      </div>
-    </section>
-
-    <!-- 6. LANGUAGE SELECTION VIEW -->
-    <section id="view-language" class="view-section space-y-4">
-      <div class="bg-slate-800 border border-slate-700 p-4 rounded-2xl space-y-3">
-        <h3 class="font-bold text-sm text-slate-200">Select Language</h3>
-        <button onclick="selectLanguage('en')" class="w-full text-left bg-slate-700 hover:bg-slate-600 p-3 rounded-xl text-xs font-semibold">English</button>
-        <button onclick="selectLanguage('hi')" class="w-full text-left bg-slate-700 hover:bg-slate-600 p-3 rounded-xl text-xs font-semibold">Hindi (हिंदी)</button>
-      </div>
-    </section>
-
     <!-- RESULT VIEW -->
     <section id="view-result" class="view-section text-center space-y-4">
       <div class="bg-slate-800 border border-slate-700 p-6 rounded-2xl space-y-3">
         <h2 class="text-xl font-black text-purple-400">Game Over!</h2>
-        <p class="text-xs text-slate-400">Your Reward Points:</p>
         <p id="final-score-display" class="text-3xl font-black text-yellow-400">+0 Pts</p>
-        <button onclick="showView('view-home')" class="bg-purple-600 hover:bg-purple-500 font-bold px-6 py-2.5 rounded-xl text-xs mt-2">
+        <button onclick="showView('view-home')" class="bg-purple-600 font-bold px-6 py-2.5 rounded-xl text-xs mt-2">
           Back to Home
         </button>
       </div>
@@ -204,253 +137,133 @@
     <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 w-full max-w-xs space-y-4">
       <h3 class="font-bold text-sm text-center">Choose Quiz Topic</h3>
       <div class="space-y-2">
-        <button onclick="startCategoryQuiz('cricket')" class="w-full bg-slate-700 hover:bg-slate-600 p-3 rounded-xl text-xs text-left font-medium">🏏 Cricket Quiz</button>
-        <button onclick="startCategoryQuiz('gk')" class="w-full bg-slate-700 hover:bg-slate-600 p-3 rounded-xl text-xs text-left font-medium">🌐 General Knowledge</button>
+        <button onclick="startCategoryQuiz('cricket')" class="w-full bg-slate-700 p-3 rounded-xl text-xs text-left">🏏 Cricket Quiz</button>
+        <button onclick="startCategoryQuiz('gk')" class="w-full bg-slate-700 p-3 rounded-xl text-xs text-left">🌐 General Knowledge</button>
       </div>
       <button onclick="closeCategoryModal()" class="w-full text-xs text-slate-400 pt-2">Cancel</button>
     </div>
   </div>
+    <script>
+    let userPoints = 200;
+    let currentQIndex = 0;
+    let quizScore = 0;
 
-  <script src="app.js"></script>
-</body>
-  </html>
-  .view-section { 
-  display: none; 
-}
-
-.view-section.active { 
-  display: block; 
-}
-// --- GLOBAL STATE ---
-let userPoints = 200;
-let currentLanguage = 'en';
-let currentQIndex = 0;
-let quizScore = 0;
-let activeQuizQuestions = [];
-
-// --- QUESTION BANK ---
-const questionBank = {
-  en: {
-    cricket: [
-      { q: "How many players are in a cricket team?", options: ["9", "10", "11", "12"], answer: 2 },
-      { q: "IPL standard match duration overs?", options: ["20", "50", "10", "40"], answer: 0 }
-    ],
-    gk: [
-      { q: "Capital of India?", options: ["Mumbai", "New Delhi", "Kolkata", "Chennai"], answer: 1 }
-    ]
-  },
-  hi: {
-    cricket: [
-      { q: "क्रिकेट टीम में कितने खिलाड़ी होते हैं?", options: ["9", "10", "11", "12"], answer: 2 }
-    ],
-    gk: [
-      { q: "भारत की राजधानी क्या है?", options: ["मुंबई", "नई दिल्ली", "कोलकाता", "चेन्नई"], answer: 1 }
-    ]
-  }
-};
-
-// --- NAVIGATION / VIEW SWITCHING ---
-function showView(viewId) {
-  document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
-  const target = document.getElementById(viewId);
-  if (target) {
-    target.classList.add('active');
-  } else {
-    console.error("View not found:", viewId);
-  }
-}
-
-function updateHeaderStats() {
-  document.getElementById('header-points').innerText = userPoints;
-}
-
-function showToast(msg) {
-  const container = document.getElementById('toast-container');
-  const toast = document.createElement('div');
-  toast.className = "bg-slate-800 text-white text-xs px-4 py-2 rounded-full border border-slate-700 shadow-xl mb-2";
-  toast.innerText = msg;
-  container.appendChild(toast);
-  setTimeout(() => toast.remove(), 3000);
-}
-
-// --- DAILY ATTENDANCE ---
-function claimDailyAttendance() {
-  userPoints += 50;
-  updateHeaderStats();
-  showToast("🎉 Claimed +50 Bonus Points!");
-}
-
-// --- LUDO GAME LOGIC ---
-function startLudoGame(entryFee = 50) {
-  if (userPoints < entryFee) {
-    showToast("⚠️ Insufficient points! Need " + entryFee + " points.");
-    return;
-  }
-
-  showView('view-ludo');
-  userPoints -= entryFee;
-  updateHeaderStats();
-  drawLudoBoard();
-  showToast(`🎮 Ludo Started! -${entryFee} Pts`);
-}
-
-function drawLudoBoard() {
-  const canvas = document.getElementById('ludo-canvas');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  ctx.clearRect(0, 0, 300, 300);
-
-  // Red Home
-  ctx.fillStyle = '#ef4444';
-  ctx.fillRect(0, 0, 120, 120);
-
-  // Green Home
-  ctx.fillStyle = '#10b981';
-  ctx.fillRect(180, 0, 120, 120);
-
-  // Yellow Home
-  ctx.fillStyle = '#eab308';
-  ctx.fillRect(180, 180, 120, 120);
-
-  // Blue Home
-  ctx.fillStyle = '#3b82f6';
-  ctx.fillRect(0, 180, 120, 120);
-
-  // Center Box
-  ctx.fillStyle = '#64748b';
-  ctx.fillRect(120, 120, 60, 60);
-
-  // Text
-  ctx.fillStyle = '#ffffff';
-  ctx.font = '12px sans-serif';
-  ctx.fillText('LUDO BOARD', 112, 155);
-}
-
-function rollLudoDice() {
-  const diceVal = Math.floor(Math.random() * 6) + 1;
-  document.getElementById('dice-value').innerText = diceVal;
-  showToast(`🎲 You rolled a ${diceVal}!`);
-}
-
-// --- QUIZ LOGIC ---
-function showCategoryModal() { document.getElementById('category-modal').classList.remove('hidden'); }
-function closeCategoryModal() { document.getElementById('category-modal').classList.add('hidden'); }
-
-function startCategoryQuiz(catKey) {
-  closeCategoryModal();
-  const langData = questionBank[currentLanguage] || questionBank['en'];
-  activeQuizQuestions = langData[catKey] || langData['cricket'];
-  currentQIndex = 0;
-  quizScore = 0;
-  document.getElementById('quiz-category-badge').innerText = catKey.toUpperCase();
-  showView('view-quiz');
-  loadQuizQuestion();
-}
-
-function loadQuizQuestion() {
-  if (currentQIndex >= activeQuizQuestions.length) {
-    userPoints += quizScore;
-    updateHeaderStats();
-    document.getElementById('final-score-display').innerText = `+${quizScore} Pts`;
-    showView('view-result');
-    return;
-  }
-  const q = activeQuizQuestions[currentQIndex];
-  document.getElementById('question-text').innerText = q.q;
-  const optsBox = document.getElementById('options-container');
-  optsBox.innerHTML = '';
-  q.options.forEach((opt, idx) => {
-    const btn = document.createElement('button');
-    btn.className = "w-full text-left bg-slate-700 hover:bg-slate-600 text-white text-xs p-3 rounded-xl border border-slate-600 flex items-center justify-between";
-    btn.innerHTML = `<span>${opt}</span><i class="fa-regular fa-circle text-slate-400"></i>`;
-    btn.onclick = () => {
-      if (idx === q.answer) quizScore += 20;
-      currentQIndex++;
-      loadQuizQuestion();
+    const questionBank = {
+      cricket: [
+        { q: "How many players in a cricket team?", options: ["9", "10", "11", "12"], answer: 2 },
+        { q: "IPL match duration in overs?", options: ["20", "50", "10", "40"], answer: 0 }
+      ],
+      gk: [
+        { q: "Capital of India?", options: ["Mumbai", "New Delhi", "Kolkata", "Chennai"], answer: 1 }
+      ]
     };
-    optsBox.appendChild(btn);
-  });
-}
 
-// --- MEMORY GAME ---
-function startMemoryGame() {
-  showView('view-memory-game');
-  const emojis = ['⚡', '🚀', '🏆', '🔥'];
-  const cards = [...emojis, ...emojis].sort(() => Math.random() - 0.5);
-  const grid = document.getElementById('memory-grid');
-  grid.innerHTML = '';
-  let flipped = [];
-  let matched = 0;
-
-  cards.forEach(emoji => {
-    const card = document.createElement('div');
-    card.className = "bg-slate-700 h-16 rounded-xl border border-slate-600 flex items-center justify-center text-2xl cursor-pointer select-none";
-    card.innerText = '❓';
-    card.onclick = () => {
-      if (flipped.length < 2 && card.innerText === '❓') {
-        card.innerText = emoji;
-        flipped.push(card);
-        if (flipped.length === 2) {
-          if (flipped[0].innerText === flipped[1].innerText) {
-            matched += 2;
-            flipped = [];
-            if (matched === cards.length) {
-              userPoints += 50;
-              updateHeaderStats();
-              document.getElementById('final-score-display').innerText = `+50 Pts`;
-              showView('view-result');
-            }
-          } else {
-            setTimeout(() => {
-              flipped.forEach(c => c.innerText = '❓');
-              flipped = [];
-            }, 800);
-          }
-        }
+    function showView(viewId) {
+      document.querySelectorAll('.view-section').forEach(sec => {
+        sec.classList.remove('active');
+      });
+      const target = document.getElementById(viewId);
+      if (target) {
+        target.classList.add('active');
       }
-    };
-    grid.appendChild(card);
-  });
-}
+    }
 
-// --- LUCKY WHEEL ---
-function openLuckyWheel() {
-  showView('view-wheel');
-  drawWheelCanvas();
-}
+    function updateHeaderStats() {
+      document.getElementById('header-points').innerText = userPoints;
+    }
 
-function drawWheelCanvas() {
-  const canvas = document.getElementById('wheel-canvas');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  const colors = ['#8b5cf6', '#ec4899', '#3b82f6', '#10b981'];
-  for (let i = 0; i < 4; i++) {
-    ctx.beginPath();
-    ctx.fillStyle = colors[i];
-    ctx.moveTo(110, 110);
-    ctx.arc(110, 110, 110, i * (Math.PI / 2), (i + 1) * (Math.PI / 2));
-    ctx.fill();
-  }
-}
+    function showToast(msg) {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = "bg-slate-800 text-white text-xs px-4 py-2 rounded-full border border-slate-700 shadow-xl mb-2";
+      toast.innerText = msg;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
 
-function spinLuckyWheel() {
-  userPoints += 50;
-  updateHeaderStats();
-  showToast("🎉 You Won +50 Points!");
-}
+    function claimDailyAttendance() {
+      userPoints += 50;
+      updateHeaderStats();
+      showToast("🎉 Claimed +50 Bonus Points!");
+    }
 
-// --- LANGUAGE ---
-function openLanguageSelection() { showView('view-language'); }
-function selectLanguage(lang) {
-  currentLanguage = lang;
-  document.getElementById('current-lang-code').innerText = lang.toUpperCase();
-  showView('view-home');
-  showToast(`Language set to: ${lang.toUpperCase()}`);
-}
+    function startLudoGame(entryFee = 50) {
+      if (userPoints < entryFee) {
+        showToast("⚠️ Insufficient points! Need " + entryFee + " points.");
+        return;
+      }
+      showView('view-ludo');
+      userPoints -= entryFee;
+      updateHeaderStats();
+      drawLudoBoard();
+      showToast(`🎮 Ludo Started! -${entryFee} Pts`);
+    }
 
-// INITIAL SETUP
-updateHeaderStats();
-      </script>
+    function drawLudoBoard() {
+      const canvas = document.getElementById('ludo-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, 300, 300);
+
+      // Red Home
+      ctx.fillStyle = '#ef4444'; ctx.fillRect(0, 0, 120, 120);
+      // Green Home
+      ctx.fillStyle = '#10b981'; ctx.fillRect(180, 0, 120, 120);
+      // Yellow Home
+      ctx.fillStyle = '#eab308'; ctx.fillRect(180, 180, 120, 120);
+      // Blue Home
+      ctx.fillStyle = '#3b82f6'; ctx.fillRect(0, 180, 120, 120);
+      // Center
+      ctx.fillStyle = '#64748b'; ctx.fillRect(120, 120, 60, 60);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 12px sans-serif';
+      ctx.fillText('LUDO BOARD', 112, 155);
+    }
+
+    function rollLudoDice() {
+      const diceVal = Math.floor(Math.random() * 6) + 1;
+      document.getElementById('dice-value').innerText = diceVal;
+      showToast(`🎲 You rolled a ${diceVal}!`);
+    }
+
+    function showCategoryModal() { document.getElementById('category-modal').classList.remove('hidden'); }
+    function closeCategoryModal() { document.getElementById('category-modal').classList.add('hidden'); }
+
+    function startCategoryQuiz(catKey) {
+      closeCategoryModal();
+      activeQuizQuestions = questionBank[catKey] || questionBank['cricket'];
+      currentQIndex = 0; quizScore = 0;
+      document.getElementById('quiz-category-badge').innerText = catKey.toUpperCase();
+      showView('view-quiz');
+      loadQuizQuestion();
+    }
+
+    function loadQuizQuestion() {
+      if (currentQIndex >= activeQuizQuestions.length) {
+        userPoints += quizScore;
+        updateHeaderStats();
+        document.getElementById('final-score-display').innerText = `+${quizScore} Pts`;
+        showView('view-result');
+        return;
+      }
+      const q = activeQuizQuestions[currentQIndex];
+      document.getElementById('question-text').innerText = q.q;
+      const optsBox = document.getElementById('options-container');
+      optsBox.innerHTML = '';
+      q.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = "w-full text-left bg-slate-700 text-white text-xs p-3 rounded-xl border border-slate-600 flex justify-between";
+        btn.innerHTML = `<span>${opt}</span><i class="fa-regular fa-circle text-slate-400"></i>`;
+        btn.onclick = () => {
+          if (idx === q.answer) quizScore += 20;
+          currentQIndex++; loadQuizQuestion();
+        };
+        optsBox.appendChild(btn);
+      });
+    }
+
+    updateHeaderStats();
+  </script>
 </body>
-  </html>
-    
+</html>
