@@ -4,9 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PlayVibe Games Hub</title>
+  <!-- Tailwind CSS & FontAwesome -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <style>
+    /* Screens hide/show control */
     .view-section { display: none !important; }
     .view-section.active { display: block !important; }
   </style>
@@ -20,10 +22,6 @@
       <span class="font-bold text-lg tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">PlayVibe</span>
     </div>
     <div class="flex items-center space-x-3">
-      <button onclick="openLanguageSelection()" class="bg-slate-700 px-3 py-1 rounded-full text-xs flex items-center space-x-1 border border-slate-600">
-        <i class="fa-solid fa-globe text-cyan-400"></i>
-        <span id="current-lang-code">EN</span>
-      </button>
       <div class="bg-purple-900/50 border border-purple-500/40 px-3 py-1 rounded-full flex items-center space-x-2">
         <i class="fa-solid fa-coins text-yellow-400 text-sm"></i>
         <span id="header-points" class="font-bold text-sm text-yellow-300">200</span>
@@ -31,7 +29,7 @@
     </div>
   </header>
 
-  <!-- MAIN CONTAINER -->
+  <!-- MAIN CONTENT CONTAINER -->
   <main class="p-4 max-w-md mx-auto w-full flex-1">
     <div id="toast-container" class="fixed top-16 left-1/2 -translate-x-1/2 z-50 w-full max-w-xs pointer-events-none flex flex-col items-center"></div>
 
@@ -90,8 +88,9 @@
         <span class="text-xs bg-purple-900/60 text-purple-300 px-2.5 py-1 rounded-full border border-purple-500/30">Player 1 Turn</span>
       </div>
 
+      <!-- Real 15x15 Ludo Board Canvas -->
       <div class="bg-slate-800 border border-slate-700 p-2 rounded-2xl flex justify-center items-center">
-        <canvas id="ludo-canvas" width="300" height="300" class="bg-slate-900 rounded-xl border border-slate-700 max-w-full"></canvas>
+        <canvas id="ludo-canvas" width="300" height="300" class="bg-white rounded-xl shadow-md max-w-full"></canvas>
       </div>
 
       <div class="bg-slate-800 border border-slate-700 p-4 rounded-2xl flex justify-around items-center">
@@ -120,7 +119,7 @@
       </div>
     </section>
 
-    <!-- RESULT VIEW -->
+    <!-- 4. RESULT VIEW -->
     <section id="view-result" class="view-section text-center space-y-4">
       <div class="bg-slate-800 border border-slate-700 p-6 rounded-2xl space-y-3">
         <h2 class="text-xl font-black text-purple-400">Game Over!</h2>
@@ -137,24 +136,27 @@
     <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 w-full max-w-xs space-y-4">
       <h3 class="font-bold text-sm text-center">Choose Quiz Topic</h3>
       <div class="space-y-2">
-        <button onclick="startCategoryQuiz('cricket')" class="w-full bg-slate-700 p-3 rounded-xl text-xs text-left">🏏 Cricket Quiz</button>
-        <button onclick="startCategoryQuiz('gk')" class="w-full bg-slate-700 p-3 rounded-xl text-xs text-left">🌐 General Knowledge</button>
+        <button onclick="startCategoryQuiz('cricket')" class="w-full bg-slate-700 p-3 rounded-xl text-xs text-left hover:bg-slate-600">🏏 Cricket Quiz</button>
+        <button onclick="startCategoryQuiz('gk')" class="w-full bg-slate-700 p-3 rounded-xl text-xs text-left hover:bg-slate-600">🌐 General Knowledge</button>
       </div>
       <button onclick="closeCategoryModal()" class="w-full text-xs text-slate-400 pt-2">Cancel</button>
     </div>
   </div>
-    <script>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
     let userPoints = 200;
     let currentQIndex = 0;
     let quizScore = 0;
+    let activeQuizQuestions = [];
 
     const questionBank = {
       cricket: [
-        { q: "How many players in a cricket team?", options: ["9", "10", "11", "12"], answer: 2 },
-        { q: "IPL match duration in overs?", options: ["20", "50", "10", "40"], answer: 0 }
+        { q: "How many players are in a cricket team on the field?", options: ["9", "10", "11", "12"], answer: 2 },
+        { q: "How many overs are played in a T20 match per side?", options: ["20", "50", "10", "40"], answer: 0 }
       ],
       gk: [
-        { q: "Capital of India?", options: ["Mumbai", "New Delhi", "Kolkata", "Chennai"], answer: 1 }
+        { q: "What is the capital of India?", options: ["Mumbai", "New Delhi", "Kolkata", "Chennai"], answer: 1 }
       ]
     };
 
@@ -199,26 +201,102 @@
       showToast(`🎮 Ludo Started! -${entryFee} Pts`);
     }
 
+    // REAL 15x15 LUDO BOARD DRAWING ALGORITHM
     function drawLudoBoard() {
       const canvas = document.getElementById('ludo-canvas');
       if (!canvas) return;
       const ctx = canvas.getContext('2d');
-      ctx.clearRect(0, 0, 300, 300);
+      const size = 300;
+      const c = size / 15; // 20px per cell
 
-      // Red Home
-      ctx.fillStyle = '#ef4444'; ctx.fillRect(0, 0, 120, 120);
-      // Green Home
-      ctx.fillStyle = '#10b981'; ctx.fillRect(180, 0, 120, 120);
-      // Yellow Home
-      ctx.fillStyle = '#eab308'; ctx.fillRect(180, 180, 120, 120);
-      // Blue Home
-      ctx.fillStyle = '#3b82f6'; ctx.fillRect(0, 180, 120, 120);
-      // Center
-      ctx.fillStyle = '#64748b'; ctx.fillRect(120, 120, 60, 60);
+      ctx.clearRect(0, 0, size, size);
 
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 12px sans-serif';
-      ctx.fillText('LUDO BOARD', 112, 155);
+      // Background White
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, size, size);
+
+      // Helper function for 4 Base Corners
+      const drawBase = (x, y, color) => {
+        ctx.fillStyle = color;
+        ctx.fillRect(x * c, y * c, 6 * c, 6 * c);
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect((x + 1) * c, (y + 1) * c, 4 * c, 4 * c);
+
+        // 4 Tokens Circle inside Home
+        const spots = [
+          [x + 2, y + 2], [x + 4, y + 2],
+          [x + 2, y + 4], [x + 4, y + 4]
+        ];
+        spots.forEach(([px, py]) => {
+          ctx.beginPath();
+          ctx.arc((px - 0.5) * c, (py - 0.5) * c, c * 0.55, 0, Math.PI * 2);
+          ctx.fillStyle = color;
+          ctx.fill();
+          ctx.strokeStyle = "#000000";
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        });
+      };
+
+      // 1. Draw 4 Homes
+      drawBase(0, 0, '#ef4444');    // Red (Top-Left)
+      drawBase(9, 0, '#10b981');    // Green (Top-Right)
+      drawBase(0, 9, '#3b82f6');    // Blue (Bottom-Left)
+      drawBase(9, 9, '#eab308');    // Yellow (Bottom-Right)
+
+      // 2. Colored Paths & Safe Starts
+      // Red Path
+      ctx.fillStyle = '#ef4444';
+      for (let i = 1; i <= 5; i++) ctx.fillRect(i * c, 7 * c, c, c);
+      ctx.fillRect(1 * c, 6 * c, c, c);
+
+      // Green Path
+      ctx.fillStyle = '#10b981';
+      for (let i = 1; i <= 5; i++) ctx.fillRect(7 * c, i * c, c, c);
+      ctx.fillRect(8 * c, 1 * c, c, c);
+
+      // Yellow Path
+      ctx.fillStyle = '#eab308';
+      for (let i = 9; i <= 13; i++) ctx.fillRect(i * c, 7 * c, c, c);
+      ctx.fillRect(13 * c, 8 * c, c, c);
+
+      // Blue Path
+      ctx.fillStyle = '#3b82f6';
+      for (let i = 9; i <= 13; i++) ctx.fillRect(7 * c, i * c, c, c);
+      ctx.fillRect(6 * c, 13 * c, c, c);
+
+      // 3. Center Triangles
+      // Red Triangle
+      ctx.fillStyle = '#ef4444';
+      ctx.beginPath();
+      ctx.moveTo(6 * c, 6 * c); ctx.lineTo(7.5 * c, 7.5 * c); ctx.lineTo(6 * c, 9 * c);
+      ctx.fill();
+
+      // Green Triangle
+      ctx.fillStyle = '#10b981';
+      ctx.beginPath();
+      ctx.moveTo(6 * c, 6 * c); ctx.lineTo(7.5 * c, 7.5 * c); ctx.lineTo(9 * c, 6 * c);
+      ctx.fill();
+
+      // Yellow Triangle
+      ctx.fillStyle = '#eab308';
+      ctx.beginPath();
+      ctx.moveTo(9 * c, 6 * c); ctx.lineTo(7.5 * c, 7.5 * c); ctx.lineTo(9 * c, 9 * c);
+      ctx.fill();
+
+      // Blue Triangle
+      ctx.fillStyle = '#3b82f6';
+      ctx.beginPath();
+      ctx.moveTo(6 * c, 9 * c); ctx.lineTo(7.5 * c, 7.5 * c); ctx.lineTo(9 * c, 9 * c);
+      ctx.fill();
+
+      // 4. Grid Lines
+      ctx.strokeStyle = '#000000';
+      ctx.lineWidth = 1;
+      for (let i = 0; i <= 15; i++) {
+        ctx.beginPath(); ctx.moveTo(i * c, 0); ctx.lineTo(i * c, size); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(0, i * c); ctx.lineTo(size, i * c); ctx.stroke();
+      }
     }
 
     function rollLudoDice() {
@@ -253,7 +331,7 @@
       optsBox.innerHTML = '';
       q.options.forEach((opt, idx) => {
         const btn = document.createElement('button');
-        btn.className = "w-full text-left bg-slate-700 text-white text-xs p-3 rounded-xl border border-slate-600 flex justify-between";
+        btn.className = "w-full text-left bg-slate-700 hover:bg-slate-600 text-white text-xs p-3 rounded-xl border border-slate-600 flex justify-between items-center transition";
         btn.innerHTML = `<span>${opt}</span><i class="fa-regular fa-circle text-slate-400"></i>`;
         btn.onclick = () => {
           if (idx === q.answer) quizScore += 20;
@@ -263,7 +341,8 @@
       });
     }
 
+    // Init
     updateHeaderStats();
   </script>
 </body>
-</html>
+  </html>
