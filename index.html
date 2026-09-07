@@ -4,23 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PlayVibe - Gaming Hub & Referral System</title>
-  
-  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- FontAwesome Icons CDN -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
-  <!-- Firebase SDKs (v8) -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between font-sans selection:bg-purple-500 selection:text-white pb-20">
 
-  <!-- Confetti Canvas -->
   <canvas id="confetti-canvas" class="fixed inset-0 pointer-events-none z-50"></canvas>
-
-  <!-- Toast Notification Container -->
   <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col items-end space-y-2"></div>
 
   <!-- HEADER -->
@@ -30,23 +22,17 @@
         <span class="text-2xl">⚡</span>
         <span class="font-black text-xl tracking-wider bg-gradient-to-r from-purple-400 via-pink-500 to-amber-400 bg-clip-text text-transparent">PLAYVIBE</span>
       </div>
-
       <div class="flex items-center space-x-2.5">
         <button onclick="openLanguageSelection()" class="bg-slate-800 hover:bg-slate-700 text-xs px-2.5 py-1.5 rounded-lg border border-slate-700 flex items-center space-x-1 transition">
-          <span>🌐</span>
-          <span id="current-lang-code" class="font-bold uppercase">EN</span>
+          <span>🌐</span><span id="current-lang-code" class="font-bold uppercase">EN</span>
         </button>
-
         <div class="flex items-center space-x-2 bg-slate-800/80 px-3 py-1 rounded-full border border-slate-700 text-xs">
           <span title="Points">🏆 <b id="user-points" class="text-amber-400">150</b></span>
           <span class="text-slate-600">|</span>
           <span title="Streak">🔥 <b id="streak-count" class="text-orange-400">1</b></span>
         </div>
-
         <div id="auth-box">
-          <button id="login-btn" onclick="handleAuthAction()" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition shadow-lg shadow-purple-600/30">
-            Guest 👤
-          </button>
+          <button id="login-btn" onclick="handleAuthAction()" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition shadow-lg shadow-purple-600/30">Guest 👤</button>
         </div>
       </div>
     </div>
@@ -54,14 +40,11 @@
 
   <!-- MAIN CONTAINER -->
   <main class="max-w-md mx-auto w-full p-4 flex-1 flex flex-col justify-start space-y-4">
-
-    <!-- Guest Notice -->
     <div id="guest-notice" class="bg-purple-900/30 border border-purple-500/30 p-2.5 rounded-xl flex items-center justify-between text-xs">
       <span class="text-purple-300">🧪 <b>Guest Testing Mode:</b> All features unlocked!</span>
       <button onclick="handleAuthAction()" class="text-amber-400 font-bold underline text-[11px]">Login</button>
     </div>
 
-    <!-- 8,000 QUALIFIED USERS MILESTONE CARD -->
     <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-2 shadow-xl">
       <div class="flex justify-between items-center text-xs">
         <span class="font-bold text-purple-300 flex items-center gap-1.5">🎯 Platform Milestone</span>
@@ -76,195 +59,70 @@
       </div>
     </div>
 
-    <!-- VIEW: LANGUAGE SELECTION -->
+    <!-- VIEW: LANGUAGE -->
     <div id="view-language" class="hidden space-y-4 text-center my-auto">
       <h2 class="text-xl font-bold text-slate-200">Select Language / भाषा चुनें</h2>
       <div class="grid grid-cols-1 gap-3">
-        <button onclick="selectLanguage('en')" class="bg-slate-800 hover:bg-purple-900/40 border border-slate-700 hover:border-purple-500 p-3.5 rounded-xl font-medium text-sm flex items-center justify-between px-5 transition">
-          <span>English</span>
-          <span class="text-xs text-purple-400">Default</span>
-        </button>
-        <button onclick="selectLanguage('hi')" class="bg-slate-800 hover:bg-purple-900/40 border border-slate-700 hover:border-purple-500 p-3.5 rounded-xl font-medium text-sm flex items-center justify-between px-5 transition">
-          <span>हिन्दी (Hindi)</span>
-          <span class="text-xs text-purple-400">Popular</span>
-        </button>
-        <button onclick="selectLanguage('gu')" class="bg-slate-800 hover:bg-purple-900/40 border border-slate-700 hover:border-purple-500 p-3.5 rounded-xl font-medium text-sm flex items-center justify-between px-5 transition">
-          <span>ગુજરાતી (Gujarati)</span>
-          <span class="text-xs text-purple-400">Regional</span>
-        </button>
+        <button onclick="selectLanguage('en')" class="bg-slate-800 hover:bg-purple-900/40 border border-slate-700 hover:border-purple-500 p-3.5 rounded-xl font-medium text-sm flex items-center justify-between px-5 transition"><span>English</span><span class="text-xs text-purple-400">Default</span></button>
+        <button onclick="selectLanguage('hi')" class="bg-slate-800 hover:bg-purple-900/40 border border-slate-700 hover:border-purple-500 p-3.5 rounded-xl font-medium text-sm flex items-center justify-between px-5 transition"><span>हिन्दी (Hindi)</span><span class="text-xs text-purple-400">Popular</span></button>
+        <button onclick="selectLanguage('gu')" class="bg-slate-800 hover:bg-purple-900/40 border border-slate-700 hover:border-purple-500 p-3.5 rounded-xl font-medium text-sm flex items-center justify-between px-5 transition"><span>ગુજરાતી (Gujarati)</span><span class="text-xs text-purple-400">Regional</span></button>
       </div>
     </div>
 
-    <!-- VIEW: HOME DASHBOARD -->
+    <!-- VIEW: HOME -->
     <div id="view-home" class="space-y-5">
-      <!-- Daily Check-In -->
       <div class="bg-gradient-to-r from-slate-900 to-purple-950/50 border border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-xl">
-        <div>
-          <h4 class="font-bold text-sm text-white flex items-center gap-1.5">📅 Daily Reward</h4>
-          <p class="text-[11px] text-slate-400">Claim +50 free points every day!</p>
-        </div>
-        <button id="attendance-btn" onclick="claimDailyAttendance()" class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 text-white font-bold text-xs px-3.5 py-2 rounded-xl transition shadow-lg shadow-emerald-900/30">
-          Claim +50 🎁
-        </button>
+        <div><h4 class="font-bold text-sm text-white flex items-center gap-1.5">📅 Daily Reward</h4><p class="text-[11px] text-slate-400">Claim +50 free points every day!</p></div>
+        <button id="attendance-btn" onclick="claimDailyAttendance()" class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 text-white font-bold text-xs px-3.5 py-2 rounded-xl transition shadow-lg shadow-emerald-900/30">Claim +50 🎁</button>
       </div>
-
-      <!-- Quick Arena Launcher -->
       <div class="space-y-2">
-        <div class="flex justify-between items-center">
-          <h3 class="font-black text-sm uppercase tracking-wider text-purple-400 flex items-center gap-2">
-            <span>🎮 Games & Quiz Arena</span>
-          </h3>
-          <button onclick="showView('view-games-hub')" class="text-xs text-amber-400 hover:underline font-bold">View Games Hub ➔</button>
-        </div>
-
+        <div class="flex justify-between items-center"><h3 class="font-black text-sm uppercase tracking-wider text-purple-400 flex items-center gap-2"><span>🎮 Games & Quiz Arena</span></h3><button onclick="showView('view-games-hub')" class="text-xs text-amber-400 hover:underline font-bold">View Games Hub ➔</button></div>
         <div class="grid grid-cols-2 gap-3">
-          <div onclick="showView('view-games-hub')" class="bg-gradient-to-br from-indigo-900/60 to-purple-900/40 border border-purple-500/40 p-4 rounded-2xl cursor-pointer transition transform hover:-translate-y-1 group">
-            <div class="text-3xl mb-2 group-hover:scale-110 transition">🎲</div>
-            <h4 class="font-bold text-xs text-amber-300">Ludo King Arena</h4>
-            <p class="text-[10px] text-slate-300">Play vs 🤖 PlayVibe AI</p>
-          </div>
-          <div onclick="showCategoryModal()" class="bg-slate-900 border border-slate-800 hover:border-purple-500 p-4 rounded-2xl cursor-pointer transition transform hover:-translate-y-1 group">
-            <div class="text-3xl mb-2 group-hover:scale-110 transition">🎯</div>
-            <h4 class="font-bold text-xs text-white">Speed Quiz</h4>
-            <p class="text-[10px] text-slate-400">Multi-Category Trivia</p>
-          </div>
-          <div onclick="startMemoryGame()" class="bg-slate-900 border border-slate-800 hover:border-purple-500 p-4 rounded-2xl cursor-pointer transition transform hover:-translate-y-1 group">
-            <div class="text-3xl mb-2 group-hover:scale-110 transition">🃏</div>
-            <h4 class="font-bold text-xs text-white">Memory Flip</h4>
-            <p class="text-[10px] text-slate-400">Match Emoji Pairs</p>
-          </div>
-          <div onclick="showView('view-spin-wheel')" class="bg-slate-900 border border-slate-800 hover:border-purple-500 p-4 rounded-2xl cursor-pointer transition transform hover:-translate-y-1 group">
-            <div class="text-3xl mb-2 group-hover:scale-110 transition">🎡</div>
-            <h4 class="font-bold text-xs text-white">Lucky Wheel</h4>
-            <p class="text-[10px] text-slate-400">Spin & Win Points</p>
-          </div>
+          <div onclick="showView('view-games-hub')" class="bg-gradient-to-br from-indigo-900/60 to-purple-900/40 border border-purple-500/40 p-4 rounded-2xl cursor-pointer transition transform hover:-translate-y-1 group"><div class="text-3xl mb-2 group-hover:scale-110 transition">🎲</div><h4 class="font-bold text-xs text-amber-300">Ludo King Arena</h4><p class="text-[10px] text-slate-300">Play vs 🤖 PlayVibe AI</p></div>
+          <div onclick="showCategoryModal()" class="bg-slate-900 border border-slate-800 hover:border-purple-500 p-4 rounded-2xl cursor-pointer transition transform hover:-translate-y-1 group"><div class="text-3xl mb-2 group-hover:scale-110 transition">🎯</div><h4 class="font-bold text-xs text-white">Speed Quiz</h4><p class="text-[10px] text-slate-400">Multi-Category Trivia</p></div>
+          <div onclick="startMemoryGame()" class="bg-slate-900 border border-slate-800 hover:border-purple-500 p-4 rounded-2xl cursor-pointer transition transform hover:-translate-y-1 group"><div class="text-3xl mb-2 group-hover:scale-110 transition">🃏</div><h4 class="font-bold text-xs text-white">Memory Flip</h4><p class="text-[10px] text-slate-400">Match Emoji Pairs</p></div>
+          <div onclick="showView('view-spin-wheel')" class="bg-slate-900 border border-slate-800 hover:border-purple-500 p-4 rounded-2xl cursor-pointer transition transform hover:-translate-y-1 group"><div class="text-3xl mb-2 group-hover:scale-110 transition">🎡</div><h4 class="font-bold text-xs text-white">Lucky Wheel</h4><p class="text-[10px] text-slate-400">Spin & Win Points</p></div>
         </div>
       </div>
-
-      <!-- Leaderboard -->
       <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-3">
-        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-          <h3 class="font-bold text-xs text-slate-300 uppercase tracking-wider">🏆 Top Players</h3>
-          <span class="text-[10px] bg-purple-900/50 text-purple-300 px-2 py-0.5 rounded-full border border-purple-700/50">Live</span>
-        </div>
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2"><h3 class="font-bold text-xs text-slate-300 uppercase tracking-wider">🏆 Top Players</h3><span class="text-[10px] bg-purple-900/50 text-purple-300 px-2 py-0.5 rounded-full border border-purple-700/50">Live</span></div>
         <div id="leaderboard-list" class="space-y-2 text-xs"></div>
       </div>
     </div>
-
-    <!-- VIEW: GAMES HUB -->
+        <!-- VIEW: GAMES HUB -->
     <div id="view-games-hub" class="hidden space-y-4">
-      <div class="flex items-center justify-between">
-        <div>
-          <h2 class="text-lg font-black text-white">🎯 PlayVibe Games Hub</h2>
-          <p class="text-xs text-slate-400">Choose your game and win PlayPoints!</p>
-        </div>
-        <span class="bg-amber-500/20 text-amber-400 text-[10px] font-bold px-2.5 py-1 rounded-full border border-amber-500/30">Entry: 50 Pts</span>
-      </div>
-
+      <div class="flex items-center justify-between"><div><h2 class="text-lg font-black text-white">🎯 PlayVibe Games Hub</h2><p class="text-xs text-slate-400">Choose your game and win PlayPoints!</p></div><span class="bg-amber-500/20 text-amber-400 text-[10px] font-bold px-2.5 py-1 rounded-full border border-amber-500/30">Entry: 50 Pts</span></div>
       <div class="grid grid-cols-1 gap-3">
-        <!-- LUDO (Active) -->
         <div class="bg-gradient-to-r from-purple-900/80 via-slate-900 to-indigo-900/80 border border-purple-500/50 p-4 rounded-2xl flex items-center justify-between shadow-xl">
-          <div class="flex items-center space-x-3.5">
-            <div class="text-4xl bg-purple-950 p-2.5 rounded-2xl border border-purple-800">🎲</div>
-            <div>
-              <div class="flex items-center gap-2">
-                <h3 class="font-bold text-sm text-white">Ludo Classic</h3>
-                <span class="bg-emerald-500/20 text-emerald-400 text-[9px] px-2 py-0.5 rounded font-bold">PLAYABLE</span>
-              </div>
-              <p class="text-[11px] text-slate-300 mt-0.5">2-4 Players vs 🤖 PlayVibe AI</p>
-              <div class="text-[10px] text-amber-400 font-mono mt-1">Reward: Up to +100 PlayPoints</div>
-            </div>
-          </div>
-          <button onclick="launchLudoSetup()" class="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 text-slate-950 font-black text-xs px-4 py-2.5 rounded-xl shadow-lg transition">
-            PLAY 🎲
-          </button>
+          <div class="flex items-center space-x-3.5"><div class="text-4xl bg-purple-950 p-2.5 rounded-2xl border border-purple-800">🎲</div><div><div class="flex items-center gap-2"><h3 class="font-bold text-sm text-white">Ludo Classic</h3><span class="bg-emerald-500/20 text-emerald-400 text-[9px] px-2 py-0.5 rounded font-bold">PLAYABLE</span></div><p class="text-[11px] text-slate-300 mt-0.5">2 Players vs 🤖 PlayVibe AI</p><div class="text-[10px] text-amber-400 font-mono mt-1">Reward: Up to +100 PlayPoints</div></div></div>
+          <button onclick="launchLudoSetup()" class="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 text-slate-950 font-black text-xs px-4 py-2.5 rounded-xl shadow-lg transition">PLAY 🎲</button>
         </div>
-
-        <!-- Snake & Ladder (Upcoming) -->
-        <div class="bg-slate-900/60 border border-slate-800/80 p-4 rounded-2xl flex items-center justify-between opacity-70">
-          <div class="flex items-center space-x-3.5">
-            <div class="text-4xl bg-slate-800 p-2.5 rounded-2xl">🐍</div>
-            <div>
-              <h3 class="font-bold text-sm text-slate-300">Snake & Ladder</h3>
-              <p class="text-[11px] text-slate-500">Board Race Game</p>
-            </div>
-          </div>
-          <span class="bg-slate-800 text-slate-400 text-[10px] font-bold px-3 py-1.5 rounded-xl">SOON</span>
-        </div>
-
-        <!-- Chess (Upcoming) -->
-        <div class="bg-slate-900/60 border border-slate-800/80 p-4 rounded-2xl flex items-center justify-between opacity-70">
-          <div class="flex items-center space-x-3.5">
-            <div class="text-4xl bg-slate-800 p-2.5 rounded-2xl">♟️</div>
-            <div>
-              <h3 class="font-bold text-sm text-slate-300">Chess Master</h3>
-              <p class="text-[11px] text-slate-500">Strategy Battle</p>
-            </div>
-          </div>
-          <span class="bg-slate-800 text-slate-400 text-[10px] font-bold px-3 py-1.5 rounded-xl">SOON</span>
-        </div>
-
-        <!-- Tic Tac Toe (Upcoming) -->
-        <div class="bg-slate-900/60 border border-slate-800/80 p-4 rounded-2xl flex items-center justify-between opacity-70">
-          <div class="flex items-center space-x-3.5">
-            <div class="text-4xl bg-slate-800 p-2.5 rounded-2xl">⭕</div>
-            <div>
-              <h3 class="font-bold text-sm text-slate-300">Tic Tac Toe</h3>
-              <p class="text-[11px] text-slate-500">Quick Match</p>
-            </div>
-          </div>
-          <span class="bg-slate-800 text-slate-400 text-[10px] font-bold px-3 py-1.5 rounded-xl">SOON</span>
-        </div>
+        <div class="bg-slate-900/60 border border-slate-800/80 p-4 rounded-2xl flex items-center justify-between opacity-70"><div class="flex items-center space-x-3.5"><div class="text-4xl bg-slate-800 p-2.5 rounded-2xl">🐍</div><div><h3 class="font-bold text-sm text-slate-300">Snake & Ladder</h3><p class="text-[11px] text-slate-500">Board Race Game</p></div></div><span class="bg-slate-800 text-slate-400 text-[10px] font-bold px-3 py-1.5 rounded-xl">SOON</span></div>
+        <div class="bg-slate-900/60 border border-slate-800/80 p-4 rounded-2xl flex items-center justify-between opacity-70"><div class="flex items-center space-x-3.5"><div class="text-4xl bg-slate-800 p-2.5 rounded-2xl">♟️</div><div><h3 class="font-bold text-sm text-slate-300">Chess Master</h3><p class="text-[11px] text-slate-500">Strategy Battle</p></div></div><span class="bg-slate-800 text-slate-400 text-[10px] font-bold px-3 py-1.5 rounded-xl">SOON</span></div>
+        <div class="bg-slate-900/60 border border-slate-800/80 p-4 rounded-2xl flex items-center justify-between opacity-70"><div class="flex items-center space-x-3.5"><div class="text-4xl bg-slate-800 p-2.5 rounded-2xl">⭕</div><div><h3 class="font-bold text-sm text-slate-300">Tic Tac Toe</h3><p class="text-[11px] text-slate-500">Quick Match</p></div></div><span class="bg-slate-800 text-slate-400 text-[10px] font-bold px-3 py-1.5 rounded-xl">SOON</span></div>
       </div>
     </div>
 
     <!-- VIEW: LUDO GAME ARENA -->
     <div id="view-ludo" class="hidden space-y-3">
-      <!-- Game Info Bar -->
       <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl flex items-center justify-between text-xs">
-        <div>
-          <span class="text-slate-400 block text-[10px]">Current Turn</span>
-          <span id="ludo-turn-display" class="font-bold text-rose-400 flex items-center gap-1">🔴 You (Red)</span>
-        </div>
-        <div class="text-right">
-          <span class="text-slate-400 block text-[10px]">Entry Fee: <b class="text-amber-400">50 Pts</b></span>
-          <span id="ludo-status-badge" class="bg-purple-900/50 text-purple-300 text-[10px] px-2 py-0.5 rounded font-mono">In Progress</span>
-        </div>
+        <div><span class="text-slate-400 block text-[10px]">Current Turn</span><span id="ludo-turn-display" class="font-bold text-rose-400 flex items-center gap-1">🔴 You (Red)</span></div>
+        <div class="text-right"><span class="text-slate-400 block text-[10px]">Entry Fee: <b class="text-amber-400">50 Pts</b></span><span id="ludo-status-badge" class="bg-purple-900/50 text-purple-300 text-[10px] px-2 py-0.5 rounded font-mono">In Progress</span></div>
       </div>
-
-      <!-- Ludo Board Canvas Wrapper -->
       <div class="bg-slate-900 border border-slate-800 p-2 rounded-2xl flex justify-center shadow-2xl relative">
         <canvas id="ludo-board-canvas" width="340" height="340" class="rounded-xl border border-slate-700 bg-slate-950 cursor-pointer"></canvas>
       </div>
-
-      <!-- Turn & Dice Controller -->
       <div class="bg-slate-900 border border-slate-800 p-3 rounded-2xl flex items-center justify-between">
         <div class="flex items-center space-x-3">
-          <button id="btn-roll-dice" onclick="rollLudoDice()" class="bg-gradient-to-r from-red-600 to-rose-500 hover:from-red-500 text-white font-black px-4 py-2.5 rounded-xl shadow-lg transition flex items-center space-x-2 text-xs">
-            <span>🎲 ROLL DICE</span>
-          </button>
-          <div id="dice-result-box" class="w-10 h-10 bg-slate-800 border border-slate-700 rounded-xl flex items-center justify-center text-xl font-black text-amber-400 shadow-inner">
-            ?
-          </div>
+          <button id="btn-roll-dice" onclick="rollLudoDice()" class="bg-gradient-to-r from-red-600 to-rose-500 hover:from-red-500 text-white font-black px-4 py-2.5 rounded-xl shadow-lg transition flex items-center space-x-2 text-xs"><span>🎲 ROLL DICE</span></button>
+          <div id="dice-result-box" class="w-10 h-10 bg-slate-800 border border-slate-700 rounded-xl flex items-center justify-center text-xl font-black text-amber-400 shadow-inner">?</div>
         </div>
-        <div class="text-right text-[11px] text-slate-400">
-          <span id="ludo-instruction-text">Click Roll Dice to start turn!</span>
-        </div>
+        <div class="text-right text-[11px] text-slate-400"><span id="ludo-instruction-text">Click Roll Dice to start turn!</span></div>
       </div>
-
-      <!-- Opponents & Players Stats -->
       <div class="grid grid-cols-2 gap-2 text-xs">
-        <div class="bg-slate-900/80 border border-red-500/30 p-2.5 rounded-xl">
-          <span class="text-[10px] text-red-400 font-bold block">🔴 Player 1 (You)</span>
-          <span id="ludo-stat-p1" class="text-slate-300 font-mono text-[11px]">Home: 0 / 4</span>
-        </div>
-        <div class="bg-slate-900/80 border border-emerald-500/30 p-2.5 rounded-xl">
-          <span class="text-[10px] text-emerald-400 font-bold block">🟢 🤖 PlayVibe AI</span>
-          <span id="ludo-stat-p2" class="text-slate-300 font-mono text-[11px]">Home: 0 / 4</span>
-        </div>
+        <div class="bg-slate-900/80 border border-red-500/30 p-2.5 rounded-xl"><span class="text-[10px] text-red-400 font-bold block">🔴 Player 1 (You)</span><span id="ludo-stat-p1" class="text-slate-300 font-mono text-[11px]">Home: 0 / 4</span></div>
+        <div class="bg-slate-900/80 border border-emerald-500/30 p-2.5 rounded-xl"><span class="text-[10px] text-emerald-400 font-bold block">🟢 🤖 PlayVibe AI</span><span id="ludo-stat-p2" class="text-slate-300 font-mono text-[11px]">Home: 0 / 4</span></div>
       </div>
-
-      <!-- Ludo Stats History Card -->
       <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl space-y-1.5 text-xs">
         <h4 class="font-bold text-slate-300 text-[11px] uppercase tracking-wider">📊 Ludo Game History</h4>
         <div class="grid grid-cols-3 gap-2 text-center text-[10px] font-mono">
@@ -275,76 +133,43 @@
       </div>
     </div>
 
-    <!-- VIEW: SPEED QUIZ -->
+    <!-- OTHER VIEWS & MODALS -->
     <div id="view-quiz" class="hidden space-y-4">
-      <div class="flex items-center justify-between text-xs text-slate-400">
-        <span id="quiz-category-badge" class="font-bold text-purple-400 bg-purple-950/60 px-2.5 py-1 rounded-md border border-purple-800">Category</span>
-        <span id="timer-display" class="font-mono bg-slate-800 px-2.5 py-1 rounded-md text-amber-400 font-bold">⏱️ 15s</span>
-      </div>
-      <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-4 shadow-xl">
-        <h2 id="question-text" class="text-sm font-semibold text-white min-h-[48px]">Question text...</h2>
-        <div id="options-container" class="space-y-2.5"></div>
-      </div>
+      <div class="flex items-center justify-between text-xs text-slate-400"><span id="quiz-category-badge" class="font-bold text-purple-400 bg-purple-950/60 px-2.5 py-1 rounded-md border border-purple-800">Category</span><span id="timer-display" class="font-mono bg-slate-800 px-2.5 py-1 rounded-md text-amber-400 font-bold">⏱️ 15s</span></div>
+      <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-4 shadow-xl"><h2 id="question-text" class="text-sm font-semibold text-white min-h-[48px]">Question text...</h2><div id="options-container" class="space-y-2.5"></div></div>
     </div>
+    <div id="view-memory-game" class="hidden space-y-4 text-center"><div class="flex items-center justify-between text-xs text-slate-400"><span class="font-bold text-purple-400">🃏 Memory Match</span></div><div id="memory-grid" class="grid grid-cols-4 gap-2.5"></div></div>
+    <div id="view-math-dash" class="hidden space-y-4 text-center"><div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-4"><div id="math-equation" class="text-2xl font-black text-amber-400">5 + 7 = ?</div><div id="math-options" class="grid grid-cols-2 gap-3"></div></div></div>
+    <div id="view-spin-wheel" class="hidden space-y-5 text-center"><h2 class="text-base font-bold text-slate-200">🎡 Spin the Wheel of Fortune</h2><div class="relative w-64 h-64 mx-auto flex items-center justify-center"><div class="absolute -top-3 z-20 text-red-500 text-2xl">▼</div><canvas id="wheel-canvas" width="256" height="256" class="w-full h-full rounded-full border-4 border-slate-800 shadow-2xl"></canvas></div><button id="btn-spin-wheel" onclick="spinLuckyWheel()" class="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 text-slate-950 font-black py-3 rounded-2xl shadow-lg transition">SPIN NOW 🚀</button></div>
+    <div id="view-rewards" class="hidden space-y-4"><div class="text-center space-y-1"><h2 class="text-lg font-black text-white">🎁 Rewards Store</h2><p class="text-xs text-slate-400">Redeem points for gift vouchers!</p></div><div class="space-y-3"><div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between"><div><h4 class="font-bold text-xs text-white">₹50 Amazon Voucher</h4><p class="text-[10px] text-slate-400">1,000 Points</p></div><button onclick="redeemReward('Amazon Voucher', 1000)" class="bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs px-3 py-1.5 rounded-lg">Redeem</button></div><div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between"><div><h4 class="font-bold text-xs text-white">₹50 Paytm Cash</h4><p class="text-[10px] text-slate-400">1,000 Points</p></div><button onclick="redeemReward('Paytm Cash', 1000)" class="bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs px-3 py-1.5 rounded-lg">Redeem</button></div></div></div>
+    <div id="view-referral" class="hidden space-y-4"><div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-4 shadow-xl"><div class="text-center space-y-1"><h2 class="text-lg font-bold text-white">🚀 Referral Challenge</h2><p class="text-[11px] text-slate-400">Complete 10 Direct Qualified Referrals + 16 Days Attendance + 20 Active Hours</p></div><div class="grid grid-cols-2 gap-2 text-xs"><div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700"><span class="text-[10px] text-slate-400 block">Direct Referrals</span><span id="stat-direct-ref" class="font-bold text-amber-400 text-sm">0 / 10 Qualified</span></div><div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700"><span class="text-[10px] text-slate-400 block">2nd-Level Referrals</span><span id="stat-second-ref" class="font-bold text-amber-400 text-sm">0 / 20 Qualified</span></div><div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700"><span class="text-[10px] text-slate-400 block">Attendance</span><span id="stat-attendance-days" class="font-bold text-teal-400 text-sm">0 / 16 Days</span></div><div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700"><span class="text-[10px] text-slate-400 block">Foreground Usage</span><span id="stat-active-hours" class="font-bold text-teal-400 text-sm">0.0 / 20.0 Hrs</span></div></div><div id="reward-status-banner" class="bg-slate-800 border border-slate-700 p-3 rounded-xl flex items-center justify-between text-xs"><div><span class="text-slate-400 block text-[10px]">Challenge Reward</span><span class="font-bold text-emerald-400 text-sm">₹50.00</span></div><div id="reward-lock-tag" class="bg-slate-700 text-slate-300 font-bold px-3 py-1 rounded-lg text-[11px]">🔒 Locked – Milestone Pending</div></div><div class="bg-slate-800 p-3 rounded-xl font-mono text-xs font-bold text-amber-400 flex items-center justify-between"><span id="my-referral-code">PV-GUEST-8821</span><button onclick="copyReferralCode()" class="text-white hover:text-purple-300">📋 Copy Code</button></div><button onclick="shareReferralWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-3 rounded-xl flex items-center justify-center space-x-2"><span>Share on WhatsApp</span></button></div></div>
+    <div id="view-result" class="hidden text-center space-y-5 my-auto"><div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-4"><h2 class="text-xl font-bold text-white">Game Finished!</h2><div class="text-3xl font-black text-amber-400" id="final-score-display">+0 Pts</div><button onclick="showView('view-home')" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs py-3 rounded-xl border border-slate-700">Back to Home 🏠</button></div></div>
+  </main>
 
-    <!-- VIEW: MEMORY GAME -->
-    <div id="view-memory-game" class="hidden space-y-4 text-center">
-      <div class="flex items-center justify-between text-xs text-slate-400">
-        <span class="font-bold text-purple-400">🃏 Memory Match</span>
+  <div id="category-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-sm rounded-2xl p-5 space-y-4 text-center">
+      <h3 class="font-bold text-white text-base">Select Quiz Category</h3>
+      <div class="grid grid-cols-2 gap-2.5">
+        <button onclick="startCategoryQuiz('cricket')" class="bg-slate-800 border border-slate-700 p-3 rounded-xl text-xs font-semibold">🏏 Cricket</button>
+        <button onclick="startCategoryQuiz('bollywood')" class="bg-slate-800 border border-slate-700 p-3 rounded-xl text-xs font-semibold">🎬 Bollywood</button>
+        <button onclick="startCategoryQuiz('tech')" class="bg-slate-800 border border-slate-700 p-3 rounded-xl text-xs font-semibold">💻 Tech</button>
+        <button onclick="startCategoryQuiz('science')" class="bg-slate-800 border border-slate-700 p-3 rounded-xl text-xs font-semibold">🔬 Science</button>
       </div>
-      <div id="memory-grid" class="grid grid-cols-4 gap-2.5"></div>
+      <button onclick="closeCategoryModal()" class="w-full bg-slate-800 text-slate-400 text-xs py-2 rounded-lg border border-slate-700">Close</button>
     </div>
+  </div>
 
-    <!-- VIEW: MATH DASH -->
-    <div id="view-math-dash" class="hidden space-y-4 text-center">
-      <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-4">
-        <div id="math-equation" class="text-2xl font-black text-amber-400">5 + 7 = ?</div>
-        <div id="math-options" class="grid grid-cols-2 gap-3"></div>
-      </div>
+  <nav class="fixed bottom-0 left-0 right-0 bg-slate-900/90 backdrop-blur-md border-t border-slate-800 py-2.5 px-4 z-40">
+    <div class="max-w-md mx-auto flex items-center justify-around text-center text-[10px] text-slate-400">
+      <button onclick="showView('view-home')" class="hover:text-purple-400 flex flex-col items-center gap-1"><i class="fa-solid fa-house"></i><span>Home</span></button>
+      <button onclick="showView('view-games-hub')" class="hover:text-purple-400 flex flex-col items-center gap-1"><i class="fa-solid fa-gamepad"></i><span>Games</span></button>
+      <button onclick="showView('view-rewards')" class="hover:text-purple-400 flex flex-col items-center gap-1"><i class="fa-solid fa-gift"></i><span>Rewards</span></button>
+      <button onclick="showView('view-referral')" class="hover:text-purple-400 flex flex-col items-center gap-1"><i class="fa-solid fa-user-plus"></i><span>Invite</span></button>
     </div>
+  </nav>
 
-    <!-- VIEW: LUCKY SPIN WHEEL -->
-    <div id="view-spin-wheel" class="hidden space-y-5 text-center">
-      <h2 class="text-base font-bold text-slate-200">🎡 Spin the Wheel of Fortune</h2>
-      <div class="relative w-64 h-64 mx-auto flex items-center justify-center">
-        <div class="absolute -top-3 z-20 text-red-500 text-2xl">▼</div>
-        <canvas id="wheel-canvas" width="256" height="256" class="w-full h-full rounded-full border-4 border-slate-800 shadow-2xl"></canvas>
-      </div>
-      <button id="btn-spin-wheel" onclick="spinLuckyWheel()" class="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 text-slate-950 font-black py-3 rounded-2xl shadow-lg transition">
-        SPIN NOW 🚀
-      </button>
-    </div>
-
-    <!-- VIEW: REWARDS STORE -->
-    <div id="view-rewards" class="hidden space-y-4">
-      <div class="text-center space-y-1">
-        <h2 class="text-lg font-black text-white">🎁 Rewards Store</h2>
-        <p class="text-xs text-slate-400">Redeem points for gift vouchers!</p>
-      </div>
-      <div class="space-y-3">
-        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between">
-          <div><h4 class="font-bold text-xs text-white">₹50 Amazon Voucher</h4><p class="text-[10px] text-slate-400">1,000 Points</p></div>
-          <button onclick="redeemReward('Amazon Voucher', 1000)" class="bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs px-3 py-1.5 rounded-lg">Redeem</button>
-        </div>
-        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between">
-          <div><h4 class="font-bold text-xs text-white">₹50 Paytm Cash</h4><p class="text-[10px] text-slate-400">1,000 Points</p></div>
-          <button onclick="redeemReward('Paytm Cash', 1000)" class="bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs px-3 py-1.5 rounded-lg">Redeem</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- VIEW: REFERRAL CHALLENGE & SYSTEM -->
-    <div id="view-referral" class="hidden space-y-4">
-      <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-4 shadow-xl">
-        <div class="text-center space-y-1">
-          <h2 class="text-lg font-bold text-white">🚀 Referral Challenge</h2>
-          <p class="text-[11px] text-slate-400">Complete 10 Direct Qualified Referrals (each needing 2 Qualified referrals) + 16 Days Attendance + 20 Active Hours</p>
-        </div>
-
-        <div class="grid grid-cols-2 gap-2 text-xs">
-              const ENFORCE_LOGIN = false;
-
-    // Firebase Config
+  <script>
+    const ENFORCE_LOGIN = false;
     const firebaseConfig = {
       apiKey: "AIzaSyAY-q5jpMCMUkCF_TM3YQ_6wKtyfvDySDk",
       authDomain: "playvibe-71ed3.firebaseapp.com",
@@ -353,7 +178,6 @@
       messagingSenderId: "154300720449",
       appId: "1:154300720449:web:cb6feeda486f71e15eadc0"
     };
-
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
@@ -361,29 +185,22 @@
     let userPoints = 150;
     let userStreak = 1;
     let currentLanguage = localStorage.getItem('playvibe_lang') || 'en';
-
-    // Milestone & Referral State
     let globalQualifiedCount = 0;
     const MILESTONE_TARGET = 8000;
     let directQualifiedCount = 0;
     let secondQualifiedCount = 0;
     let activeDaysCount = 0;
     let activeUsageSeconds = 0;
-
-    // Ludo Game Config & State
-    const LUDO_ENTRY_FEE = 50;
+      const LUDO_ENTRY_FEE = 50;
     const LUDO_REWARDS = { 1: 100, 2: 70, 3: 40, 4: 10 };
     let ludoHistory = { played: 0, wins: 0, earned: 0, spent: 0 };
     let isLudoActive = false;
-
-    // 15x15 Ludo Board Grid Map
     const LUDO_GRID_SIZE = 15;
     let ludoPlayers = [];
-    let currentLudoTurn = 0; // 0: Red (User), 1: Green (AI)
+    let currentLudoTurn = 0;
     let currentDiceValue = null;
     let hasRolledDice = false;
 
-    // Standard 52-tile main track coordinates (x,y in 15x15 grid)
     const MAIN_PATH_COORDS = [
       [1,6],[2,6],[3,6],[4,6],[5,6], [6,5],[6,4],[6,3],[6,2],[6,1],[6,0], [7,0],
       [8,0],[8,1],[8,2],[8,3],[8,4],[8,5], [9,6],[10,6],[11,6],[12,6],[13,6],[14,6], [14,7],
@@ -391,18 +208,12 @@
       [6,14],[6,13],[6,12],[6,11],[6,10],[6,9], [5,8],[4,8],[3,8],[2,8],[1,8],[0,8], [0,7],[0,6]
     ];
 
-    // Home corridors for Red (0) and Green (1)
     const RED_HOME_RUN = [[1,7],[2,7],[3,7],[4,7],[5,7],[6,7]];
     const GREEN_HOME_RUN = [[7,1],[7,2],[7,3],[7,4],[7,5],[7,6]];
-
-    // Base Token Coordinates
     const RED_BASE_COORDS = [[1,1],[1,3],[3,1],[3,3]];
     const GREEN_BASE_COORDS = [[11,1],[11,3],[13,1],[13,3]];
-
-    // Safe indices on main track (Starts & Stars)
     const SAFE_PATH_INDICES = [0, 8, 13, 21, 26, 34, 39, 47];
 
-    // Quiz Data
     let activeQuizQuestions = [];
     let currentQIndex = 0;
     let quizScore = 0;
@@ -428,14 +239,12 @@
       }
     };
 
-    // Foreground Activity Tracker
     class GenuineActivityTracker {
       constructor() {
         this.lastInteraction = Date.now();
         this.isTabVisible = !document.hidden;
         this.initListeners();
       }
-
       initListeners() {
         document.addEventListener('visibilitychange', () => { this.isTabVisible = !document.hidden; });
         ['click', 'touchstart', 'keydown', 'mousemove'].forEach(evt => {
@@ -443,7 +252,6 @@
         });
         setInterval(() => this.processHeartbeat(), 10000);
       }
-
       processHeartbeat() {
         if (this.isTabVisible && (Date.now() - this.lastInteraction < 60000)) {
           activeUsageSeconds += 10;
@@ -451,10 +259,8 @@
         }
       }
     }
-
     const tracker = new GenuineActivityTracker();
 
-    // Sound FX
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     function playSound(type) {
       if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -563,24 +369,17 @@
       document.getElementById(viewId).classList.remove('hidden');
     }
 
-    // ==========================================
-    // 🎲 LUDO CORE ENGINE & CANVAS SYSTEM
-    // ==========================================
-
     function launchLudoSetup() {
       if (userPoints < LUDO_ENTRY_FEE) {
         showToast(`⚠️ Insufficient PlayPoints! Required: ${LUDO_ENTRY_FEE} Pts.`);
         return;
       }
-
-      // Deduct entry points
       userPoints -= LUDO_ENTRY_FEE;
       ludoHistory.spent += LUDO_ENTRY_FEE;
       ludoHistory.played += 1;
       updateHeaderStats();
       updateLudoHistoryUI();
 
-      // Setup Players
       ludoPlayers = [
         { id: 0, name: "You (Red)", isAI: false, color: "#f43f5e", tokens: [-1, -1, -1, -1], homeCount: 0, startIdx: 0, homeRun: RED_HOME_RUN, baseCoords: RED_BASE_COORDS },
         { id: 1, name: "🤖 PlayVibe AI", isAI: true, color: "#10b981", tokens: [-1, -1, -1, -1], homeCount: 0, startIdx: 13, homeRun: GREEN_HOME_RUN, baseCoords: GREEN_BASE_COORDS }
@@ -612,22 +411,17 @@
       const cell = size / LUDO_GRID_SIZE;
 
       ctx.clearRect(0, 0, size, size);
-
-      // Draw Grid Base
       ctx.fillStyle = "#0f172a";
       ctx.fillRect(0, 0, size, size);
 
-      // Draw Home Bases (Red: Top-Left, Green: Top-Right)
       drawBaseBox(ctx, 0, 0, 6, 6, "#f43f5e", cell);
       drawBaseBox(ctx, 9, 0, 6, 6, "#10b981", cell);
       drawBaseBox(ctx, 0, 9, 6, 6, "#3b82f6", cell);
       drawBaseBox(ctx, 9, 9, 6, 6, "#eab308", cell);
 
-      // Draw Center Square
       ctx.fillStyle = "#1e293b";
       ctx.fillRect(6 * cell, 6 * cell, 3 * cell, 3 * cell);
 
-      // Main Track Grid Lines
       ctx.strokeStyle = "#334155";
       ctx.lineWidth = 1;
       for (let i = 0; i <= 15; i++) {
@@ -635,7 +429,6 @@
         ctx.beginPath(); ctx.moveTo(0, i * cell); ctx.lineTo(size, i * cell); ctx.stroke();
       }
 
-      // Draw Safe Star Spots
       SAFE_PATH_INDICES.forEach(idx => {
         const [gx, gy] = MAIN_PATH_COORDS[idx];
         ctx.fillStyle = "#38bdf8";
@@ -644,7 +437,6 @@
         ctx.fill();
       });
 
-      // Draw Tokens
       if (ludoPlayers.length > 0) {
         ludoPlayers.forEach(player => {
           player.tokens.forEach((pos, tIdx) => {
@@ -675,21 +467,19 @@
     }
 
     function getRealCoordsForToken(player, pos, tokenIndex) {
-      if (pos === -1) {
-        return player.baseCoords[tokenIndex]; // Base
-      } else if (pos < 52) {
+      if (pos === -1) return player.baseCoords[tokenIndex];
+      else if (pos < 52) {
         const pathIndex = (player.startIdx + pos) % 52;
         return MAIN_PATH_COORDS[pathIndex];
       } else if (pos >= 52 && pos <= 57) {
         const homeIdx = Math.min(5, pos - 52);
         return player.homeRun[homeIdx];
       }
-      return [7, 7]; // Center
+      return [7, 7];
     }
 
     function rollLudoDice() {
-      if (!isLudoActive) return;
-      if (ludoPlayers[currentLudoTurn].isAI) return;
+      if (!isLudoActive || ludoPlayers[currentLudoTurn].isAI) return;
       if (hasRolledDice) { showToast("⚠️ Move a token first!"); return; }
 
       currentDiceValue = Math.floor(Math.random() * 6) + 1;
@@ -720,9 +510,7 @@
 
       player.tokens.forEach((pos, tIdx) => {
         let [tx, ty] = getRealCoordsForToken(player, pos, tIdx);
-        if (tx === clickX && ty === clickY) {
-          selectedToken = tIdx;
-        }
+        if (tx === clickX && ty === clickY) selectedToken = tIdx;
       });
 
       if (selectedToken !== -1) {
@@ -736,8 +524,8 @@
 
     function canMoveToken(player, tokenIdx, dice) {
       const pos = player.tokens[tokenIdx];
-      if (pos === -1) return dice === 6; // Needs 6 to exit Base
-      if (pos + dice > 57) return false;  // Cannot overshoot Home
+      if (pos === -1) return dice === 6;
+      if (pos + dice > 57) return false;
       return true;
     }
 
@@ -751,26 +539,20 @@
 
     function moveLudoToken(player, tokenIdx, dice) {
       let currentPos = player.tokens[tokenIdx];
-      if (currentPos === -1 && dice === 6) {
-        player.tokens[tokenIdx] = 0; // Move to Start
-      } else {
-        player.tokens[tokenIdx] += dice;
-      }
+      if (currentPos === -1 && dice === 6) player.tokens[tokenIdx] = 0;
+      else player.tokens[tokenIdx] += dice;
 
       drawLudoBoard();
       playSound('correct');
 
-      // Check capture opponent
       const landedPos = player.tokens[tokenIdx];
       let captured = checkTokenCapture(player, landedPos);
 
-      // Check Home
       if (player.tokens[tokenIdx] === 57) {
         player.homeCount++;
         showToast(`🎉 ${player.name}'s token reached HOME!`);
       }
 
-      // Check Winner
       if (player.homeCount === 4) {
         handleLudoGameOver(player);
         return;
@@ -779,7 +561,6 @@
       hasRolledDice = false;
       document.getElementById('dice-result-box').innerText = '?';
 
-      // Extra roll on 6 or capture
       if (dice === 6 || captured) {
         document.getElementById('ludo-instruction-text').innerText = "Bonus Roll! Roll again.";
         if (player.isAI) setTimeout(executeAITurn, 1000);
@@ -791,7 +572,7 @@
     function checkTokenCapture(currentPlayer, landedPos) {
       if (landedPos < 0 || landedPos >= 52) return false;
       const pathIndex = (currentPlayer.startIdx + landedPos) % 52;
-      if (SAFE_PATH_INDICES.includes(pathIndex)) return false; // Safe Zone
+      if (SAFE_PATH_INDICES.includes(pathIndex)) return false;
 
       let capturedAny = false;
       ludoPlayers.forEach(opp => {
@@ -800,7 +581,7 @@
             if (oppPos >= 0 && oppPos < 52) {
               const oppPathIndex = (opp.startIdx + oppPos) % 52;
               if (oppPathIndex === pathIndex) {
-                opp.tokens[oppIdx] = -1; // Send back to Base
+                opp.tokens[oppIdx] = -1;
                 capturedAny = true;
                 showToast(`⚔️ ${currentPlayer.name} captured ${opp.name}'s token!`);
                 playSound('wrong');
@@ -835,4 +616,179 @@
       const movable = getMovableTokens(aiPlayer, currentDiceValue);
 
       if (movable.length === 0) {
-        document.getElementById(
+        document.getElementById('ludo-instruction-text').innerText = "🤖 AI has no moves!";
+        setTimeout(switchLudoTurn, 1000);
+        return;
+      }
+
+      let chosenToken = movable[0];
+      for (let tIdx of movable) {
+        let pos = aiPlayer.tokens[tIdx];
+        if (pos + currentDiceValue === 57) { chosenToken = tIdx; break; }
+        if (pos === -1 && currentDiceValue === 6) { chosenToken = tIdx; break; }
+      }
+
+      setTimeout(() => {
+        moveLudoToken(aiPlayer, chosenToken, currentDiceValue);
+      }, 800);
+    }
+
+    function updateLudoTurnUI() {
+      const p = ludoPlayers[currentLudoTurn];
+      document.getElementById('ludo-turn-display').innerText = `${p.id === 0 ? '🔴' : '🟢'} ${p.name}`;
+      document.getElementById('ludo-stat-p1').innerText = `Home: ${ludoPlayers[0].homeCount} / 4`;
+      document.getElementById('ludo-stat-p2').innerText = `Home: ${ludoPlayers[1].homeCount} / 4`;
+      document.getElementById('ludo-instruction-text').innerText = p.isAI ? "🤖 AI is thinking..." : "Your turn! Click Roll Dice.";
+    }
+
+    function handleLudoGameOver(winner) {
+      isLudoActive = false;
+      let rewardPts = (winner.id === 0) ? LUDO_REWARDS[1] : LUDO_REWARDS[2];
+
+      if (winner.id === 0) {
+        userPoints += rewardPts;
+        ludoHistory.wins += 1;
+        ludoHistory.earned += rewardPts;
+        updateHeaderStats();
+        triggerConfetti();
+        playSound('correct');
+        showToast(`🎉 VICTORY! Won +${rewardPts} PlayPoints!`);
+      } else {
+        showToast(`💔 Defeat! AI won 1st Place.`);
+        playSound('wrong');
+      }
+
+      updateLudoHistoryUI();
+      document.getElementById('ludo-status-badge').innerText = "Game Finished";
+    }
+    function handleAuthAction() {
+      if (ENFORCE_LOGIN) auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
+      else showToast("ℹ️ Guest Testing Mode Active!");
+    }
+
+    function openLanguageSelection() { showView('view-language'); }
+    function selectLanguage(lang) {
+      currentLanguage = lang;
+      localStorage.setItem('playvibe_lang', lang);
+      document.getElementById('current-lang-code').innerText = lang.toUpperCase();
+      showView('view-home');
+      showToast(`Language set to: ${lang.toUpperCase()}`);
+    }
+
+    function claimDailyAttendance() {
+      userPoints += 50; activeDaysCount = Math.min(16, activeDaysCount + 1);
+      updateHeaderStats(); updateReferralDashboard(); triggerConfetti(); playSound('correct');
+      showToast("🎉 Claimed +50 Points!");
+    }
+
+    function showCategoryModal() { document.getElementById('category-modal').classList.remove('hidden'); }
+    function closeCategoryModal() { document.getElementById('category-modal').classList.add('hidden'); }
+
+    function startCategoryQuiz(catKey) {
+      closeCategoryModal();
+      const langData = questionBank[currentLanguage] || questionBank['en'];
+      activeQuizQuestions = langData[catKey] || langData['cricket'];
+      currentQIndex = 0; quizScore = 0;
+      document.getElementById('quiz-category-badge').innerText = catKey.toUpperCase();
+      showView('view-quiz');
+      loadQuizQuestion();
+    }
+
+    function loadQuizQuestion() {
+      if (currentQIndex >= activeQuizQuestions.length) { finishGame(quizScore); return; }
+      const q = activeQuizQuestions[currentQIndex];
+      document.getElementById('question-text').innerText = q.q;
+      const optsBox = document.getElementById('options-container');
+      optsBox.innerHTML = '';
+      q.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = "w-full text-left bg-slate-800 hover:bg-slate-700 text-white text-xs p-3 rounded-xl border border-slate-700 flex items-center justify-between";
+        btn.innerHTML = `<span>${opt}</span><i class="fa-regular fa-circle text-slate-500"></i>`;
+        btn.onclick = () => {
+          if (idx === q.answer) { playSound('correct'); quizScore += 20; }
+          else { playSound('wrong'); }
+          currentQIndex++; loadQuizQuestion();
+        };
+        optsBox.appendChild(btn);
+      });
+    }
+
+    function startMemoryGame() {
+      showView('view-memory-game');
+      const emojis = ['⚡', '🚀', '🏆', '🔥'];
+      const cards = [...emojis, ...emojis].sort(() => Math.random() - 0.5);
+      const grid = document.getElementById('memory-grid');
+      grid.innerHTML = '';
+      let flipped = []; let matched = 0;
+      cards.forEach(emoji => {
+        const card = document.createElement('div');
+        card.className = "bg-slate-800 h-16 rounded-xl border border-slate-700 flex items-center justify-center text-2xl cursor-pointer select-none";
+        card.innerText = '❓';
+        card.onclick = () => {
+          if (flipped.length < 2 && card.innerText === '❓') {
+            card.innerText = emoji; flipped.push(card);
+            if (flipped.length === 2) {
+              if (flipped[0].innerText === flipped[1].innerText) {
+                playSound('correct'); matched += 2; flipped = [];
+                if (matched === cards.length) finishGame(80);
+              } else {
+                playSound('wrong');
+                setTimeout(() => { flipped.forEach(c => c.innerText = '❓'); flipped = []; }, 800);
+              }
+            }
+          }
+        };
+        grid.appendChild(card);
+      });
+    }
+
+    function initLuckyWheelCanvas() {
+      const canvas = document.getElementById('wheel-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const colors = ['#8b5cf6', '#ec4899', '#3b82f6', '#10b981'];
+      for (let i = 0; i < 4; i++) {
+        ctx.beginPath(); ctx.fillStyle = colors[i]; ctx.moveTo(128, 128);
+        ctx.arc(128, 128, 128, i * (Math.PI/2), (i+1) * (Math.PI/2)); ctx.fill();
+      }
+    }
+
+    function spinLuckyWheel() {
+      playSound('correct'); userPoints += 50; updateHeaderStats();
+      setTimeout(() => { triggerConfetti(); showToast("🎉 Won +50 Points!"); }, 1000);
+    }
+
+    function finishGame(pts) {
+      userPoints += pts; updateHeaderStats(); triggerConfetti(); playSound('correct');
+      document.getElementById('final-score-display').innerText = `+${pts} Pts`;
+      showView('view-result');
+    }
+
+    function redeemReward(name, cost) {
+      if (userPoints >= cost) {
+        userPoints -= cost; updateHeaderStats(); triggerConfetti(); showToast(`🎉 Redeemed ${name}!`);
+      } else showToast(`⚠️ Need ${cost - userPoints} more points.`);
+    }
+
+    function copyReferralCode() { navigator.clipboard.writeText("PV-GUEST-8821"); showToast("📋 Code Copied!"); }
+    function shareReferralWhatsApp() { window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent("Join PlayVibe Games Hub & Play Ludo!")}`, '_blank'); }
+
+    function renderDummyLeaderboard() {
+      document.getElementById('leaderboard-list').innerHTML = `
+        <div class="flex justify-between bg-slate-800/50 p-2 rounded-lg border border-slate-800">
+          <span>#1 Rahul Sharma</span><span class="text-purple-400">1450 Pts</span>
+        </div>`;
+    }
+
+    function showToast(msg) {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = "bg-slate-800 text-white text-xs px-4 py-2 rounded-full border border-slate-700 shadow-xl mb-2";
+      toast.innerText = msg; container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+  </script>
+</body>
+</html>
+
+    
